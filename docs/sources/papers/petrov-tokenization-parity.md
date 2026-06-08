@@ -4,6 +4,12 @@
 
 Academic paper
 
+## Source files
+
+- **Original PDF:** `docs/sources/papers/pdf/petrov-tokenization-parity.pdf` *(to be placed manually)*
+- **This file:** Interpreted source notes for the NiceM project — the primary working reference
+- **Conflict rule:** If this summary and the PDF appear to conflict, flag it before deciding
+
 ## Main claim
 
 <!-- Summarize the central argument or finding here -->
