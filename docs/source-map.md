@@ -2,6 +2,10 @@
 
 This document maps every source in `docs/sources/` to the claims it supports, the concepts it connects to, and its role in the NiceM argument chain.
 
+**Related internal documents (not sources, but where sources are applied):**
+- `docs/startup/nicem-startup-thesis-v0.1.md` — first coherent startup thesis
+- `docs/methodology/nicem-methodology-framework-v0.1.md` — measurement framework that turns methodology questions M1–M9 into a structured approach for measuring execution-tax; consumes the agent-evaluation sources below
+
 ---
 
 ## Academic Papers
