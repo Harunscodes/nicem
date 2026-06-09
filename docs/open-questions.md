@@ -63,11 +63,11 @@ These questions must be answered — or at minimum scoped — before NiceM can r
 
 - **M1:** How should NiceM define successful completion?
   - What counts as success: a correct final answer, a completed workflow, a user-approved outcome, or all three? Does partial completion count? The definition must be precise enough to apply consistently across languages and task types.
-  - *Status: Structured, not closed — framework §4 proposes a provisional language-independent definition; still requires validation per framework §12 (finalize success rubric). Blocking for any measurement experiment.*
+  - *Status: First draft resolved — `docs/methodology/success-rubric-v0.1.md` defines the binary success gate (PASS/FAIL), seven minimum criteria, quality bands (Pass-high / Pass-minimal / Fail-recoverable / Fail-critical), multilingual equivalence requirements, failure taxonomy (nine types), and evaluator uncertainty protocol. Still requires empirical calibration (how many human reviews, what quality threshold on real outputs) before use in any benchmark run. Open sub-questions tracked in rubric §13.*
 
 - **M2:** Should success be judged by humans, automated judges, deterministic checks, or a hybrid?
   - Each approach has different cost, scalability, and bias profiles. Human annotation is expensive but reliable. Automated LLM judges are scalable but may be biased toward high-resource languages. Deterministic checks are language-neutral where applicable but require tasks with verifiable outputs.
-  - *Status: Structured, not closed — framework §5 compares all five options and recommends a hybrid anchored on deterministic checks; final choice pending task-family selection. See `docs/sources/agent-evals/agent-as-a-judge.md`.*
+  - *Status: Structured, not closed — rubric §7 compares all five options; rubric §8 recommends v0.1 use deterministic/semi-deterministic tasks with a human-reviewed audit sample, and defers LLM-as-judge to after cross-language reliability is validated. Final method choice depends on the task family selected. See `docs/sources/agent-evals/agent-as-a-judge.md`.*
 
 - **M3:** How can NiceM avoid evaluator bias toward English or high-resource languages?
   - An automated judge that rates Turkish agent outputs less reliably than English outputs will produce biased success classifications, making any execution-tax signal untrustworthy. The evaluator's cross-language reliability must be characterized before results are valid.

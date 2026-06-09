@@ -5,6 +5,7 @@ This document maps every source in `docs/sources/` to the claims it supports, th
 **Related internal documents (not sources, but where sources are applied):**
 - `docs/startup/nicem-startup-thesis-v0.1.md` — first coherent startup thesis
 - `docs/methodology/nicem-methodology-framework-v0.1.md` — measurement framework that turns methodology questions M1–M9 into a structured approach for measuring execution-tax; consumes the agent-evaluation sources below
+- `docs/methodology/success-rubric-v0.1.md` — operationalizes M1 (define successful completion): binary success gate, seven minimum criteria, quality bands, multilingual equivalence requirements, nine failure types, evaluation method comparison, evaluator uncertainty protocol. Prerequisite before any benchmark run.
 
 ---
 
