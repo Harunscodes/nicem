@@ -11,39 +11,41 @@ This document maps every source in `docs/sources/` to the claims it supports, th
 - **Supports:** Token-tax hypothesis — that tokenization systems systematically produce more tokens for certain languages, scripts, or writing systems than for others, for equivalent semantic content.
 - **Key concept:** Tokenization parity / tokenization disparity
 - **Role in argument:** Establishes that the number of tokens consumed per unit of meaning is not neutral — it varies by language and script. This is the empirical foundation for token-tax.
-- **Status:** TODO — fill in specific findings, dataset, and quantitative claims from the paper.
+- **Status:** Populated — see paper notes file for full quantitative findings, dataset, and premium table across 200 languages.
 
 ### Ahia et al. — Tokenization, Fairness, and API Pricing
 - **File:** `docs/sources/papers/ahia-tokenization-fairness-api-pricing.md`
 - **Supports:** Token-tax hypothesis — that tokenization disparity translates directly into pricing disparity at the API level.
 - **Key concept:** Token-tax, API cost inequality
 - **Role in argument:** Connects the technical tokenization problem to an economic consequence: users working in underrepresented languages pay more per unit of meaning. This is the clearest existing framing of token-tax as a cost concept.
-- **Status:** TODO — fill in specific findings, languages studied, and cost differential data.
+- **Status:** Populated — see paper notes file for full quantitative findings, 22 languages, cost-relative-to-English figures, and HDI correlation data.
 
 ### Lundin — The Token Tax
 - **File:** `docs/sources/papers/lundin-token-tax.md`
 - **Supports:** Token-tax as a named, defined concept.
 - **Key concept:** Token-tax (named)
 - **Role in argument:** Provides or consolidates the term "token-tax" as an analytical category. Central reference for NiceM's use of the term.
-- **Status:** TODO — fill in definition, scope, and any proposed remedies.
+- **Status:** Populated — see paper notes file for fertility metric definition, regression slopes, accuracy gap findings, economic cost tables, and reasoning model comparison.
 
 ---
 
 ## Industry Sources
 
-### Jensen Huang — AI Factories and Tokens per Watt
+### Jensen Huang / NVIDIA — AI Factories and Tokens per Watt
 - **File:** `docs/sources/industry/jensen-huang-ai-factories-tokens-per-watt.md`
-- **Supports:** Infrastructure framing — that AI compute is shifting toward factory-scale continuous token production, measured in throughput per watt.
-- **Key concept:** Tokens-per-watt, AI factories, inference at scale
-- **Role in argument:** Establishes the industry direction: AI infrastructure is being optimized around token throughput efficiency. This is the context in which execution-tax becomes a meaningful concept.
-- **Status:** TODO — identify specific talk or interview, extract direct quotes or paraphrased claims.
+- **Supports:** Infrastructure framing — tokens-per-watt and cost-per-token are real, actively used product metrics; AI infrastructure is being designed and measured around token throughput efficiency; agentic AI and long-context inference are the recognized production workload frontier.
+- **Key concepts:** Tokens-per-watt, cost per token, AI factories, revenue per megawatt, agentic inference at scale
+- **Key sources:** GTC 2026 keynote (S1); Vera Rubin platform page (S2); *Scaling Token Factory Revenue* technical blog (S3); Vera Rubin newsroom (S4); Rubin newsroom January 2026 with Jensen Huang quote (S5)
+- **Role in argument:** Establishes that NiceM's core efficiency concepts (tokens-per-watt, cost per token) are already in use by the industry. Token-tax and execution-tax both degrade these metrics — NiceM works within the industry's own vocabulary, not alongside it. The KV-cache and long-context overhead acknowledgment (S4) is adjacent to execution-tax components.
+- **Status:** Source claims documented. Direct links and verbatim quotes TODO — verify before citing.
 
 ### NVIDIA — Agents and Infrastructure Notes
 - **File:** `docs/sources/industry/nvidia-agents-infrastructure-notes.md`
-- **Supports:** Agentic workload framing — that AI workloads are becoming multi-step, multi-model, and infrastructure-intensive.
-- **Key concept:** Agentic execution, inference infrastructure, orchestration overhead
-- **Role in argument:** Shows that token production is no longer a single isolated API call but a chained, orchestrated process. This is where execution-tax (NiceM hypothesis) becomes visible — overhead accumulates across steps.
-- **Status:** TODO — identify specific document (whitepaper, blog, product page), extract relevant claims.
+- **Supports:** Agentic workload framing — multi-step, tool-using, retrieval-augmented AI workflows are a real production architecture; per-step token and timing observability already exists in NVIDIA tooling; workflow-level bottleneck identification is an acknowledged engineering concern.
+- **Key concepts:** Agentic execution, multi-step reasoning, NeMo Agent Toolkit, workflow profiling, per-step token tracking, bottleneck identification
+- **Key sources:** NeMo Agent Toolkit documentation (S6); Agentic AI Blueprints blog (S7); Build Blueprints page (S8)
+- **Role in argument:** NeMo Agent Toolkit (S6) is the most methodology-relevant source — it establishes that per-step token and timing tracking already exists at the industry level. The agentic blueprints (S7, S8) confirm that multi-step, multi-agent systems are production-grade, not research scenarios. Together these establish that the architecture and instrumentation for execution-tax measurement exist — what NiceM adds is the controlled language/design comparison.
+- **Status:** Source claims documented. Direct links and verbatim quotes TODO — verify before citing.
 
 ---
 
