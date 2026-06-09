@@ -51,6 +51,12 @@ This document maps every source in `docs/sources/` to the claims it supports, th
 
 ## Internal Notes
 
+### NVIDIA / Jensen — Chat-Derived Strategic Context
+- **File:** `docs/sources/notes/nvidia-jensen-chat-context.md`
+- **Role:** Captures Jensen Huang / NVIDIA / AI infrastructure ideas developed through a ChatGPT conversation. Shapes NiceM's thesis framing and strategic synthesis.
+- **Key concepts documented:** Human language as the new code; language → tokens → tensors → chips → energy; AI factories / electrons to tokens; tokens-per-watt vs. successful intent per watt; demand growing faster than performance; agentic workload irregularity; full infrastructure stack for agents; open-source ecosystem context; NiceM strategic synthesis
+- **⚠ Verification status:** **Conversation-derived — not citation-ready.** All claims must be traced to original NVIDIA / keynote / interview sources before use in thesis documents or pitch materials. Verified claims should be migrated to `docs/sources/industry/jensen-huang-ai-factories-tokens-per-watt.md` or `docs/sources/industry/nvidia-agents-infrastructure-notes.md`.
+
 ### NiceM Chat Summary
 - **File:** `docs/sources/notes/nicem-chat-summary.md`
 - **Role:** Running log of key decisions, framings, and directions that emerged through project development sessions.
@@ -74,3 +80,6 @@ This document maps every source in `docs/sources/` to the claims it supports, th
 | AI factories / inference at scale | Jensen Huang |
 | Agentic workloads / orchestration | NVIDIA |
 | Execution-tax | **NiceM hypothesis** — no external source yet |
+| Human language as the new code | Jensen Huang (TODO: verify source) — via `nvidia-jensen-chat-context.md` |
+| Successful intent per watt | NiceM concept — derived from tokens-per-watt framing |
+| AI factory / electrons to tokens | Jensen Huang / NVIDIA (TODO: verify exact source) — via `nvidia-jensen-chat-context.md` |

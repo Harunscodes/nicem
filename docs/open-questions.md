@@ -41,10 +41,17 @@ This document tracks what is not yet known, not yet proven, and not yet decided.
 ### On industry context
 
 - **Q9:** Is tokens-per-watt used as an internal efficiency metric by AI infrastructure operators, or is it primarily a public-facing narrative?
-  - *Status: Open — affects how NiceM frames its relevance to operators*
+  - *Status: Partially addressed — NVIDIA uses tokens-per-watt and cost-per-token as product comparison metrics across hardware generations (Vera Rubin vs. Blackwell). This is more than a narrative framing; it appears in product specifications and technical blogs. Whether it is used as an internal engineering KPI is not confirmed. See `docs/sources/industry/jensen-huang-ai-factories-tokens-per-watt.md`, S2–S4.*
 
 - **Q10:** Are there existing tools or benchmarks that measure execution overhead in agentic pipelines?
-  - *Status: Open — important for situating NiceM's contribution*
+  - *Status: Partially addressed — NVIDIA NeMo Agent Toolkit supports per-step token and timing tracking and bottleneck identification. Langfuse, LangSmith, and Arize Phoenix offer observability at the workflow level. None of these define or measure execution-tax in NiceM's sense — they provide the instrumentation substrate that controlled execution-tax measurement would require. See `docs/sources/industry/nvidia-agents-infrastructure-notes.md` and `docs/sources/agent-evals/`.*
+
+- **Q15:** What are the original NVIDIA / Jensen Huang sources for the following claims that currently appear in chat-derived notes?
+  - "Human language is the new programming language" (exact source and quote)
+  - "Electrons to tokens" or equivalent AI factory framing (exact source)
+  - Performance improvement vs. demand growth argument (exact source and quote)
+  - Open-source AI ecosystem framing (exact source)
+  - *Status: Open — all four need source verification before citation. See `docs/sources/notes/nvidia-jensen-chat-context.md`.*
 
 ---
 

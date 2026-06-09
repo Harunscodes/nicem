@@ -58,6 +58,20 @@ Both taxes can be expressed in the industry's own efficiency vocabulary.
 
 ---
 
+## Conversation-derived context (not yet citation-ready)
+
+The file `docs/sources/notes/nvidia-jensen-chat-context.md` captures additional Jensen Huang / NVIDIA framing developed through a ChatGPT conversation. It documents ten strategic themes including:
+
+- Human language as the new code (and its implications for non-English languages)
+- The language → tokens → tensors → chips → energy transformation stack
+- The AI factory / electrons-to-tokens framing
+- Demand growing faster than hardware performance improvements
+- The full infrastructure stack required for agentic workloads (GPU, CPU, memory, network, power)
+
+**These are conversation-derived and not citation-ready.** They should be verified against original sources before use in thesis documents or pitch materials. As claims are verified, they should be migrated to the verified industry source files.
+
+---
+
 ## What the industry context does not prove
 
 - Industry sources are used for **framing and context**, not as evidence for NiceM's core claims
