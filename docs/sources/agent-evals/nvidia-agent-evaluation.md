@@ -63,8 +63,32 @@ TODO: Add once source is read and verified.
 
 ---
 
-## Notes for NiceM positioning
+## Connection to successful completion
 
 TODO: Add once source is read and verified.
 
-Note: If NVIDIA has published evaluation frameworks for agentic workloads, this could serve as both a methodology reference and a positioning anchor — NiceM as a layer that extends infrastructure-level evaluation into intent-level efficiency measurement.
+If NVIDIA's evaluation tooling defines task success for agentic workflows, it is relevant to NiceM's success criterion design. Infrastructure-level evaluation (did the agent complete the task?) and execution-efficiency evaluation (how much workload did completion require?) are complementary questions.
+
+---
+
+## Connection to agent trajectory evaluation
+
+NeMo Agent Toolkit (documented in `docs/sources/industry/nvidia-agents-infrastructure-notes.md`) supports profiling at the tool and agent level with per-step token and timing tracking. This is trajectory-level observability — the infrastructure expression of agent trajectory evaluation. Whether NVIDIA publishes evaluation methodology (not just observability tooling) on top of this is an open question.
+
+TODO: Confirm whether NVIDIA has published evaluation criteria, benchmark tasks, or scoring methodologies for agentic AI — distinct from instrumentation.
+
+---
+
+## Risks or limitations for multilingual evaluation
+
+TODO: Add once source is read and verified.
+
+If NVIDIA's evaluation methodology is designed for English-centric enterprise use cases, it may not address cross-language equivalence — the core challenge for NiceM's execution-tax measurement.
+
+---
+
+## Notes for NiceM methodology
+
+TODO: Add once source is read and verified.
+
+If NVIDIA has published evaluation frameworks for agentic workloads, this could serve as both a methodology reference and a positioning anchor — NiceM as a layer that extends infrastructure-level evaluation into intent-level efficiency measurement, with explicit cross-language comparability.

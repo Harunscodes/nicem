@@ -65,6 +65,28 @@ Anticipated connection: Braintrust's focus on task success and quality scoring m
 
 ---
 
-## Notes for NiceM positioning
+## Connection to successful completion
 
-TODO: Add once source is read and verified.
+Braintrust's scoring and experiment-tracking approach is directly relevant to NiceM's cost-per-successful-completion metric. Braintrust requires an explicit scorer — a function that determines whether a run met its quality criterion — before cost comparisons across runs are meaningful. This scorer-first design disciplines the NiceM question: you must define successful before you can measure cost-per-successful.
+
+TODO: Confirm whether Braintrust supports custom scorers that can evaluate agent outputs in non-English languages, and whether scorer reliability can be tracked separately per language.
+
+---
+
+## Connection to agent trajectory evaluation
+
+TODO: Confirm whether Braintrust supports step-level evaluation of agent trajectories, or whether it primarily scores final outputs. Trajectory evaluation requires scoring intermediate steps — tool calls, retrieval results, reasoning chains — not only the endpoint.
+
+---
+
+## Risks or limitations for multilingual evaluation
+
+- Braintrust's built-in LLM-based scorers may perform inconsistently across languages. Custom scorers would be required for multilingual evaluation.
+- Experiment tracking across language conditions requires careful dataset design — test cases must be genuinely equivalent across languages, not just translated.
+- Regression detection may be confounded if model updates affect different languages differently — an improvement in English accuracy might coincide with degradation in Turkish, which a single aggregate score would not reveal.
+
+---
+
+## Notes for NiceM methodology
+
+Braintrust's experiment-tracking and regression-detection approach is useful for NiceM's longitudinal question: does execution-tax change as models, tokenizers, and agent frameworks improve over time? If NiceM establishes a baseline execution-tax measurement, Braintrust-style tracking could monitor whether the gap narrows or widens across model generations.

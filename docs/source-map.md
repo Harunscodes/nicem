@@ -69,6 +69,48 @@ This document maps every source in `docs/sources/` to the claims it supports, th
 
 ---
 
+## Agent Evaluation Methodology Sources
+
+These sources are methodology context for how to measure execution-tax. They do not prove that execution-tax exists. They inform the design of NiceM's validation experiment, success criteria, instrumentation choices, and trajectory evaluation approach.
+
+### Biscuit — Agent Evaluation
+- **File:** `docs/sources/agent-evals/biscuit-agent-evaluation.md`
+- **Role:** Scenario/capability evaluation framework. Provides the experimental design structure NiceM needs: scenarios (fixed human intent), capabilities (agent behaviors tested), automated checks (success criterion), trend tracking, uncertainty handling.
+- **Key NiceM application:** Scenario = fixed human intent; capability = agent behavior; automated check = success criterion before cost attribution.
+
+### τ-bench (Tau-Bench) — Agent Benchmark
+- **File:** `docs/sources/agent-evals/tau-bench.md`
+- **Role:** Multi-step, multi-turn, tool-using agent benchmark with defined task success criteria. Most rigorous existing benchmark for the architecture NiceM needs to measure. Candidate template for execution-tax experiment design.
+- **Key NiceM application:** Multi-step success definition; trajectory evaluation model; per-turn token cost (confirm availability).
+
+### Agent-as-a-Judge
+- **File:** `docs/sources/agent-evals/agent-as-a-judge.md`
+- **Role:** Scalable automated success scoring methodology. Relevant to NiceM's success criterion at scale — but requires cross-language reliability validation before use in multilingual execution-tax measurement.
+- **Key risk:** LLM judges may be biased toward high-resource languages, introducing confounds into NiceM's success classifications.
+
+### LangSmith — Agent Evaluation
+- **File:** `docs/sources/agent-evals/langsmith-agent-evaluation.md`
+- **Role:** Dataset-based evaluation and run comparison for LangChain-based agents. Relevant to NiceM's controlled experiment design and regression tracking across model versions.
+
+### Langfuse — Agent Evaluation
+- **File:** `docs/sources/agent-evals/langfuse-agent-evaluation.md`
+- **Role:** Open-source, span-level observability platform. Strong candidate for NiceM's instrumentation layer — captures per-step token counts, latency, and cost across full agent traces.
+
+### Braintrust — Evals
+- **File:** `docs/sources/agent-evals/braintrust-evals.md`
+- **Role:** Scorer-first evaluation and experiment tracking. Relevant to NiceM's longitudinal question: does execution-tax change as models and frameworks improve over time?
+
+### Arize Phoenix — Agent Observability
+- **File:** `docs/sources/agent-evals/arize-phoenix-agent-observability.md`
+- **Role:** Open-source, OpenTelemetry-compatible observability platform. Strong candidate for NiceM's instrumentation layer. Span-level attribution enables execution overhead decomposition by step type.
+
+### NVIDIA — Agent Evaluation
+- **File:** `docs/sources/agent-evals/nvidia-agent-evaluation.md`
+- **Role:** NVIDIA-specific evaluation tooling and methodology for agentic workloads. Most relevant if NiceM's proof-of-concept uses NVIDIA infrastructure or NeMo Agent Toolkit.
+- **Status:** Sources not yet verified — links and specific claims TODO.
+
+---
+
 ## Concept-to-Source Index
 
 | Concept | Source(s) |

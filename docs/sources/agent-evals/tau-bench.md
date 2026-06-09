@@ -71,7 +71,31 @@ Note: τ-bench does not measure or define execution-tax. It provides a task stru
 
 ---
 
-## Notes for NiceM positioning
+## Connection to successful completion
+
+τ-bench defines task success at the multi-step level: the agent must complete a realistic, multi-turn task (e.g., process a retail return, rebook a flight) correctly across several tool calls and reasoning steps. This multi-step success definition is more rigorous than single-call accuracy and closer to what NiceM needs — success means the human intent was fully resolved, not just that the model produced a plausible response.
+
+TODO: Confirm how τ-bench scores partial completions and failed runs — this directly affects how NiceM should handle runs that fail partway through.
+
+---
+
+## Connection to agent trajectory evaluation
+
+τ-bench's multi-turn structure requires evaluating the agent's trajectory: the sequence of actions, tool calls, and responses across turns. Success is determined by whether the full sequence achieved the intended outcome. This is trajectory evaluation in practice — and it is the model for how NiceM would evaluate execution-tax: measuring the full path cost, not just the endpoint.
+
+TODO: Confirm whether τ-bench records per-turn token counts or costs — this would determine whether it is directly usable as an execution-tax instrumentation substrate.
+
+---
+
+## Risks or limitations for multilingual evaluation
+
+- τ-bench tasks are currently in English (retail and airline domains). Adapting them to other languages would require translation plus validation that the translated tasks are genuinely equivalent in difficulty and retrieval tractability — non-trivial.
+- The domains (retail, airline) may have uneven data availability for retrieval across languages. A Turkish-language retail task may face retrieval quality differences unrelated to language tokenization.
+- Success criteria defined for English scenarios may not generalize directly to other languages without adjustment.
+
+---
+
+## Notes for NiceM methodology
 
 TODO: Add once source is read and verified.
 

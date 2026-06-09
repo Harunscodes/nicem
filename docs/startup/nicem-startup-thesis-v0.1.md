@@ -204,12 +204,12 @@ Before building a SaaS product, NiceM should validate the execution-tax hypothes
 
 ### Methodology dependencies
 
-Before running this experiment, NiceM needs to resolve:
+Before running this experiment, NiceM needs to resolve nine methodology questions. These are tracked in `docs/open-questions.md` under **Methodology questions before validation** (M1–M9). The most critical are:
 
-- Success criterion: how is task completion defined and scored? (See `docs/sources/agent-evals/` — τ-bench, Agent-as-a-Judge, Braintrust)
-- Instrumentation: which observability layer captures per-step token and timing data? (NeMo Agent Toolkit, Langfuse, or Arize Phoenix are candidates)
-- Language selection: which languages maximize coverage of the token-tax spectrum while keeping the experiment tractable?
-- Task design: are the tasks genuinely equivalent across languages, or does translation introduce confounding differences?
+- **Success criterion (M1, M2, M3):** How is task completion defined and scored, and can that scoring method be validated for cross-language reliability? An evaluator biased toward English will produce biased success classifications, making any execution-tax signal untrustworthy. (See `docs/sources/agent-evals/agent-as-a-judge.md`.)
+- **Decomposition method (M4):** How does NiceM separate token-tax (longer input) from execution-tax (longer path) in the measurement? Without a decomposition method, the two effects cannot be distinguished.
+- **Instrumentation choice (M9):** Which observability platform captures per-step token and timing data at the granularity NiceM needs? Candidates: Langfuse, Arize Phoenix, NeMo Agent Toolkit. (See `docs/sources/agent-evals/`.)
+- **Falsification condition (M7):** What result would falsify the execution-tax hypothesis? This must be specified before the experiment runs. (See agent-evals sources and `docs/sources/agent-evals/tau-bench.md` for benchmark design reference.)
 
 ---
 
@@ -257,4 +257,4 @@ Before running this experiment, NiceM needs to resolve:
 
 ---
 
-*Next version (v0.2) should incorporate: first validation experiment design, refined audience definition, and competitive landscape analysis.*
+*Next version (v0.2) should incorporate: resolution of methodology questions M1–M9 (see `docs/open-questions.md`), first validation experiment design, refined audience definition, and competitive landscape analysis.*

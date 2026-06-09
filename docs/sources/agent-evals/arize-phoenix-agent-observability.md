@@ -65,6 +65,30 @@ Anticipated connection: Phoenix's span-level token attribution could be the inst
 
 ---
 
-## Notes for NiceM positioning
+## Connection to successful completion
 
-TODO: Add once source is read and verified.
+Phoenix records traces but does not inherently define success. For NiceM's cost-per-successful-completion metric, a success label must be attached to each trace — either from a human annotator, an automated judge, or a deterministic check. Phoenix's open-source and OpenTelemetry-compatible design means custom success labeling can be integrated without vendor lock-in.
+
+TODO: Confirm whether Phoenix supports custom span-level annotations for success/failure classification.
+
+---
+
+## Connection to agent trajectory evaluation
+
+Phoenix's span-level tracing is well-suited to trajectory evaluation. Each tool call, retrieval step, and model call is a separate span with its own attributes. This means the full agent trajectory is recorded as a structured sequence, and individual steps can be evaluated or filtered independently.
+
+For NiceM, this enables execution overhead decomposition: how many tokens were consumed at each step type (retrieval, tool call, model call, orchestration), and how does this breakdown differ across language conditions?
+
+---
+
+## Risks or limitations for multilingual evaluation
+
+- Phoenix captures raw observability data. Interpreting whether a trajectory represents efficient or inefficient execution requires external analysis — Phoenix itself does not diagnose execution-tax.
+- Span attribute naming and structure may vary across agent frameworks, making cross-framework comparison in Phoenix more complex.
+- Token cost attribution in Phoenix is based on reported token counts, which may not always be available for all model providers or tool call types.
+
+---
+
+## Notes for NiceM methodology
+
+Phoenix is a strong candidate for NiceM's observability layer, particularly for a proof-of-concept experiment. Its open-source design, OpenTelemetry compatibility, and span-level attribution make it well-suited to a controlled execution-tax measurement setup. The key advantage over proprietary platforms is that the full trace data is accessible for custom analysis — NiceM is not limited to the visualizations Phoenix exposes by default.

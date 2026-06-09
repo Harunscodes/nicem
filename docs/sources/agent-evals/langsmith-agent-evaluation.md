@@ -65,6 +65,30 @@ Anticipated connection: LangSmith's per-run token and cost tracing could serve a
 
 ---
 
-## Notes for NiceM positioning
+## Connection to successful completion
+
+LangSmith's dataset-based evaluation approach requires defining expected outputs or success criteria for each test case. This explicit success definition is directly relevant to NiceM — it forces the question of what correct completion looks like for each task, in each language, before any metric is computed.
+
+TODO: Confirm whether LangSmith supports per-language evaluation datasets and whether success criteria can be defined independently per language.
+
+---
+
+## Connection to agent trajectory evaluation
+
+LangSmith traces multi-step agent runs and allows evaluation of individual steps, not only final outputs. This supports trajectory evaluation: scoring whether the agent took the right path, not just whether it arrived at the right answer.
+
+TODO: Confirm the granularity of step-level evaluation in LangSmith — specifically whether individual tool calls and retrieval steps can be scored independently.
+
+---
+
+## Risks or limitations for multilingual evaluation
+
+- LangSmith's built-in evaluators are primarily designed for English. Custom evaluators would be needed for non-English languages.
+- Dataset construction across languages requires translation and validation — translated test cases may introduce inequivalence if not carefully designed.
+- Run comparison across language conditions requires that the underlying tasks are genuinely equivalent, which is a design constraint outside LangSmith's control.
+
+---
+
+## Notes for NiceM methodology
 
 TODO: Add once source is read and verified.

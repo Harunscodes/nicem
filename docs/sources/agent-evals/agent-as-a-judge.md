@@ -66,8 +66,33 @@ Anticipated connection: Execution-tax measurement requires knowing whether a run
 
 ---
 
-## Notes for NiceM positioning
+## Connection to successful completion
 
-TODO: Add once source is read and verified.
+Agent-as-a-Judge is a candidate methodology for NiceM's success criterion at scale. NiceM's cost-per-successful-completion metric requires a reliable, scalable way to determine whether a run succeeded — human annotation on every run is not feasible for a benchmark across multiple languages, tasks, and architectures.
 
-Anticipated positioning note: NiceM needs a scalable success criterion for its execution-tax benchmark. Agent-as-a-Judge is one approach; the choice between automated judging, rubric-based scoring, and human evaluation is an open methodological question for NiceM's validation plan.
+The key risk: if the automated judge is itself an LLM, its reliability across languages must be validated. A judge trained predominantly on English may score non-English outputs inconsistently, introducing systematic bias into the success classifications that NiceM's metric depends on.
+
+---
+
+## Connection to agent trajectory evaluation
+
+Agent-as-a-Judge can potentially evaluate not only the final output but also intermediate steps — whether the agent reasoned correctly, called the right tools, retrieved relevant content. This makes it relevant to trajectory evaluation, not only endpoint scoring.
+
+However, trajectory-level judging is more complex than output-level judging, and reliability across step types and languages needs separate validation.
+
+---
+
+## Risks or limitations for multilingual evaluation
+
+- LLM judges tend to perform better in high-resource languages. A judge evaluating Turkish or Arabic agent outputs may be less reliable than one evaluating English outputs, introducing bias into NiceM's success classifications.
+- If the judge is more lenient in some languages than others, NiceM's execution-tax measurement will be confounded: apparent differences in success rates may reflect judge inconsistency, not genuine task completion differences.
+- The judge itself is an agentic call with token cost — adding it to the measurement infrastructure introduces a meta-level overhead that should be tracked.
+- There is no language-neutral, validated Agent-as-a-Judge benchmark for multilingual agent evaluation yet (as of the knowledge available here). NiceM may need to develop or adapt one.
+
+---
+
+## Notes for NiceM methodology
+
+NiceM needs a scalable success criterion for its execution-tax benchmark. Agent-as-a-Judge is one candidate approach; alternatives include deterministic checks (for tasks with verifiable outputs), rubric-based human annotation (reliable but costly), and hybrid methods.
+
+The choice of evaluator is not neutral — it directly affects what NiceM measures as "successful." The evaluator's cross-language reliability must be characterized before NiceM's results can be trusted as language-fair. This is an open methodological question that must be resolved before any execution-tax validation experiment is run.

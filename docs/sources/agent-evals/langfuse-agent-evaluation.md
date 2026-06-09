@@ -65,6 +65,29 @@ Anticipated connection: If Langfuse can attribute tokens and cost to individual 
 
 ---
 
-## Notes for NiceM positioning
+## Connection to successful completion
 
-TODO: Add once source is read and verified.
+Langfuse captures traces of full agent runs including final outputs, intermediate steps, and scores. If a success scorer is attached to a trace, Langfuse can record whether a run succeeded — making it a candidate instrumentation substrate for NiceM's cost-per-successful-completion metric, where cost and success are captured in the same trace.
+
+TODO: Confirm whether Langfuse supports attaching custom success scorers to traces, and whether scores can be disaggregated by language or task condition.
+
+---
+
+## Connection to agent trajectory evaluation
+
+Langfuse's trace structure captures the full agent trajectory as a sequence of spans — each span corresponding to a model call, tool call, or retrieval step. This is the instrumentation layer for trajectory evaluation: each step in the execution path is recorded with its own token counts, latency, and cost.
+
+For NiceM, this means execution overhead can potentially be attributed at the span level: how many tokens did the retrieval step consume? How many model calls occurred before a successful answer? How did this differ across language conditions?
+
+---
+
+## Risks or limitations for multilingual evaluation
+
+- Langfuse is instrumentation — it records what happens but does not interpret whether a run succeeded or whether the path was optimal. A language-fair success scorer must be added externally.
+- Token count attribution in Langfuse reflects raw token consumption. Interpreting whether higher token counts in one language represent execution-tax requires a controlled experimental design outside Langfuse's scope.
+
+---
+
+## Notes for NiceM methodology
+
+Langfuse is a strong candidate for NiceM's instrumentation layer. Its open-source nature, span-level attribution, and cost tracking make it compatible with a controlled execution-tax measurement experiment. The primary gap is the success criterion — Langfuse records cost, but whether a run was "successful" must be determined by a separate evaluator that must be validated for cross-language reliability.
