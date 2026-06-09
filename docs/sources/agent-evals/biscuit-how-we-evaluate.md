@@ -22,46 +22,72 @@ Methodology context only. Not scientific proof. Does not prove token-tax or exec
 
 ## Main claim
 
-TODO: Add once source is read and verified.
+Biscuit structures agent evaluation around **scenarios** (concrete task situations the agent must handle), **capabilities** (the distinct skills or behaviors being tested), **automated checks** (programmatic assertions about agent output), **trend tracking** (monitoring performance over time rather than at a single snapshot), and **uncertainty** (acknowledging that agent behavior is non-deterministic and that evaluation must account for variance).
+
+TODO: Verify and add verbatim quotes once source is confirmed.
 
 ---
 
 ## Relevance to NiceM
 
-TODO: Add once source is read and verified.
+Biscuit's framework addresses whether an agent succeeded and how reliably it succeeds across scenarios and capabilities. NiceM borrows the scenario/capability mindset but applies it to a different question:
 
-Agent evaluation methodology sources are relevant to NiceM because they describe how to measure whether an agent completed a task correctly, how many steps it took, and what went wrong when it failed. These are exactly the dimensions NiceM needs to measure execution-tax: task success, step count, token cost, and retry overhead.
+> Not only whether the agent succeeded, but **how much execution workload was required for success** — and whether that workload differs across languages, task types, models, and agent designs.
+
+In Biscuit's terms: NiceM holds the scenario and capability fixed, then measures the execution cost axis that Biscuit does not track. Biscuit asks "did the agent pass?" NiceM asks "what did passing cost, and is that cost the same for all languages?"
+
+The combination of both questions — correctness and execution cost — is NiceM's cost-per-successful-completion metric.
 
 ---
 
 ## What this supports
 
-TODO: Add once source is read and verified.
+- Agent evaluation can and should be structured around discrete scenarios and capabilities — not just aggregate accuracy
+- Automated checks are feasible for agent output at scale — which supports the scalability of NiceM's measurement methodology
+- Trend tracking matters: agent performance (and therefore execution cost) is not a fixed number — it varies over time, model versions, and context conditions
+- Uncertainty and non-determinism in agent behavior are expected and should be accounted for in evaluation design — NiceM must handle this in its execution-tax benchmarks
 
 ---
 
 ## What this does not prove
 
-- That execution-tax exists or is quantifiable in the way NiceM hypothesizes
-- That token-tax is a factor in agent evaluation (this is a NiceM connection, not one the source likely makes)
-- Any NiceM-specific claim
+- That execution-tax exists or is quantifiable
+- That execution workload varies by language (a NiceM hypothesis, not a Biscuit claim)
+- That the scenario/capability framework is sufficient for NiceM's purposes without modification
+- Token-tax in the academic sense (Petrov, Ahia, Lundin)
 
 ---
 
 ## Connection to agent evaluation
 
-TODO: Add once source is read and verified.
+Biscuit's structured evaluation approach — scenarios, capabilities, automated checks, trend tracking, uncertainty — provides a practical methodology template for NiceM's execution-tax benchmark design.
+
+Applied to NiceM, the translation would be:
+
+| Biscuit concept | NiceM application |
+|---|---|
+| Scenario | A fixed human intent (e.g., "answer this FAQ question in language X") |
+| Capability | The agent behavior being tested (retrieval, tool use, multi-turn reasoning) |
+| Automated check | Did the agent succeed? (success criterion required before cost is meaningful) |
+| Trend tracking | Does execution cost change as models, tokenizers, or architectures evolve? |
+| Uncertainty | Multiple runs per scenario/language combination; execution cost as a distribution, not a point estimate |
 
 ---
 
 ## Connection to execution-tax
 
-TODO: Add once source is read and verified.
+Biscuit does not define or measure execution-tax. Its relevance is structural: the scenario/capability decomposition is exactly the experimental design NiceM needs to isolate execution-tax.
 
-Anticipated connection: Biscuit's evaluation methodology likely addresses task success, step-level correctness, or total cost of completion — all of which map to dimensions of execution-tax measurement.
+By holding the scenario fixed and varying the language or agent architecture, NiceM can ask: does the execution workload change? If it does, that variation is consistent with execution-tax. The scenario framework makes the comparison controlled; the capability dimension makes the source of overhead attributable.
+
+Execution-tax remains a NiceM hypothesis. Biscuit's framework is a methodology the hypothesis can be tested within — not evidence that it exists.
 
 ---
 
 ## Notes for NiceM positioning
 
-TODO: Add once source is read and verified.
+Biscuit demonstrates that rigorous, structured agent evaluation is a practical, operational concern — not just an academic one. Teams building real agents are already thinking in terms of scenarios, capabilities, and automated trend tracking.
+
+NiceM's positioning opportunity: existing evaluation frameworks measure whether agents succeed. NiceM adds the execution cost dimension — how much workload was required for that success, and whether the cost is equitable across languages and architectures. This is a natural extension of what practitioners are already doing, not a departure from it.
+
+The scenario/capability mindset also makes NiceM's execution-tax claims more credible: by grounding them in a structured, reproducible evaluation design rather than anecdotal overhead observations.
