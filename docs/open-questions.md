@@ -236,8 +236,8 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 
 ### Baseline token-tax sub-questions (from baseline-token-tax-calculation-v0.1.md §14)
 
-- **BT1:** Which model/tokenizer will v0.1 use?
-  - *Status: Open — same decision as LS4/LG2; the most load-bearing unresolved dependency, blocking all token-tax calculation steps*
+- **BT1 / LS4 / LG2:** Which model/tokenizer will v0.1 use?
+  - *Status: Partially resolved — `docs/methodology/tokenizer-model-choice-v0.1.md` defines the staged approach (Stage 1 tokenizer-only sanity gate → Stage 2 smoke test → Stage 3 full run), selection criteria (§6), tokenizer requirements (§7), pricing requirements (§8), and version-drift rules. Stage 1 is executable now if a tokenizer equivalent is available locally. Specific provider/model not yet chosen (TM1). Seven open sub-questions TM1–TM8.*
 
 - **BT2:** How will full prompt tokens be captured?
   - *Status: Open — depends on the M9 instrumentation platform; fallback is per-call input_tokens totals*
@@ -256,6 +256,32 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 
 - **BT7:** How should provider-specific pricing be normalized?
   - *Status: Open — overlaps LG1; deferred by the v0.1 single-provider design; pricing_version preserves recomputability*
+
+### Tokenizer and model choice sub-questions (from tokenizer-model-choice-v0.1.md §12)
+
+- **TM1:** Which provider/model will v0.1 use?
+  - *Status: Open — selection criteria defined in §6; the actual choice; blocks Stages 2 and 3 but not Stage 1*
+
+- **TM2:** Is provider-reported token usage sufficient, or should local counting serve as a cross-check?
+  - *Status: Open, leaning both — log both; provider counts for cost, local for token-tax ratios; report divergences*
+
+- **TM3:** What temperature setting should be used?
+  - *Status: Open, recommendation ≤ 0.2 — lower temperature reduces run-to-run nondeterminism*
+
+- **TM4:** How should model version pinning be handled in API calls?
+  - *Status: Open — use version-specific model ID, never a "latest" alias; confirm provider's version-pinning mechanism before Stage 3*
+
+- **TM5:** How much budget is acceptable for pilot runs?
+  - *Status: Open — same as BS6; ~108 runs × mid-tier model ≈ low tens of USD; decide before Stage 3*
+
+- **TM6:** What happens if the model performs poorly in Turkish?
+  - *Status: Open — smoke test gate; if Stage 2 shows near-zero Turkish PASS under both designs, diagnose before Stage 3: choose a more capable multilingual model, adjust prompts, or defer Turkish to v0.2*
+
+- **TM7:** Should a cheaper model be used for pilot smoke tests?
+  - *Status: Open — reasonable for budget, but only if Stage 1 tokenizer matches Stage 3 model tokenizer and Stage 2 is re-run on the Stage 3 model*
+
+- **TM8:** How should embedding model choice be handled for Agent B?
+  - *Status: Open — embedding model is separate from completion model; its multilingual coverage must be confirmed; relates to AD2*
 
 ---
 

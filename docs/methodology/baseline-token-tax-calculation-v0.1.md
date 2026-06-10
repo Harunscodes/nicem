@@ -175,7 +175,7 @@ Step 1 is deliberately front-loaded: if the query-level token-tax table shows un
 
 | ID | Question | Status | Notes |
 |---|---|---|---|
-| BT1 | Which model/tokenizer will v0.1 use? | Open — same as LS4/LG2 | Blocks steps 1–6 of §13; the single most load-bearing unresolved dependency |
+| BT1 | Which model/tokenizer will v0.1 use? | Partially resolved — `docs/methodology/tokenizer-model-choice-v0.1.md` defines the staged approach and selection criteria; specific provider/model still to be chosen (TM1) but Stage 1 (§13 step 1) is executable now if a tokenizer equivalent is available locally | |
 | BT2 | How will full prompt tokens be captured? | Open | Depends on the M9 instrumentation platform; fallback is per-call `input_tokens` totals |
 | BT3 | Should expected answers be generated in each language or evaluated language-neutrally? | Direction set — language-neutral | Expected outcomes are fact-sets (TF6); no expected answer *text* exists to tokenize; generation ratios use actual PASS answers instead |
 | BT4 | How should cached tokens be handled? | Open | Caching distorts `billable_tokens`; v0.1 proposal: disable caching if possible, else log and report both total and billable ratios |
