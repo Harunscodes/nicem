@@ -11,6 +11,7 @@
 **Sizing follow-up:** TF1/TF2 are given an exploratory resolution in `docs/methodology/benchmark-sizing-v0.1.md`: Small KB (6–10 documents, 50–100 canonical facts) and 30–50 intents × 3 languages; minimum viable proposal 8 documents / ~75 facts / 36 intents / 108 task instances. The pilot's primary statistical deliverable is the variance estimates that the M8 power calculation requires.
 **Logging schema follow-up:** The §12 logging-schema item is specified in `docs/methodology/logging-schema-v0.1.md`: one row per run, full field set for the §6 trajectory metrics and the §7 decomposition, dual token/semantic-unit retrieval reporting, and a minimal required field set for v0.1.
 **Agent design follow-up:** The §12 agent-designs item is resolved in `docs/methodology/agent-design-selection-v0.1.md`: Agent A (Direct LLM baseline) vs. Agent B (Simple RAG), one model held constant; the A-vs-B delta compared across languages is the pilot's key contrast for whether workflow design amplifies or suppresses language-related cost.
+**Falsification follow-up:** M7 and the §12 falsification-threshold item are pre-registered in `docs/methodology/falsification-and-decision-rules-v0.1.md`: H0/H1/H2 hypotheses, eight candidate-signal patterns, provisional thresholds, the A-vs-B interpretation matrix, nine reporting rules. These are locked before any benchmark run.
 
 ---
 
@@ -250,7 +251,7 @@ Before any proof-of-concept benchmark is built, the following must be resolved. 
 - [x] **Define logging schema** — resolved: `docs/methodology/logging-schema-v0.1.md` specifies identifiers, input/retrieval/trajectory/token-cost/output/success fields, derived metrics, the field-to-decomposition mapping, and the minimal v0.1 field set; pending implementation against the chosen instrumentation platform (M9).
 - [ ] **Define baseline token-tax calculation** — how representation and generation overhead will be computed per language, to enable the Section 7 decomposition.
 - [ ] **Decide human vs. automated evaluation** — choose the Section 5 approach (likely hybrid) and define the human-scored validation subset.
-- [ ] **Define falsification threshold** — pre-register the quantitative condition under which execution-tax is considered refuted in this architecture (resolves M7).
+- [x] **Define falsification threshold** — resolved: `docs/methodology/falsification-and-decision-rules-v0.1.md` pre-registers H0/H1/H2, eight evidence patterns, falsifying observations, inconclusiveness conditions, measurement-failure stoppers, provisional quantitative thresholds, the A-vs-B interpretation matrix, and nine reporting rules. Must be confirmed before benchmark runs.
 
 Only once these are settled should NiceM consider a minimal proof-of-concept. The PoC's purpose will be to validate or falsify execution-tax — not to assume it.
 

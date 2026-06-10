@@ -87,7 +87,7 @@ These questions must be answered — or at minimum scoped — before NiceM can r
 
 - **M7:** What would falsify the execution-tax hypothesis?
   - A well-formed hypothesis must be falsifiable. A candidate falsification condition: if cost-per-successful-completion is statistically equivalent across language conditions after controlling for input token count, execution-tax in the agentic sense does not exist in that architecture. NiceM should specify this condition precisely before running any experiment.
-  - *Status: Structured, not closed — framework §8 lists five falsification criteria and calls for pre-registering a quantitative threshold (framework §12). The threshold number itself is not yet set. Important for scientific credibility.*
+  - *Status: Resolved — `docs/methodology/falsification-and-decision-rules-v0.1.md` pre-registers three hypotheses (H0 no signal, H1 candidate signal, H2 agent-design amplification/reduction), eight evidence patterns constituting a candidate signal, a list of falsifying observations, inconclusive-outcome conditions, measurement-failure stoppers, provisional quantitative thresholds (≥20% residual cost gap, ≥2 trajectory components, ≥5 intents or ≥2 categories, ≥10 PASS runs per condition), a full A-vs-B interpretation matrix, and nine reporting rules. Open calibration sub-questions tracked as FD1–FD7.*
 
 - **M8:** What is the minimum number of languages, tasks, and runs needed for a statistically meaningful execution-tax measurement?
   - Agent behavior is non-deterministic. A single run per language condition is not sufficient. How many runs per cell, how many task types, and how many language conditions are needed to detect an execution-tax effect of a given size?
@@ -210,6 +210,29 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 
 - **AD7:** How are prompts kept equivalent across languages?
   - *Status: Open — render from a language-neutral prompt specification (the fact-set principle applied to prompts); review parallels the KB quality-control gate; relates to LS2*
+
+### Falsification and decision-rule sub-questions (from falsification-and-decision-rules-v0.1.md §11)
+
+- **FD1:** What exact threshold counts as "material" for v0.1?
+  - *Status: Open — provisional values in §7 of falsification doc; must be confirmed before benchmark runs, possibly after a 3–5 intent smoke test*
+
+- **FD2:** Should thresholds be cost-based, latency-based, or trajectory-based?
+  - *Status: Open, leaning cost-based primary — cost per successful completion is the stated NiceM business metric; trajectory metrics are supporting evidence; priority must be stated before analysis*
+
+- **FD3:** How many intents must show the same direction for a signal?
+  - *Status: Provisional: ≥5 intents or ≥2 task categories — depends on between-intent variance; may need adjustment after smoke test*
+
+- **FD4:** Should failure rate be part of candidate execution-tax or reported separately?
+  - *Status: Open — currently separate; a high failure rate could indicate execution-tax or evaluation problems, and conflating them is risky*
+
+- **FD5:** Should UNCERTAIN count as failure for business metrics?
+  - *Status: Open, leaning yes — an unclassifiable result is not a reliably delivered output; cost_per_successful_completion should exclude UNCERTAIN runs unless resolved by human review*
+
+- **FD6:** How should hidden model translation be handled in Turkish condition results?
+  - *Status: Open — stated as a limitation; if translation_used cannot detect covert in-model translation, Turkish results carry an acknowledged confound and must be reported accordingly*
+
+- **FD7:** What minimum PASS count is needed per condition?
+  - *Status: Provisional: ≥10 — a smoke test on Agent B × Turkish will indicate whether this is achievable at n=36; if not, AD1 or KB revision must be addressed first*
 
 ---
 
