@@ -4,6 +4,7 @@
 **Version:** 0.1 — first draft success rubric, addresses methodology question M1
 **Scope:** Defines when a run counts as a successful completion, before any execution-cost or execution-tax metric is calculated. Does not define the full benchmark, choose languages, select models, or prove execution-tax.
 **Relationship to framework:** This document resolves the working definition introduced in `docs/methodology/nicem-methodology-framework-v0.1.md` §4, and operationalizes the success-gate principle from §3 of that document.
+**Evaluation method follow-up:** The evaluation-method comparison in §7–§8 of this rubric is resolved into a concrete v0.1 procedure in `docs/methodology/evaluation-method-v0.1.md`: deterministic/semi-deterministic fact-set checks as primary evaluator, a project-owner human audit layer (all UNCERTAINs mandatory, FAILs recommended, sampled PASSes), Turkish self-review permitted as a native speaker, LLM-as-judge as optional support only, and a recalibration gate when uncertainty or overturn rates differ by language.
 
 ---
 

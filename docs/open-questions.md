@@ -67,11 +67,11 @@ These questions must be answered — or at minimum scoped — before NiceM can r
 
 - **M2:** Should success be judged by humans, automated judges, deterministic checks, or a hybrid?
   - Each approach has different cost, scalability, and bias profiles. Human annotation is expensive but reliable. Automated LLM judges are scalable but may be biased toward high-resource languages. Deterministic checks are language-neutral where applicable but require tasks with verifiable outputs.
-  - *Status: Structured, not closed — rubric §7 compares all five options; rubric §8 recommends v0.1 use deterministic/semi-deterministic tasks with a human-reviewed audit sample, and defers LLM-as-judge to after cross-language reliability is validated. Final method choice depends on the task family selected. See `docs/sources/agent-evals/agent-as-a-judge.md`.*
+  - *Status: Resolved — `docs/methodology/evaluation-method-v0.1.md` defines the v0.1 method: deterministic/semi-deterministic fact-set checks as primary evaluator; project-owner human audit layer (all UNCERTAIN cases mandatory, all FAILs recommended at v0.1 scale, sampled PASSes per language); Turkish self-review permitted (project owner's mother tongue); LLM-as-judge optional support only, never sole source of truth; independent bilingual review required before public claims. Calibration sub-questions tracked as EV1–EV7.*
 
 - **M3:** How can NiceM avoid evaluator bias toward English or high-resource languages?
   - An automated judge that rates Turkish agent outputs less reliably than English outputs will produce biased success classifications, making any execution-tax signal untrustworthy. The evaluator's cross-language reliability must be characterized before results are valid.
-  - *Status: Structured, not closed — framework §5.3 and §11 identify this as the single most dangerous confound; mitigation (human-scored validation subset spanning all languages) is proposed but not yet validated. Task family selection (§8) reduces this risk by recommending deterministic-checkable tasks where the success gate does not depend on a language-sensitive evaluator at all. Critical for multilingual validity.*
+  - *Status: Mechanism defined, validation pending — framework §5.3 and §11 identify this as the single most dangerous confound. `docs/methodology/evaluation-method-v0.1.md` §9 now defines the operational defenses: language-neutral fact-set checks (no English wording as hidden target), no style penalties, per-language uncertainty and checker-overturn tracking, and a mandatory recalibration gate (falsification §7: >25% UNCERTAIN in any condition) before any cost interpretation. These defenses are designed but not yet empirically validated — that happens during the smoke test and pilot.*
 
 - **M4:** How can NiceM distinguish execution-tax from token-tax in a measurement?
   - If a Turkish-language run uses more total tokens than an English run, is that token-tax (the input was longer), execution-tax (the agent took more steps), or both? NiceM needs a decomposition method to attribute overhead to its source — otherwise token-tax and execution-tax cannot be separately quantified.
@@ -282,6 +282,29 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 
 - **TM8:** How should embedding model choice be handled for Agent B?
   - *Status: Open — embedding model is separate from completion model; its multilingual coverage must be confirmed; relates to AD2*
+
+### Evaluation method sub-questions (from evaluation-method-v0.1.md §15)
+
+- **EV1:** What percentage of outputs should receive human review?
+  - *Status: Open — audit fraction must be fixed before analysis; all FAILs + all UNCERTAINs + ~20% of PASSes per condition looks feasible at v0.1 scale; confirm against BS5*
+
+- **EV2:** Should all Turkish outputs be reviewed by the project owner in v0.1?
+  - *Status: Open, leaning yes at base scale — full review of the highest-risk condition would also calibrate the checker's Turkish matching rules*
+
+- **EV3:** Should all FAIL and UNCERTAIN cases be reviewed?
+  - *Status: UNCERTAIN mandatory; FAIL leaning yes at v0.1 scale — becomes a sampling question only at v0.2 scale*
+
+- **EV4:** Should LLM-as-judge be used at all in v0.1?
+  - *Status: Open, leaning minimal — triage value modest at this scale; cross-language bias risk may outweigh it; decide at implementation*
+
+- **EV5:** How should partial success be handled?
+  - *Status: Direction set — no partial credit at the gate; partial information preserved in quality_band and failure_type for analysis*
+
+- **EV6:** What evaluator agreement threshold is needed for v0.2?
+  - *Status: Open — requires a second rater; define inter-rater agreement before v0.2 scales up or promotes an LLM judge*
+
+- **EV7:** How should public claims be limited without independent review?
+  - *Status: Interim rule — all externally shared results carry the label "single-evaluator exploratory pilot; independent review pending," plus standard scope limits*
 
 ---
 
