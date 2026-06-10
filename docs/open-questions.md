@@ -91,7 +91,7 @@ These questions must be answered — or at minimum scoped — before NiceM can r
 
 - **M8:** What is the minimum number of languages, tasks, and runs needed for a statistically meaningful execution-tax measurement?
   - Agent behavior is non-deterministic. A single run per language condition is not sufficient. How many runs per cell, how many task types, and how many language conditions are needed to detect an execution-tax effect of a given size?
-  - *Status: Open — framework §11 flags small-sample risk and §9 requires multiple languages/designs, but the statistical power calculation (runs per cell for a given effect size) is not yet done.*
+  - *Status: Open — framework §11 flags small-sample risk and §9 requires multiple languages/designs, but the statistical power calculation (runs per cell for a given effect size) is not yet done. `docs/methodology/benchmark-sizing-v0.1.md` §9 establishes that the formal power calculation requires variance estimates that do not yet exist; the v0.1 pilot (36 intents × 3 languages, exploratory) is designed to produce those estimates as a primary deliverable. M8 stays open until after the pilot.*
 
 - **M9:** Which instrumentation platform should NiceM use for the proof-of-concept measurement?
   - Candidates: Langfuse (open-source, span-level), Arize Phoenix (open-source, OpenTelemetry), LangSmith (LangChain-native), NeMo Agent Toolkit (NVIDIA). The choice depends on the agent framework used and the granularity of per-step attribution needed.
@@ -102,10 +102,10 @@ These questions must be answered — or at minimum scoped — before NiceM can r
 These questions emerge from the Product FAQ / policy QA recommendation and must be resolved before a dataset can be constructed.
 
 - **TF1:** How many synthetic documents and policy sections are needed for a valid pilot?
-  - *Status: Open — single coherent knowledge base with 4–6 sections suggested as starting point*
+  - *Status: Decision made (exploratory) — `docs/methodology/benchmark-sizing-v0.1.md` recommends a Small KB: 6–10 synthetic policy/FAQ documents, 50–100 canonical facts in the structured fact-set; minimum viable proposal is 8 documents / ~75 facts. The binding constraint is the KB quality-control gate (bilingual review + completeness check across three languages), not retrieval realism. Tiny KB rejected (trivial retrieval); Medium KB deferred to v0.2 (review burden infeasible).*
 
 - **TF2:** How many task instances per language condition?
-  - *Status: Open — 20–50 instances suggested for pilot; depends on M8 statistical power calculation*
+  - *Status: Decision made (exploratory) — benchmark-sizing-v0.1 recommends 30–50 unique intents, each rendered in English, Dutch, and Turkish; minimum viable proposal is 36 intents × 3 languages = 108 task instances, with 2–3 repetitions only if budget allows. This is explicitly exploratory: it produces the variance estimates M8 needs but cannot confirm or refute the execution-tax hypothesis. Open sub-questions tracked as BS1–BS7.*
 
 - **TF3:** How many languages and which ones?
   - *Status: Decision made — `docs/methodology/language-selection-v0.1.md` recommends English, Dutch, Turkish for v0.1. English = high-resource analytic baseline (NOT canonical source — canonical artifact is the structured fact-set). Dutch = near-baseline Latin-script comparison (mild premium, project owner evaluable). Turkish = agglutinative Latin-script condition (moderate-to-high premium, morphological variation probe). Six candidate v0.2 expansion languages ranked: Arabic (1), Hindi (2), Swahili (3), Korean (4), Japanese (5), Finnish (6). Fallback: if Turkish bilingual review is infeasible, v0.1 runs English + Dutch only. Open sub-questions: LS1 (Turkish bilingual reviewer identity), LS2 (Turkish formality register), LS4 (tokenizer/model for baseline measurement).*
@@ -141,6 +141,29 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 
 - **LS6:** At what fertility threshold does the Turkish condition become a high-token-tax condition vs. a mild-premium condition?
   - *Status: Answered empirically in v0.1 benchmark — no pre-specification needed*
+
+### Benchmark sizing sub-questions (from benchmark-sizing-v0.1.md §12)
+
+- **BS1:** Is 36 intents enough to observe trajectory differences?
+  - *Status: Open — answered empirically by the pilot itself*
+
+- **BS2:** How many repetitions are needed per intent/language condition?
+  - *Status: Open — depends on run-to-run nondeterminism; 2–3 is a budget-bounded starting point*
+
+- **BS3:** Should simple and conditional tasks be balanced 50/50, or weighted?
+  - *Status: Open — affects difficulty-stratified analysis at n=36*
+
+- **BS4:** How many facts per document are ideal?
+  - *Status: Open — ~8–12 assumed; too few makes per-document retrieval trivial, too many makes chunks noisy*
+
+- **BS5:** How much manual review is feasible for the project owner plus one Turkish reviewer?
+  - *Status: Open — bounds the real upper limit of KB and intent counts; relates to LS1*
+
+- **BS6:** What budget is acceptable for pilot runs?
+  - *Status: Open — determines repetition count (BS2) and model choice (LS4)*
+
+- **BS7:** What variance estimate does M8 need, and does this pilot produce it?
+  - *Status: Open — the pilot is designed to produce per-intent and between-intent variance estimates; sufficiency checked after the pilot*
 
 ---
 

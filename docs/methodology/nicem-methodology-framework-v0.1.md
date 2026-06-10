@@ -7,6 +7,8 @@
 **M1 follow-up:** The working success definition in §4 is operationalized in `docs/methodology/success-rubric-v0.1.md`, which defines the binary success gate, minimum criteria, quality bands, multilingual equivalence requirements, failure taxonomy, and evaluation method comparison.
 **Task family follow-up:** The §12 task-family prerequisite is addressed in `docs/methodology/task-family-selection-v0.1.md`, which compares six candidate families and recommends Product FAQ / policy QA (fictional synthetic knowledge base) as the primary v0.1 task family.
 **Retrieval design follow-up:** The TF5 retrieval-design question is analyzed in `docs/methodology/retrieval-design-decision-v0.1.md`: v0.1 uses language-matched retrieval with KB quality control as a hard prerequisite; language-neutral (canonical) retrieval is pre-registered as the v0.2 contrast condition that tests whether execution-tax is architecture-dependent.
+**Language selection follow-up:** TF3 is resolved in `docs/methodology/language-selection-v0.1.md`: English (analytic baseline; the structured fact-set is canonical, not English), Dutch, and Turkish for v0.1.
+**Sizing follow-up:** TF1/TF2 are given an exploratory resolution in `docs/methodology/benchmark-sizing-v0.1.md`: Small KB (6–10 documents, 50–100 canonical facts) and 30–50 intents × 3 languages; minimum viable proposal 8 documents / ~75 facts / 36 intents / 108 task instances. The pilot's primary statistical deliverable is the variance estimates that the M8 power calculation requires.
 
 ---
 
@@ -240,7 +242,8 @@ Before any proof-of-concept benchmark is built, the following must be resolved. 
 
 - [ ] **Finalize success rubric** — operationalize the Section 4 definition into an applicable, language-independent scoring rubric (resolves M1).
 - [ ] **Choose neutral task family** — select synthetic tasks, preferring those with deterministic success checks (Section 9).
-- [ ] **Choose initial languages** — spanning the token-tax spectrum, tractable in number (M-related, Section 9).
+- [x] **Choose initial languages** — resolved: English, Dutch, Turkish (`docs/methodology/language-selection-v0.1.md`); Turkish bilingual review is a prerequisite, with an English+Dutch fallback.
+- [x] **Size the KB and task set** — exploratory resolution: Small KB + 30–50 intents × 3 languages (`docs/methodology/benchmark-sizing-v0.1.md`); pending dataset construction.
 - [ ] **Choose initial agent designs** — at least two architectures to separate language effects from architecture effects.
 - [ ] **Define logging schema** — the concrete field set for the Section 6 trajectory metrics.
 - [ ] **Define baseline token-tax calculation** — how representation and generation overhead will be computed per language, to enable the Section 7 decomposition.
