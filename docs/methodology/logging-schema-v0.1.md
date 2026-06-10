@@ -98,6 +98,8 @@ Character and word counts exist so that token-tax can be expressed relative to t
 | `retrieval_latency_ms` | int | Total time spent in retrieval calls |
 | `retrieval_notes` | string | Free-text anomalies (e.g., empty results, duplicate chunks) |
 
+**Null-not-omitted convention:** For designs without retrieval (Agent A in `docs/methodology/agent-design-selection-v0.1.md`), `retrieval_enabled` is false and all other retrieval fields are logged as null — never omitted — so every row in every design carries an identical schema.
+
 **Dual-reporting rule (from retrieval-design-decision §8):** retrieval volume must always be reported in both raw tokens (`retrieved_context_token_count`) and semantic units (`retrieved_context_semantic_units_count`). A Turkish chunk carrying the same three facts as an English chunk may cost more tokens — that difference is token-tax (representation overhead), not retrieval overhead. Logging only token counts would double-count token-tax inside the retrieval component.
 
 ---

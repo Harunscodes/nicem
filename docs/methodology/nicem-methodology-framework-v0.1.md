@@ -10,6 +10,7 @@
 **Language selection follow-up:** TF3 is resolved in `docs/methodology/language-selection-v0.1.md`: English (analytic baseline; the structured fact-set is canonical, not English), Dutch, and Turkish for v0.1.
 **Sizing follow-up:** TF1/TF2 are given an exploratory resolution in `docs/methodology/benchmark-sizing-v0.1.md`: Small KB (6–10 documents, 50–100 canonical facts) and 30–50 intents × 3 languages; minimum viable proposal 8 documents / ~75 facts / 36 intents / 108 task instances. The pilot's primary statistical deliverable is the variance estimates that the M8 power calculation requires.
 **Logging schema follow-up:** The §12 logging-schema item is specified in `docs/methodology/logging-schema-v0.1.md`: one row per run, full field set for the §6 trajectory metrics and the §7 decomposition, dual token/semantic-unit retrieval reporting, and a minimal required field set for v0.1.
+**Agent design follow-up:** The §12 agent-designs item is resolved in `docs/methodology/agent-design-selection-v0.1.md`: Agent A (Direct LLM baseline) vs. Agent B (Simple RAG), one model held constant; the A-vs-B delta compared across languages is the pilot's key contrast for whether workflow design amplifies or suppresses language-related cost.
 
 ---
 
@@ -245,7 +246,7 @@ Before any proof-of-concept benchmark is built, the following must be resolved. 
 - [ ] **Choose neutral task family** — select synthetic tasks, preferring those with deterministic success checks (Section 9).
 - [x] **Choose initial languages** — resolved: English, Dutch, Turkish (`docs/methodology/language-selection-v0.1.md`); Turkish bilingual review is a prerequisite, with an English+Dutch fallback.
 - [x] **Size the KB and task set** — exploratory resolution: Small KB + 30–50 intents × 3 languages (`docs/methodology/benchmark-sizing-v0.1.md`); pending dataset construction.
-- [ ] **Choose initial agent designs** — at least two architectures to separate language effects from architecture effects.
+- [x] **Choose initial agent designs** — resolved: Agent A (Direct LLM baseline) and Agent B (Simple RAG), differing in exactly one architectural dimension so the A-vs-B delta per language is attributable (`docs/methodology/agent-design-selection-v0.1.md`); Agents C–F (translation-first, language-aware, prompt-compressed, model-router) deferred to v0.2 as intervention arms.
 - [x] **Define logging schema** — resolved: `docs/methodology/logging-schema-v0.1.md` specifies identifiers, input/retrieval/trajectory/token-cost/output/success fields, derived metrics, the field-to-decomposition mapping, and the minimal v0.1 field set; pending implementation against the chosen instrumentation platform (M9).
 - [ ] **Define baseline token-tax calculation** — how representation and generation overhead will be computed per language, to enable the Section 7 decomposition.
 - [ ] **Decide human vs. automated evaluation** — choose the Section 5 approach (likely hybrid) and define the human-scored validation subset.

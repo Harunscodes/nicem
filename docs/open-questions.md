@@ -188,6 +188,29 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 - **LG7:** How should failed runs affect cost-per-successful-completion?
   - *Status: Open — overlaps M6 weighting question; schema logs all costs for all runs so both conventions (failed-run cost included vs. excluded) can be computed and reported side by side*
 
+### Agent design sub-questions (from agent-design-selection-v0.1.md §10)
+
+- **AD1:** Should the Direct LLM baseline receive full KB context or no KB context?
+  - *Status: Open — no-context measures retrieval dependence (mostly FAILs expected); full-KB-in-context yields PASS runs for cost comparison; possibly both as A0/A1 sub-conditions, budget permitting (BS6)*
+
+- **AD2:** Should Simple RAG use the same embedding model across languages?
+  - *Status: Open, leaning yes — one multilingual embedding model keeps the design constant; uneven per-language quality then becomes a measured property, not an experimenter-introduced confound*
+
+- **AD3:** How many chunks should Simple RAG retrieve (top-k)?
+  - *Status: Open — fixed k across languages required; interacts with chunk size and BS4*
+
+- **AD4:** Should retries be allowed in v0.1?
+  - *Status: Open — single-pass is cleaner but empties the retry column; one bounded retry on retrieval failure would populate it; must be identical across languages either way*
+
+- **AD5:** Should the RAG agent include a validation step?
+  - *Status: Open, leaning no — validation belongs to the v0.2 multi-step validation agent; adding it to Agent B blurs the one-dimension A/B contrast*
+
+- **AD6:** How can hidden translation by the model/provider be detected?
+  - *Status: Open — output-language checks and trace inspection catch some cases; covert in-model translation may be undetectable and must be stated as a limitation in all v0.1 reporting*
+
+- **AD7:** How are prompts kept equivalent across languages?
+  - *Status: Open — render from a language-neutral prompt specification (the fact-set principle applied to prompts); review parallels the KB quality-control gate; relates to LS2*
+
 ---
 
 ## Definitional questions
