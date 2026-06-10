@@ -111,16 +111,16 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Open — minimum three recommended (English baseline + one mid-premium + one high-premium from Petrov/Ahia spectrum); four or five gives richer signal*
 
 - **TF4:** Should knowledge base documents be translated from canonical English or constructed language-specifically from a shared fact-set?
-  - *Status: Open — translation from canonical + bilingual review recommended for v0.1; language-specific construction is more valid but more expensive*
+  - *Status: Direction set — retrieval-design-decision §6 and §9 recommend authoring each language KB from the canonical structured fact-set (not translating English prose), with bilingual review and a pre-run KB completeness check. Whether rendering is human-authored or machine-translated-then-reviewed remains open (depends on language selection and reviewer availability).*
 
 - **TF5:** Should retrieval be language-aware (language-matched) or language-neutral (multilingual embeddings)?
-  - *Status: Open — this choice directly affects what the experiment measures; must be decided before benchmark design. Language-neutral retrieval may suppress retrieval overhead differences; language-matched retrieval requires a fully translated knowledge base.*
+  - *Status: Decided (with contingency) — `docs/methodology/retrieval-design-decision-v0.1.md` analyzes three options and recommends: v0.1 uses language-matched retrieval (each language condition retrieves from its own rendering of the canonical fact-set), with KB quality control (author-from-facts, bilingual review, pre-run completeness check) as a hard prerequisite. Language-neutral retrieval is pre-registered as the v0.2 contrast condition. Fallback: if KB quality control proves infeasible, switch v0.1 to a structured-fact-store canonical KB. Results must always be reported per retrieval configuration, never pooled.*
 
 - **TF6:** Should expected answers be expressed as language-neutral structured fact-triples?
   - *Status: Recommended yes — see task family §11 and rubric §6. Structured expected outcomes (JSON-like fact sets) are the mechanism that makes the success check language-neutral.*
 
 - **TF7:** How to prevent English from becoming the hidden canonical version of the knowledge base?
-  - *Status: Open — the canonical representation should be the structured fact-set, not the English text. Requires a deliberate authoring protocol.*
+  - *Status: Working answer adopted — the canonical artifact is the structured fact-set; every language KB, including English, is a rendering of it (retrieval-design-decision §9, §10). The English KB has no privileged status. The concrete authoring protocol (who renders, in what order, with what review) is still to be written.*
 
 ---
 

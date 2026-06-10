@@ -6,6 +6,7 @@
 **Source boundary:** Token-tax is established (Petrov, Ahia, Lundin). Execution-tax is a NiceM hypothesis. Nothing in this document proves execution-tax; it defines how NiceM would attempt to measure it rigorously enough to validate or falsify the hypothesis.
 **M1 follow-up:** The working success definition in §4 is operationalized in `docs/methodology/success-rubric-v0.1.md`, which defines the binary success gate, minimum criteria, quality bands, multilingual equivalence requirements, failure taxonomy, and evaluation method comparison.
 **Task family follow-up:** The §12 task-family prerequisite is addressed in `docs/methodology/task-family-selection-v0.1.md`, which compares six candidate families and recommends Product FAQ / policy QA (fictional synthetic knowledge base) as the primary v0.1 task family.
+**Retrieval design follow-up:** The TF5 retrieval-design question is analyzed in `docs/methodology/retrieval-design-decision-v0.1.md`: v0.1 uses language-matched retrieval with KB quality control as a hard prerequisite; language-neutral (canonical) retrieval is pre-registered as the v0.2 contrast condition that tests whether execution-tax is architecture-dependent.
 
 ---
 
