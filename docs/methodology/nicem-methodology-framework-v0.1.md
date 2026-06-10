@@ -9,6 +9,7 @@
 **Retrieval design follow-up:** The TF5 retrieval-design question is analyzed in `docs/methodology/retrieval-design-decision-v0.1.md`: v0.1 uses language-matched retrieval with KB quality control as a hard prerequisite; language-neutral (canonical) retrieval is pre-registered as the v0.2 contrast condition that tests whether execution-tax is architecture-dependent.
 **Language selection follow-up:** TF3 is resolved in `docs/methodology/language-selection-v0.1.md`: English (analytic baseline; the structured fact-set is canonical, not English), Dutch, and Turkish for v0.1.
 **Sizing follow-up:** TF1/TF2 are given an exploratory resolution in `docs/methodology/benchmark-sizing-v0.1.md`: Small KB (6–10 documents, 50–100 canonical facts) and 30–50 intents × 3 languages; minimum viable proposal 8 documents / ~75 facts / 36 intents / 108 task instances. The pilot's primary statistical deliverable is the variance estimates that the M8 power calculation requires.
+**Logging schema follow-up:** The §12 logging-schema item is specified in `docs/methodology/logging-schema-v0.1.md`: one row per run, full field set for the §6 trajectory metrics and the §7 decomposition, dual token/semantic-unit retrieval reporting, and a minimal required field set for v0.1.
 
 ---
 
@@ -245,7 +246,7 @@ Before any proof-of-concept benchmark is built, the following must be resolved. 
 - [x] **Choose initial languages** — resolved: English, Dutch, Turkish (`docs/methodology/language-selection-v0.1.md`); Turkish bilingual review is a prerequisite, with an English+Dutch fallback.
 - [x] **Size the KB and task set** — exploratory resolution: Small KB + 30–50 intents × 3 languages (`docs/methodology/benchmark-sizing-v0.1.md`); pending dataset construction.
 - [ ] **Choose initial agent designs** — at least two architectures to separate language effects from architecture effects.
-- [ ] **Define logging schema** — the concrete field set for the Section 6 trajectory metrics.
+- [x] **Define logging schema** — resolved: `docs/methodology/logging-schema-v0.1.md` specifies identifiers, input/retrieval/trajectory/token-cost/output/success fields, derived metrics, the field-to-decomposition mapping, and the minimal v0.1 field set; pending implementation against the chosen instrumentation platform (M9).
 - [ ] **Define baseline token-tax calculation** — how representation and generation overhead will be computed per language, to enable the Section 7 decomposition.
 - [ ] **Decide human vs. automated evaluation** — choose the Section 5 approach (likely hybrid) and define the human-scored validation subset.
 - [ ] **Define falsification threshold** — pre-register the quantitative condition under which execution-tax is considered refuted in this architecture (resolves M7).

@@ -206,7 +206,7 @@ A concrete sizing plan within the recommended ranges. This is a sizing specifica
 | Repetitions per condition | 2–3, only if cost allows | Repetitions capture run-to-run nondeterminism; if budget forces a choice, prefer 36 intents × 1 run over 18 intents × 2 runs (between-intent variance is the scarcer information) |
 | Total runs | 108–324 | Depending on repetitions |
 | Success logging | PASS / FAIL / UNCERTAIN per run | Per success-rubric-v0.1; UNCERTAIN is first-class, never silently coerced |
-| Trajectory logging | Full metric set per run | All trajectory metrics from framework §6, including the six-component token-tax/execution-tax decomposition inputs |
+| Trajectory logging | Full metric set per run | All trajectory metrics from framework §6, including the six-component token-tax/execution-tax decomposition inputs; concrete field specification in `docs/methodology/logging-schema-v0.1.md` |
 
 If the Turkish bilingual review prerequisite cannot be met (language-selection §8 fallback), the same plan runs as 36 intents × 2 languages = 72 task instances.
 

@@ -83,7 +83,7 @@ These questions must be answered — or at minimum scoped — before NiceM can r
 
 - **M6:** How should retries, tool calls, retrieval calls, and human correction be counted toward execution-tax?
   - A retry that succeeds on the second attempt is more expensive than one that succeeds on the first — but by how much? Should failed intermediate steps count at full weight, half weight, or be excluded from cost-per-successful-completion? The counting rule must be defined before the metric is computed.
-  - *Status: Partially structured — framework §6 enumerates the metrics and §7 places retry/tool/correction in the candidate execution-tax bucket, but the explicit weighting/counting rule is still open and flagged in framework §12 (logging schema). Significant metric impact.*
+  - *Status: Partially structured — framework §6 enumerates the metrics and §7 places retry/tool/correction in the candidate execution-tax bucket, but the explicit weighting/counting rule is still open. `docs/methodology/logging-schema-v0.1.md` resolves the logging side: raw events (retries, error_events, all costs for all runs including failures) are logged per run so that any counting/weighting rule can be applied uniformly at analysis time. The rule itself (e.g., whether failed-run cost enters the cost-per-successful-completion numerator) remains open — see LG5 and LG7.*
 
 - **M7:** What would falsify the execution-tax hypothesis?
   - A well-formed hypothesis must be falsifiable. A candidate falsification condition: if cost-per-successful-completion is statistically equivalent across language conditions after controlling for input token count, execution-tax in the agentic sense does not exist in that architecture. NiceM should specify this condition precisely before running any experiment.
@@ -95,7 +95,7 @@ These questions must be answered — or at minimum scoped — before NiceM can r
 
 - **M9:** Which instrumentation platform should NiceM use for the proof-of-concept measurement?
   - Candidates: Langfuse (open-source, span-level), Arize Phoenix (open-source, OpenTelemetry), LangSmith (LangChain-native), NeMo Agent Toolkit (NVIDIA). The choice depends on the agent framework used and the granularity of per-step attribution needed.
-  - *Status: Structured, not closed — framework §6 defines the trajectory metrics any platform must capture and §10 notes Langfuse/Phoenix as strong span-level candidates; final choice depends on agent framework. See `docs/sources/agent-evals/` for platform notes.*
+  - *Status: Structured, not closed — framework §6 defines the trajectory metrics any platform must capture and §10 notes Langfuse/Phoenix as strong span-level candidates; final choice depends on agent framework. `docs/methodology/logging-schema-v0.1.md` §12 now defines the minimal field set the chosen platform must capture — any platform that cannot capture those fields is disqualified. See `docs/sources/agent-evals/` for platform notes.*
 
 ### Task family sub-questions (from task-family-selection-v0.1.md §11)
 
@@ -164,6 +164,29 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 
 - **BS7:** What variance estimate does M8 need, and does this pilot produce it?
   - *Status: Open — the pilot is designed to produce per-intent and between-intent variance estimates; sufficiency checked after the pilot*
+
+### Logging schema sub-questions (from logging-schema-v0.1.md §15)
+
+- **LG1:** How precise can cost estimates be across model providers?
+  - *Status: Open — pricing models differ (caching, batch pricing); `pricing_version` field mitigates but does not solve cross-provider comparability*
+
+- **LG2:** Which tokenizer should define baseline token-tax?
+  - *Status: Open — same decision as LS4; model-native vs. fixed reference tokenizer give different token-tax numbers; possibly log both*
+
+- **LG3:** How should retrieval semantic units be counted?
+  - *Status: Open — working answer is deduplicated canonical fact IDs; edge cases (partial/paraphrased facts in a chunk) need a counting rule before implementation*
+
+- **LG4:** Should human correction be manually assigned or inferred from traces?
+  - *Status: Open — v0.1 leans manual assignment; trace inference is a v0.2 question*
+
+- **LG5:** How should retry events be normalized across agent designs?
+  - *Status: Open — overlaps M6; raw error_events are logged so counting rules can be applied uniformly at analysis time*
+
+- **LG6:** Should latency include network time?
+  - *Status: Open — proposal: wall-clock latency in v0.1, per-component latency split deferred to v0.2 span-level instrumentation*
+
+- **LG7:** How should failed runs affect cost-per-successful-completion?
+  - *Status: Open — overlaps M6 weighting question; schema logs all costs for all runs so both conventions (failed-run cost included vs. excluded) can be computed and reported side by side*
 
 ---
 
