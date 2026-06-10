@@ -71,11 +71,11 @@ These questions must be answered — or at minimum scoped — before NiceM can r
 
 - **M3:** How can NiceM avoid evaluator bias toward English or high-resource languages?
   - An automated judge that rates Turkish agent outputs less reliably than English outputs will produce biased success classifications, making any execution-tax signal untrustworthy. The evaluator's cross-language reliability must be characterized before results are valid.
-  - *Status: Structured, not closed — framework §5.3 and §11 identify this as the single most dangerous confound; mitigation (human-scored validation subset spanning all languages) is proposed but not yet validated. Critical for multilingual validity.*
+  - *Status: Structured, not closed — framework §5.3 and §11 identify this as the single most dangerous confound; mitigation (human-scored validation subset spanning all languages) is proposed but not yet validated. Task family selection (§8) reduces this risk by recommending deterministic-checkable tasks where the success gate does not depend on a language-sensitive evaluator at all. Critical for multilingual validity.*
 
 - **M4:** How can NiceM distinguish execution-tax from token-tax in a measurement?
   - If a Turkish-language run uses more total tokens than an English run, is that token-tax (the input was longer), execution-tax (the agent took more steps), or both? NiceM needs a decomposition method to attribute overhead to its source — otherwise token-tax and execution-tax cannot be separately quantified.
-  - *Status: Structured, not closed — framework §7 proposes a six-component decomposition (representation/generation = token-tax; retrieval/tool/retry/correction = candidate execution-tax) and reframes the empirical question as residual cost after token-tax control. The decomposition is itself a hypothesis to validate.*
+  - *Status: Structured, not closed — framework §7 proposes a six-component decomposition (representation/generation = token-tax; retrieval/tool/retry/correction = candidate execution-tax). Task family §9 shows how this decomposition applies concretely to the Product FAQ task family: representation/generation overhead is the known token-tax baseline; retrieval call count, reasoning step count, and retry count are the candidate execution-tax signals. The decomposition is itself a hypothesis.*
 
 - **M5:** Which metrics belong to agent trajectory evaluation, and which to output evaluation?
   - Trajectory metrics (steps taken, tool calls made, retries, tokens per step) measure the execution path. Output metrics (answer correctness, task completion, quality score) measure the endpoint. NiceM needs both, but they require different evaluation methods and must not be conflated.
@@ -96,6 +96,31 @@ These questions must be answered — or at minimum scoped — before NiceM can r
 - **M9:** Which instrumentation platform should NiceM use for the proof-of-concept measurement?
   - Candidates: Langfuse (open-source, span-level), Arize Phoenix (open-source, OpenTelemetry), LangSmith (LangChain-native), NeMo Agent Toolkit (NVIDIA). The choice depends on the agent framework used and the granularity of per-step attribution needed.
   - *Status: Structured, not closed — framework §6 defines the trajectory metrics any platform must capture and §10 notes Langfuse/Phoenix as strong span-level candidates; final choice depends on agent framework. See `docs/sources/agent-evals/` for platform notes.*
+
+### Task family sub-questions (from task-family-selection-v0.1.md §11)
+
+These questions emerge from the Product FAQ / policy QA recommendation and must be resolved before a dataset can be constructed.
+
+- **TF1:** How many synthetic documents and policy sections are needed for a valid pilot?
+  - *Status: Open — single coherent knowledge base with 4–6 sections suggested as starting point*
+
+- **TF2:** How many task instances per language condition?
+  - *Status: Open — 20–50 instances suggested for pilot; depends on M8 statistical power calculation*
+
+- **TF3:** How many languages and which ones?
+  - *Status: Open — minimum three recommended (English baseline + one mid-premium + one high-premium from Petrov/Ahia spectrum); four or five gives richer signal*
+
+- **TF4:** Should knowledge base documents be translated from canonical English or constructed language-specifically from a shared fact-set?
+  - *Status: Open — translation from canonical + bilingual review recommended for v0.1; language-specific construction is more valid but more expensive*
+
+- **TF5:** Should retrieval be language-aware (language-matched) or language-neutral (multilingual embeddings)?
+  - *Status: Open — this choice directly affects what the experiment measures; must be decided before benchmark design. Language-neutral retrieval may suppress retrieval overhead differences; language-matched retrieval requires a fully translated knowledge base.*
+
+- **TF6:** Should expected answers be expressed as language-neutral structured fact-triples?
+  - *Status: Recommended yes — see task family §11 and rubric §6. Structured expected outcomes (JSON-like fact sets) are the mechanism that makes the success check language-neutral.*
+
+- **TF7:** How to prevent English from becoming the hidden canonical version of the knowledge base?
+  - *Status: Open — the canonical representation should be the structured fact-set, not the English text. Requires a deliberate authoring protocol.*
 
 ---
 

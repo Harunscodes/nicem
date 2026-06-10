@@ -5,6 +5,7 @@
 **Scope:** This document turns the methodology questions M1–M9 (`docs/open-questions.md`) into a structured way of thinking about how to measure execution-tax — *before* any benchmark is implemented.
 **Source boundary:** Token-tax is established (Petrov, Ahia, Lundin). Execution-tax is a NiceM hypothesis. Nothing in this document proves execution-tax; it defines how NiceM would attempt to measure it rigorously enough to validate or falsify the hypothesis.
 **M1 follow-up:** The working success definition in §4 is operationalized in `docs/methodology/success-rubric-v0.1.md`, which defines the binary success gate, minimum criteria, quality bands, multilingual equivalence requirements, failure taxonomy, and evaluation method comparison.
+**Task family follow-up:** The §12 task-family prerequisite is addressed in `docs/methodology/task-family-selection-v0.1.md`, which compares six candidate families and recommends Product FAQ / policy QA (fictional synthetic knowledge base) as the primary v0.1 task family.
 
 ---
 

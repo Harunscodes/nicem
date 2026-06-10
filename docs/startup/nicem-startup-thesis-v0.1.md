@@ -190,11 +190,11 @@ Before building a SaaS product, NiceM should validate the execution-tax hypothes
 
 ### Proposed validation design
 
-**Task:** A fixed set of synthetic tasks with equivalent semantic content across 4–6 languages. Candidate: a multilingual product FAQ assistant, a travel assistant, or a research assistant — all using publicly available, non-proprietary content. Languages should include English (baseline), at least one high-token-tax language (e.g., Turkish, Arabic, or a language studied in Petrov/Ahia), and at least one lower-token-tax language (e.g., Portuguese or Dutch).
+**Task:** A fictional synthetic knowledge base representing a product (FAQ, warranty policy, return policy, troubleshooting guide). Policy questions with deterministic expected outcomes — e.g., warranty coverage given purchase date and damage type, return eligibility given packaging status. Success is checked against a pre-defined structured fact-set, not against a target string in any language. See `docs/methodology/task-family-selection-v0.1.md` for candidate family analysis and task skeletons T1–T5. Languages should span the token-tax spectrum: English (low-premium baseline), one mid-premium language (Dutch or Portuguese), and at least one high-premium language (Turkish or Arabic, from the Petrov/Ahia studies).
 
-**Agent design:** A controlled multi-step agentic pipeline — intent understanding, retrieval, answer generation, validation. Architecture held constant across languages; only the input language varies in the first experiment.
+**Agent design:** A controlled multi-step agentic pipeline — intent understanding, retrieval from the knowledge base, conditional reasoning, answer generation. Architecture held constant across language conditions; only the input language and knowledge base language vary.
 
-**Measurement:** For each run, record total tokens consumed (across all steps), number of agent steps, latency, cost, retry count, and success/failure. Success defined by a rubric-based scorer (automated judge or human annotation — methodology TBD, see agent-evals sources).
+**Measurement:** For each run, record total tokens (across all steps), retrieval call count, retrieval tokens, reasoning step count, retry count, latency, cost, and success/failure. Success determined by the binary gate defined in `docs/methodology/success-rubric-v0.1.md`. The decomposition between representation/generation overhead (token-tax component) and retrieval/retry overhead (candidate execution-tax component) is described in task-family §9.
 
 **Comparison:** Compare cost-per-successful-completion, tokens-per-successful-completion, retry rate, and step count across language conditions. If these metrics differ systematically across languages for the same task, that is evidence of execution-tax.
 

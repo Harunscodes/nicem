@@ -6,6 +6,7 @@ This document maps every source in `docs/sources/` to the claims it supports, th
 - `docs/startup/nicem-startup-thesis-v0.1.md` — first coherent startup thesis
 - `docs/methodology/nicem-methodology-framework-v0.1.md` — measurement framework that turns methodology questions M1–M9 into a structured approach for measuring execution-tax; consumes the agent-evaluation sources below
 - `docs/methodology/success-rubric-v0.1.md` — operationalizes M1 (define successful completion): binary success gate, seven minimum criteria, quality bands, multilingual equivalence requirements, nine failure types, evaluation method comparison, evaluator uncertainty protocol. Prerequisite before any benchmark run.
+- `docs/methodology/task-family-selection-v0.1.md` — addresses framework §12 task-family prerequisite: compares six candidate families (Product FAQ, travel planning, public doc QA, structured form, scheduling, arithmetic/lookup) and recommends Product FAQ / policy QA as the primary v0.1 family; backup is calendar scheduling. Explains why open-ended tasks are excluded. Defines five task skeletons, expected trajectory components, relationship to success rubric, token-tax/execution-tax decomposition, and seven open questions (TF1–TF7) before dataset construction.
 
 ---
 
