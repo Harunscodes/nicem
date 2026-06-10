@@ -63,6 +63,12 @@ This is not yet supported by external research. It is a testable hypothesis.
 
 ---
 
+## How the foundation is applied
+
+The token-tax literature above is operationalized in `docs/methodology/baseline-token-tax-calculation-v0.1.md`: NiceM adapts Petrov's tokenization parity ratio to per-intent measurements, Ahia's pricing/context-pressure framing to its cost reporting, and Lundin's fertility metric as a supporting measure. The purpose is twofold: align NiceM's numbers with the literature, and ensure that token-count effects — which the literature predicts — are never mislabeled as execution-tax, which the literature does not address. Execution-tax remains a NiceM hypothesis to validate.
+
+---
+
 ## Gaps to fill
 
 - TODO: Extract specific quantitative claims from Petrov et al.

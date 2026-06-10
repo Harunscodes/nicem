@@ -9,7 +9,7 @@ This document tracks what is not yet known, not yet proven, and not yet decided.
 ### On token-tax
 
 - **Q1:** What is the token-tax multiplier for the languages/scripts most relevant to NiceM's target context? (i.e., how many more tokens does an equivalent sentence require in each language compared to English?)
-  - *Partially addressed by: Petrov et al., Ahia et al. — TODO: extract specific figures*
+  - *Partially addressed by: Petrov et al., Ahia et al. — figures extracted in the paper notes. For the v0.1 languages (English/Dutch/Turkish), NiceM will measure multipliers directly: `docs/methodology/baseline-token-tax-calculation-v0.1.md` defines the per-intent ratio convention, and §13 step 1 front-loads a query-level token-tax table as a dataset sanity gate before any agent runs.*
 
 - **Q2:** Does token-tax vary across different model providers' tokenizers, or is it consistent across the field?
   - *Status: Open*
@@ -233,6 +233,29 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 
 - **FD7:** What minimum PASS count is needed per condition?
   - *Status: Provisional: ≥10 — a smoke test on Agent B × Turkish will indicate whether this is achievable at n=36; if not, AD1 or KB revision must be addressed first*
+
+### Baseline token-tax sub-questions (from baseline-token-tax-calculation-v0.1.md §14)
+
+- **BT1:** Which model/tokenizer will v0.1 use?
+  - *Status: Open — same decision as LS4/LG2; the most load-bearing unresolved dependency, blocking all token-tax calculation steps*
+
+- **BT2:** How will full prompt tokens be captured?
+  - *Status: Open — depends on the M9 instrumentation platform; fallback is per-call input_tokens totals*
+
+- **BT3:** Should expected answers be generated per language or evaluated language-neutrally?
+  - *Status: Direction set — language-neutral: expected outcomes are fact-sets (TF6); generation ratios use actual PASS answers*
+
+- **BT4:** How should cached tokens be handled?
+  - *Status: Open — proposal: disable caching if possible, else log and report both total and billable ratios*
+
+- **BT5:** Should token-tax be calculated per intent before aggregation?
+  - *Status: Direction set — yes, per intent, aggregated by median; mean-vs-median must be fixed before analysis alongside FD thresholds*
+
+- **BT6:** Should output verbosity be constrained to avoid style-driven token differences?
+  - *Status: Open — a length/format instruction reduces style noise but itself renders differently per language (AD7); decide at prompt design*
+
+- **BT7:** How should provider-specific pricing be normalized?
+  - *Status: Open — overlaps LG1; deferred by the v0.1 single-provider design; pricing_version preserves recomputability*
 
 ---
 
