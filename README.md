@@ -72,7 +72,9 @@ The current work is:
 - Defining open questions
 - Planning validation methodology
 
-No product code has been built yet. No experiments have been run yet.
+**Status:** the v0.1 methodology layer is complete — the documents in `docs/methodology/` cover success definition, task family, retrieval design, language selection (English/Dutch/Turkish), benchmark sizing, logging schema, agent designs, pre-registered falsification rules, token-tax baseline calculation, tokenizer/model decision rules, and evaluation method. The consolidated roadmap is `docs/methodology/validation-plan-v0.1.md`.
+
+No product code has been built yet. No experiments have been run yet. No dataset has been generated yet.
 
 ---
 

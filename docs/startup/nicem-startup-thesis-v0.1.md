@@ -204,7 +204,9 @@ Before building a SaaS product, NiceM should validate the execution-tax hypothes
 
 ### Methodology dependencies
 
-Before running this experiment, NiceM needs to resolve nine methodology questions. These are tracked in `docs/open-questions.md` under **Methodology questions before validation** (M1–M9). The most critical are:
+> **Status update:** the methodology layer is now complete, and the full validation path is sequenced in `docs/methodology/validation-plan-v0.1.md` — including languages (English/Dutch/Turkish), benchmark size (8 documents / ~75 facts / 36 intents), agent designs (Direct LLM vs. Simple RAG), logging schema, pre-registered falsification rules, token-tax baseline calculation, tokenizer/model decision rules, and evaluation method. The remaining blockers are practical decisions (model/provider, budget, instrumentation platform), not methodology gaps.
+
+The methodology questions resolved on the way are tracked in `docs/open-questions.md` under **Methodology questions before validation** (M1–M9). The most critical were:
 
 - **Success criterion (M1, M2, M3):** How is task completion defined and scored, and can that scoring method be validated for cross-language reliability? An evaluator biased toward English will produce biased success classifications, making any execution-tax signal untrustworthy. (See `docs/sources/agent-evals/agent-as-a-judge.md`.)
 - **Decomposition method (M4):** How does NiceM separate token-tax (longer input) from execution-tax (longer path) in the measurement? Without a decomposition method, the two effects cannot be distinguished.

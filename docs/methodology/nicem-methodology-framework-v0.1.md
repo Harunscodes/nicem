@@ -15,6 +15,7 @@
 **Token-tax baseline follow-up:** The §12 baseline-token-tax item is defined in `docs/methodology/baseline-token-tax-calculation-v0.1.md`: per-intent token-tax ratios relative to the English analytic baseline (the structured fact-set remains canonical), semantic-normalized retrieval comparison, the Agent A/B measurement roles, and the residual-overhead-after-token-count-control method. Grounded in Petrov, Ahia, and Lundin; pending the tokenizer/model choice (LS4/LG2).
 **Tokenizer/model follow-up:** BT1/LS4/LG2 is addressed in `docs/methodology/tokenizer-model-choice-v0.1.md`: staged approach (tokenizer-only Stage 1 → smoke test Stage 2 → full run Stage 3), selection criteria for execution model, tokenizer requirements, pricing requirements, version-drift logging rules, and failure modes if model/tokenizer are mismatched. Specific provider/model not yet chosen; Stage 1 (tokenizer-only sanity gate over all query renderings) is executable now.
 **Evaluation method follow-up:** M2 and the final §12 item are resolved in `docs/methodology/evaluation-method-v0.1.md`: deterministic/semi-deterministic fact-set checks primary, project-owner human audit layer, LLM-as-judge optional support only; uncertainty and overturn rates tracked by language with a recalibration gate before any cost interpretation. With this, all §12 prerequisites have working answers at the methodology level.
+**Validation plan:** `docs/methodology/validation-plan-v0.1.md` consolidates the complete methodology layer into the executable roadmap: remaining practical decisions, artifact construction sequence, quality gates, Stage 1 (tokenizer-only) → Stage 2 (smoke test) → Stage 3 (full exploratory benchmark) with go/no-go criteria, the nine-step analysis sequence, pre-registered interpretation outcomes, and consolidated reporting rules.
 
 ---
 
@@ -257,6 +258,8 @@ Before any proof-of-concept benchmark is built, the following must be resolved. 
 - [x] **Define falsification threshold** — resolved: `docs/methodology/falsification-and-decision-rules-v0.1.md` pre-registers H0/H1/H2, eight evidence patterns, falsifying observations, inconclusiveness conditions, measurement-failure stoppers, provisional quantitative thresholds, the A-vs-B interpretation matrix, and nine reporting rules. Must be confirmed before benchmark runs.
 
 Only once these are settled should NiceM consider a minimal proof-of-concept. The PoC's purpose will be to validate or falsify execution-tax — not to assume it.
+
+> **Checklist status:** all items above now have working answers at the methodology level. The path from here to the PoC is sequenced in `docs/methodology/validation-plan-v0.1.md`, including the remaining practical decisions (model/provider, budget, instrumentation platform, audit fraction) that must be made before construction begins.
 
 ---
 

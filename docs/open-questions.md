@@ -60,6 +60,8 @@ This document tracks what is not yet known, not yet proven, and not yet decided.
 These questions must be answered — or at minimum scoped — before NiceM can run a valid execution-tax measurement experiment. They are not research hypotheses; they are design decisions whose answers determine whether the experiment is sound.
 
 > **Now structured by:** `docs/methodology/nicem-methodology-framework-v0.1.md`. The framework provides working positions on most of these (success definition in §4, evaluation options in §5, trajectory metrics in §6, token-tax/execution-tax decomposition in §7, falsification criteria in §8). The framework *structures* these questions; it does not yet *close* them — each still requires the validation work listed in framework §12 before it is resolved. Status notes below reflect this.
+>
+> **Roadmap:** the complete methodology layer is sequenced into an executable plan in `docs/methodology/validation-plan-v0.1.md`: remaining practical decisions → dataset construction → quality gates → Stage 1 (tokenizer-only) → Stage 2 (smoke test) → Stage 3 (full exploratory benchmark) → nine-step analysis → pre-registered interpretation.
 
 - **M1:** How should NiceM define successful completion?
   - What counts as success: a correct final answer, a completed workflow, a user-approved outcome, or all three? Does partial completion count? The definition must be precise enough to apply consistently across languages and task types.
