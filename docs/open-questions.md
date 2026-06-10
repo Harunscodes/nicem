@@ -108,7 +108,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Open — 20–50 instances suggested for pilot; depends on M8 statistical power calculation*
 
 - **TF3:** How many languages and which ones?
-  - *Status: Open — minimum three recommended (English baseline + one mid-premium + one high-premium from Petrov/Ahia spectrum); four or five gives richer signal*
+  - *Status: Decision made — `docs/methodology/language-selection-v0.1.md` recommends English, Dutch, Turkish for v0.1. English = high-resource analytic baseline (NOT canonical source — canonical artifact is the structured fact-set). Dutch = near-baseline Latin-script comparison (mild premium, project owner evaluable). Turkish = agglutinative Latin-script condition (moderate-to-high premium, morphological variation probe). Six candidate v0.2 expansion languages ranked: Arabic (1), Hindi (2), Swahili (3), Korean (4), Japanese (5), Finnish (6). Fallback: if Turkish bilingual review is infeasible, v0.1 runs English + Dutch only. Open sub-questions: LS1 (Turkish bilingual reviewer identity), LS2 (Turkish formality register), LS4 (tokenizer/model for baseline measurement).*
 
 - **TF4:** Should knowledge base documents be translated from canonical English or constructed language-specifically from a shared fact-set?
   - *Status: Direction set — retrieval-design-decision §6 and §9 recommend authoring each language KB from the canonical structured fact-set (not translating English prose), with bilingual review and a pre-run KB completeness check. Whether rendering is human-authored or machine-translated-then-reviewed remains open (depends on language selection and reviewer availability).*
@@ -121,6 +121,26 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 
 - **TF7:** How to prevent English from becoming the hidden canonical version of the knowledge base?
   - *Status: Working answer adopted — the canonical artifact is the structured fact-set; every language KB, including English, is a rendering of it (retrieval-design-decision §9, §10). The English KB has no privileged status. The concrete authoring protocol (who renders, in what order, with what review) is still to be written.*
+
+### Language selection sub-questions (from language-selection-v0.1.md §10)
+
+- **LS1:** Who will perform the bilingual review of the Turkish KB?
+  - *Status: Open — must be identified before Turkish KB construction begins; if unavailable, Turkish defers to v0.2*
+
+- **LS2:** What formality register should KB and task prompts use in Turkish?
+  - *Status: Open — formal vs. informal affects morphology and tokenization; must be standardized before authoring begins*
+
+- **LS3:** Should Dutch and Turkish task prompts be authored independently or adapted from English prompts?
+  - *Status: Direction set — author from fact-set (not translated from English task prompts)*
+
+- **LS4:** Which tokenizer and model will be used as the primary measurement baseline?
+  - *Status: Open — token-tax component of the execution-tax decomposition depends on this; must be decided before dataset construction*
+
+- **LS5:** Should v0.1 include a fourth language (e.g., Spanish) as a near-English control to isolate Dutch-specific effects?
+  - *Status: Open — only needed if Dutch-English comparison shows unexpected results; increases KB burden*
+
+- **LS6:** At what fertility threshold does the Turkish condition become a high-token-tax condition vs. a mild-premium condition?
+  - *Status: Answered empirically in v0.1 benchmark — no pre-specification needed*
 
 ---
 
