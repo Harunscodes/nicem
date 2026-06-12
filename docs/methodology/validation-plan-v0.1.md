@@ -70,8 +70,9 @@ Recommended order: TM5/BS6 (budget) first — it constrains everything else; the
 
 The order matters: the fact-set precedes everything, and no language rendering precedes the language-neutral specification it renders.
 
-1. **Create the canonical structured fact-set** (~75 facts across the seven categories of benchmark-sizing §6 plus general terms). This is the canonical artifact — every later artifact derives from it.
-2. **Create the synthetic KB renderings** — 8 documents in English, Dutch, and Turkish, each authored *from the fact-set*, never translated from another rendering (TF4, TF7).
+1. **Create the canonical structured fact-set** (~75 facts across the seven categories of benchmark-sizing §6 plus general terms). This is the canonical artifact — every later artifact derives from it. **Complete:** `canonical-fact-set.md` (fs-v0.1.0) — 78 facts.
+1b. **Create the document plan** — a section-level structural plan mapping every fact to a document section before any prose is written, so the three renderings can be parallel. **Complete:** `document-plan.md` (kb-plan-v0.1.0) — 39 sections, section-as-chunk convention, ambiguity controls AC1–AC9.
+2. **Create the synthetic KB renderings** — 8 documents in English, Dutch, and Turkish, each authored *from the fact-set and document plan*, never translated from another rendering (TF4, TF7). Preceded by `language-rendering-plan.md` (per-language terminology, register, chunk-ID scheme).
 3. **Create 36 language-neutral intent specifications** — each defined at the fact level (which facts, which conditions), per the intent design principles (benchmark-sizing §7).
 4. **Render each intent in English, Dutch, and Turkish** — from the intent specification, not from the English rendering (LS3).
 5. **Create expected fact-set mappings** — one language-neutral expected fact-set per intent (`expected_fact_set_id`), stored separately from the prose KB (benchmark-sizing §8).

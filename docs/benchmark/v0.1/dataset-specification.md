@@ -631,6 +631,8 @@ docs/benchmark/v0.1/document-plan.md
   Includes: section structure per document, fact distribution per section,
   ambiguity decisions, terminology decisions.
   Created after canonical-fact-set.md is drafted.
+  STATUS: CREATED — 39 sections mapping all 78 facts; nine ambiguity controls
+  AC1–AC9; section-as-chunk convention; seven open questions DP1–DP7.
 
 docs/benchmark/v0.1/intent-set.md
   All 36 intent specifications structured per the schema in §6.

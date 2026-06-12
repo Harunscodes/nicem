@@ -311,6 +311,29 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 - **DS8:** Should any tasks require combining facts from two documents?
   - *Status: Direction set — include 2–4 cross-document (T5) intents within the 12 troubleshooting/process tier; not a separate category; confirm at intent-set authoring*
 
+### Document plan open questions (from document-plan.md §10)
+
+- **DP1:** Should each document have the same number of sections across languages?
+  - *Status: Direction set — yes within a document (cross-language parallelism required); no across different documents (section counts vary: D01:4, D02:5, D03:5, D04:5, D05:4, D06:6, D07:5, D08:5)*
+
+- **DP2:** Should fact IDs appear visibly in prose KB renderings or only as metadata?
+  - *Status: Open, leaning metadata-only — visible fact IDs would leak structure and contaminate retrieval realism; decide in language-rendering-plan.md*
+
+- **DP3:** How long should each retrieval chunk be?
+  - *Status: Open — chunk boundary is the section (§6); resulting token length varies by section/language (a token-tax effect to measure, not engineer away); confirm no section is too long during rendering*
+
+- **DP4:** Should troubleshooting steps be one chunk or multiple chunks?
+  - *Status: Direction set — one chunk per ordered procedure so a full multi-step answer is retrievable together; confirm against DP3 length limits for the longest procedure (connectivity, four steps)*
+
+- **DP5:** Should subscription (D04) and account (D08) documents cross-reference each other?
+  - *Status: Direction set — yes, minimally: the cloud-video carve-out (F0809) references that cloud video is governed by the subscription (D04); cross-references are pointers, not duplicated policy facts*
+
+- **DP6:** How much redundancy is allowed across documents?
+  - *Status: Direction set — minimal; a policy fact lives in exactly one document/section; cross-document relationships are references, not repetition*
+
+- **DP7:** How will chunk IDs map to fact IDs?
+  - *Status: Direction set — each chunk = one document section; proposed scheme `<document_id>-S<section_number>` (e.g., D03-S2) with fact-ID list in rendering metadata; must be identical across languages so semantic_units_retrieved is comparable; finalize in language-rendering-plan.md*
+
 ### Evaluation method sub-questions (from evaluation-method-v0.1.md §15)
 
 - **EV1:** What percentage of outputs should receive human review?
