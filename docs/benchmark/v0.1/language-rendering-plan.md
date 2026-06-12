@@ -111,14 +111,14 @@ For each concept, the table fixes the canonical meaning (from `canonical-fact-se
 | return window | 30-day from-purchase return eligibility period (F0301) | return window | retourtermijn | iade süresi | AC1: distinct from "cloud storage period" in all three languages |
 | refund | Money returned to original payment method (F0307) | refund | terugbetaling | geri ödeme | Applies to both return refund and shipping-delay refund; confirm scope from context |
 | cloud storage | 30-day cloud video retention on subscription (F0402) | cloud storage / cloud video storage | cloudopslag / cloudvideo-opslag | bulut depolama / bulut video depolama | AC1: distinct from "return window" in all three; "cloud" kept as loanword in Dutch/Turkish |
-| live view | Real-time Camera viewing; subscription-free (F0403, F0104) | live view | live weergave | TODO: canlı görüntü? | AC4: must not imply subscription requirement; TODO on Turkish term |
+| live view | Real-time Camera viewing; subscription-free (F0403, F0104) | live view | live weergave | canlı görüntü | AC4: must not imply subscription requirement; Turkish term resolved |
 | pairing mode | Device state for connecting to Hub, entered by 5-second setup-button hold (F0607) | pairing mode | koppelingsmodus | eşleştirme modu | AC2: "pairing" lexically distinct from "reset" in all three |
 | soft reset | Restart without erasing settings (F0804) | soft reset | zachte reset | yumuşak sıfırlama | AC5: distinct from factory reset and Hub restart in all three |
 | factory reset | Full erase of settings + account unlink (F0805) | factory reset | fabrieksreset | fabrika ayarlarına sıfırlama | AC5: "fabrika ayarları" is natural Turkish; distinct from "yumuşak sıfırlama" |
 | Hub restart | Restarting the Hub without resetting (F0603, D06 troubleshooting step) | restart the Hub | start de Hub opnieuw op | Hub'ı yeniden başlatın | AC5: distinct from both soft reset and factory reset; "opnieuw opstarten" vs. "reset" in Dutch |
 | repair | Fixing a device (in- or out-of-warranty) (F0701, F0702) | repair | reparatie | onarım | Distinct from replacement |
-| replacement | Providing a different device (F0703) | replacement | vervanging | değişim / yedek cihaz | TODO: confirm Turkish term consistency; "değişim" is clean but "yedek cihaz" may be more natural in context |
-| refurbished replacement | A replacement device that is refurbished (F0704, F0705) | refurbished replacement | gereviseerde vervanging | yenilenmiş yedek cihaz | AC8: "gereviseerd" is standard Dutch for refurbished; must carry warranty-floor meaning |
+| replacement | Providing a different device (F0703) | replacement | vervanging | değişim | Turkish term resolved to "değişim" (controlled); used consistently in kb-rendering-tr |
+| refurbished replacement | A replacement device that is refurbished (F0704, F0705) | refurbished replacement | gereviseerde vervanging | yenilenmiş değişim cihazı | AC8: "gereviseerd" is standard Dutch for refurbished; Turkish resolved to "yenilenmiş değişim cihazı"; must carry warranty-floor meaning |
 | subscription plan | Camera Plus Plan cloud subscription (F0401) | subscription plan / Camera Plus Plan | abonnement / Camera Plus Plan | abonelik planı / Camera Plus Plan | Plan name "Camera Plus Plan" kept untranslated; generic term translated |
 | trial period | 14-day free Camera Plus Plan trial (F0405) | free trial / trial period | gratis proefperiode | ücretsiz deneme süresi | AC3: "14-day trial" and "30-day storage" must use distinct terms and carry their numbers |
 | account recovery | Password-reset procedure via email link (F0801–F0803) | account recovery / password recovery | accountherstel / wachtwoordherstel | hesap kurtarma / şifre sıfırlama | Distinct from "device reset" in all three |
@@ -128,7 +128,7 @@ For each concept, the table fixes the canonical meaning (from `canonical-fact-se
 | manufacturing defect | Defect arising from the production process (F0202) | manufacturing defect | fabricagefout | üretim hatası | Covered by warranty; distinct from accidental damage |
 | prepaid shipping label | Shipping label provided by NiceHome for in-warranty claims (F0207) | prepaid shipping label | vooraf betaald verzendetiket | önceden ödenmiş gönderi etiketi | AC7-adjacent: prepaid = in-warranty; customer-pays = out-of-warranty (F0706) |
 
-**Note on TODO items:** `live view` (Turkish) and `replacement` (Turkish) are marked TODO. These do not block sections that do not use them. The Turkish rendering must not begin authoring until all TODOs in its sections are resolved. Recommended: project owner (native Turkish speaker) confirms these two terms before the Turkish rendering is authored.
+**Note on TODO items (RESOLVED):** The two Turkish TODOs (`live view`, `replacement`) were resolved by the project owner before the renderings were authored: live view = *canlı görüntü*, replacement = *değişim*, refurbished replacement = *yenilenmiş değişim cihazı*. These are now controlled Turkish terminology, used consistently in `kb-rendering-tr.md`, with slight natural-phrasing variation permitted only where meaning is preserved. Project-owner review of the full Turkish rendering is still pending.
 
 ---
 
@@ -246,6 +246,8 @@ Each file contains all 8 documents for its language, with:
 - Reviewed against the quality gates in §10 before freezing
 
 Recommended authoring order: author all three renderings before freezing any of them, so a cross-language comparison pass can catch structural divergence. Freeze all three together as `kb-rendering-v0.1.0`.
+
+**STATUS: all three renderings created** (`kb-rendering-en.md` kb-en-v0.1.0, `kb-rendering-nl.md` kb-nl-v0.1.0, `kb-rendering-tr.md` kb-tr-v0.1.0), each with all 39 chunks. Automated alignment check confirms identical chunk_id + fact_ids across all three files. No `TODO_REVIEW` markers remain in prose. Not yet frozen — pending project-owner Turkish review and independent native Dutch review (LR6).
 
 ---
 

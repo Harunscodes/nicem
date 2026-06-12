@@ -329,7 +329,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: RESOLVED — metadata only, not in prose. Resolves DP2. Chunk ID scheme: `<document_id>-S<section_number>` with metadata blocks stripped when served to agents.*
 
 - **LR6:** Should the Dutch rendering be reviewed by a native Dutch speaker before public claims?
-  - *Status: Open — dependency identified as analogous to LS1 (Turkish bilingual KB review); project owner is not a native Dutch speaker; independent Dutch review recommended before publication-grade claims*
+  - *Status: Open and now active — `kb-rendering-nl.md` (kb-nl-v0.1.0) is authored and awaiting independent native Dutch review before freezing or any publication-grade claim; project owner is not a native Dutch speaker. Analogous to LS1 (Turkish bilingual KB review).*
 
 - **LR7:** Is the register guidance in §4 sufficient to prevent English from being systematically more compact than Dutch/Turkish?
   - *Status: Open — deferred to authoring stage; flag if English rendering is substantially shorter per section than Dutch without a clear structural reason*
