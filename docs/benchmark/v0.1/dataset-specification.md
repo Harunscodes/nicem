@@ -643,6 +643,10 @@ docs/benchmark/v0.1/language-rendering-plan.md
   Register decisions per language.
   Chunking strategy decision (chunk-per-document, chunk-per-section, chunk-per-fact).
   Created after the fact-set is stable and before any KB rendering begins.
+  STATUS: CREATED — lr-plan-v0.1.0, not yet frozen. Section-as-chunk confirmed;
+  chunk-ID scheme D<n>-S<n>; fact IDs metadata-only (DP2 resolved); 20-concept
+  EN/NL/TR terminology table (2 Turkish TODOs); register per language; AC1-AC9
+  preservation rules; LR1-LR7 open; LR6 flags Dutch bilingual review dependency.
 
 docs/benchmark/v0.1/expected-fact-mapping.md
   Maps each intent_id to its required_facts and expected_outcome.

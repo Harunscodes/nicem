@@ -311,13 +311,36 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 - **DS8:** Should any tasks require combining facts from two documents?
   - *Status: Direction set — include 2–4 cross-document (T5) intents within the 12 troubleshooting/process tier; not a separate category; confirm at intent-set authoring*
 
+### Language rendering open questions (from language-rendering-plan.md §13)
+
+- **LR1:** Should Dutch prose use "u" (formal direct address) or instructional impersonal phrasing?
+  - *Status: Direction set — prefer impersonal instructional where natural; fall back to "u" for direct-address contexts; confirm with Dutch-language reviewer before Dutch rendering is frozen*
+
+- **LR2:** Should Turkish prose use formal "siz" or impersonal imperatives?
+  - *Status: Direction set — prefer impersonal imperative for procedural steps; "siz" constructions where impersonal reads awkwardly; project owner to confirm during Turkish rendering review*
+
+- **LR3:** Are there cases where Turkish product-name suffix attachment with an apostrophe produces unnatural results?
+  - *Status: Open — project owner to flag per-case during review; convention (apostrophe before suffix on foreign proper nouns) is standard Turkish orthography*
+
+- **LR4:** Should section titles be natural translations or controlled literal labels?
+  - *Status: Direction set — natural translations; section scope must match across languages but wording should be idiomatic*
+
+- **LR5:** Should fact IDs and chunk IDs be visible in prose KB renderings or only in metadata?
+  - *Status: RESOLVED — metadata only, not in prose. Resolves DP2. Chunk ID scheme: `<document_id>-S<section_number>` with metadata blocks stripped when served to agents.*
+
+- **LR6:** Should the Dutch rendering be reviewed by a native Dutch speaker before public claims?
+  - *Status: Open — dependency identified as analogous to LS1 (Turkish bilingual KB review); project owner is not a native Dutch speaker; independent Dutch review recommended before publication-grade claims*
+
+- **LR7:** Is the register guidance in §4 sufficient to prevent English from being systematically more compact than Dutch/Turkish?
+  - *Status: Open — deferred to authoring stage; flag if English rendering is substantially shorter per section than Dutch without a clear structural reason*
+
 ### Document plan open questions (from document-plan.md §10)
 
 - **DP1:** Should each document have the same number of sections across languages?
   - *Status: Direction set — yes within a document (cross-language parallelism required); no across different documents (section counts vary: D01:4, D02:5, D03:5, D04:5, D05:4, D06:6, D07:5, D08:5)*
 
 - **DP2:** Should fact IDs appear visibly in prose KB renderings or only as metadata?
-  - *Status: Open, leaning metadata-only — visible fact IDs would leak structure and contaminate retrieval realism; decide in language-rendering-plan.md*
+  - *Status: RESOLVED in language-rendering-plan.md §3 — metadata only, not in prose. Chunk ID scheme `<document_id>-S<section_number>`; metadata blocks stripped before serving content to agents. Resolves LR5.*
 
 - **DP3:** How long should each retrieval chunk be?
   - *Status: Open — chunk boundary is the section (§6); resulting token length varies by section/language (a token-tax effect to measure, not engineer away); confirm no section is too long during rendering*
