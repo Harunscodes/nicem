@@ -637,6 +637,9 @@ docs/benchmark/v0.1/document-plan.md
 docs/benchmark/v0.1/intent-set.md
   All 36 intent specifications structured per the schema in §6.
   Created after canonical-fact-set.md is stable enough to assign fact IDs.
+  STATUS: CREATED — intent-v0.1.0, not yet frozen. 36 intents (12/12/12);
+  all 8 documents represented; AC1-AC9 covered (AC4 indirect only, flagged IS1);
+  7 open questions IS1-IS7. Coverage analysis included.
 
 docs/benchmark/v0.1/language-rendering-plan.md
   Terminology lists per language (product names, policy terms, action verbs).

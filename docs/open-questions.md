@@ -311,6 +311,29 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 - **DS8:** Should any tasks require combining facts from two documents?
   - *Status: Direction set — include 2–4 cross-document (T5) intents within the 12 troubleshooting/process tier; not a separate category; confirm at intent-set authoring*
 
+### Intent set open questions (from intent-set.md)
+
+- **IS1:** Should a dedicated simple intent for F0110 (live view unavailable when Hub offline) be added to directly test AC4? Currently covered only indirectly.
+  - *Status: Open — recommend adding in v0.2 or as INT-037 if 36 is relaxed; AC4 coverage flagged as the thinnest in the set*
+
+- **IS2:** Should a dedicated simple intent for F0612 (Sensor recalibration) be added for D06 non-connectivity coverage?
+  - *Status: Open — F0612 is the only D06 fact with no direct intent; low priority given D06 has 13 facts and 5 intents already*
+
+- **IS3:** Should a troubleshooting intent for F0708 (accidental/liquid damage → out-of-warranty service quote) be added to cover D07's damage exclusion path?
+  - *Status: Open — currently covered as secondary context in INT-015; may improve D07 depth*
+
+- **IS4:** INT-003 requires all three Sensor measurements. Should "two out of three" be UNCERTAIN or FAIL?
+  - *Status: Open — recommend pre-registering as UNCERTAIN (partial but not wrong); to be confirmed in expected-fact-mapping.md*
+
+- **IS5:** INT-025/INT-026 test full ordered sequences. Is exact step order required, or "all steps, substantially correct order"?
+  - *Status: Open — recommend exact order required (sequences are causally ordered, not arbitrary lists); to be confirmed in expected-fact-mapping.md*
+
+- **IS6:** INT-019 refurbished warranty floor — should all three misreadings be pre-registered as FAIL patterns?
+  - *Status: Open — yes, recommend explicit pre-registration of flat-90, full-2-year-reset, and no-warranty as FAIL in expected-fact-mapping.md*
+
+- **IS7:** INT-035 delay vs. loss — is mentioning both remedies acceptable if delay remedy is correctly identified?
+  - *Status: Open — recommend: acceptable (proactive correct context) as long as the delay-specific remedy is clearly identified for the described scenario*
+
 ### Language rendering open questions (from language-rendering-plan.md §13)
 
 - **LR1:** Should Dutch prose use "u" (formal direct address) or instructional impersonal phrasing?
