@@ -621,6 +621,9 @@ docs/benchmark/v0.1/canonical-fact-set.md
   The canonical artifact. ~75 facts structured per the schema in §5.
   Created after this specification is reviewed and accepted.
   First real benchmark content.
+  STATUS: CREATED — 78 facts (fs-v0.1.0, not yet frozen). The actual per-document
+  counts (D01:10, D02:9, D03:11, D04:9, D05:8, D06:13, D07:9, D08:9) supersede the
+  estimates in §4 of this document. DS3 (final fact count) is now resolved at 78.
 
 docs/benchmark/v0.1/document-plan.md
   Defines the exact content plan for each of the 8 synthetic documents

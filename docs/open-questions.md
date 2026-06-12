@@ -294,19 +294,19 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Direction set — keep entirely separate; NiceM does not appear inside KB documents; the two brands (NiceM the research project, NiceHome the fictional product) are distinct*
 
 - **DS3:** How many facts should each document contain?
-  - *Status: Ranges set (§4 of dataset-specification.md sum to ~72–79 against a ~75 target); final count determined during canonical-fact-set authoring; confirm or adjust at that stage*
+  - *Status: RESOLVED in canonical-fact-set.md (fs-v0.1.0) — 78 facts total: D01:10, D02:9, D03:11, D04:9, D05:8, D06:13, D07:9, D08:9. Supersedes the §4 estimates.*
 
 - **DS4:** Which facts should be simple vs conditional?
-  - *Status: Open — the difficulty distribution requires ~12 simple intents; document-plan.md should map each document's expected fact types to difficulty tiers before fact-set authoring begins*
+  - *Status: Largely resolved at fact level — the fact-set contains ~18 simple, ~32 conditional, ~20 sequential, ~8 exception facts. The mapping of facts to the 12/12/12 intent difficulty tiers remains for intent-set.md authoring.*
 
 - **DS5:** Should subscriptions/pricing be included or avoided to reduce arithmetic noise?
-  - *Status: Open — recommendation is to include pricing as simple lookup facts (fixed round numbers) if included at all; no arithmetic required; decision deferred to document-plan.md authoring*
+  - *Status: RESOLVED — pricing excluded entirely from the fact-set. Subscription facts (F0401–F0409) describe plans by features and rules (storage duration, trial length, cancellation/change timing), not by price. No arithmetic anywhere in the fact-set.*
 
 - **DS6:** How formal should Turkish and Dutch renderings be?
   - *Status: Open — recommendation is Dutch informal (jij/je) and Turkish polite-informal (siz form without excessive honorifics); to be confirmed and documented as a global default in language-rendering-plan.md*
 
 - **DS7:** Should troubleshooting tasks include ordered steps?
-  - *Status: Direction set — sequential fact type is defined for troubleshooting steps; query forms should be implicit ("my Hub won't connect") not explicit step requests; expected_outcome must list required steps explicitly; finalize at intent-set authoring*
+  - *Status: Direction set and reflected in the fact-set — D06 connectivity (F0601–F0604), pairing (F0606–F0608), and the Hub factory-reset (F0806–F0807) sequences are authored as ordered sequential facts with step conditions. Query forms remain a choice for intent-set.md (recommendation: implicit query, explicit expected steps).*
 
 - **DS8:** Should any tasks require combining facts from two documents?
   - *Status: Direction set — include 2–4 cross-document (T5) intents within the 12 troubleshooting/process tier; not a separate category; confirm at intent-set authoring*
