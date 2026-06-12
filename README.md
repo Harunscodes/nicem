@@ -72,9 +72,9 @@ The current work is:
 - Defining open questions
 - Planning validation methodology
 
-**Status:** the v0.1 methodology layer is complete — the documents in `docs/methodology/` cover success definition, task family, retrieval design, language selection (English/Dutch/Turkish), benchmark sizing, logging schema, agent designs, pre-registered falsification rules, token-tax baseline calculation, tokenizer/model decision rules, and evaluation method. The consolidated roadmap is `docs/methodology/validation-plan-v0.1.md`.
+**Status:** the v0.1 methodology layer is complete and the benchmark artifact phase has begun. The documents in `docs/methodology/` cover success definition, task family, retrieval design, language selection (English/Dutch/Turkish), benchmark sizing, logging schema, agent designs, pre-registered falsification rules, token-tax baseline calculation, tokenizer/model decision rules, and evaluation method. The consolidated roadmap is `docs/methodology/validation-plan-v0.1.md`. The dataset specification is `docs/benchmark/v0.1/dataset-specification.md`.
 
-No product code has been built yet. No experiments have been run yet. No dataset has been generated yet.
+No product code has been built yet. No experiments have been run yet. No dataset has been generated yet. The next artifact is the canonical fact-set.
 
 ---
 
@@ -85,7 +85,7 @@ No product code has been built yet. No experiments have been run yet. No dataset
 - No SaaS architecture
 - No customer-facing features
 
-The next steps are: validation plan, proof-of-concept benchmark design, and startup positioning — in that order.
+The next steps are: canonical fact-set, document plan, intent set, language rendering plan — in that order.
 
 ---
 
@@ -111,6 +111,16 @@ docs/
       pdf/                       — Original PDF source files
     industry/                    — Industry source notes (in progress)
     notes/                       — Working notes and terminology (in progress)
+
+  benchmark/
+    v0.1/
+      dataset-specification.md   — Structure, constraints, and authoring rules for all v0.1 artifacts
+      canonical-fact-set.md      — (to create) ~75 language-neutral canonical facts
+      document-plan.md           — (to create) Content plan for 8 synthetic documents
+      intent-set.md              — (to create) 36 intent specifications
+      language-rendering-plan.md — (to create) Terminology and register rules per language
+      expected-fact-mapping.md   — (to create) Evaluator reference: intent → required facts
+      quality-gates.md           — (to create) Pre-run checklist with pass/fail status
 ```
 
 ---

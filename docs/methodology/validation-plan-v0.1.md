@@ -208,7 +208,7 @@ Every outcome in §11 advances the startup question, which is **whether executio
 In order:
 
 1. **Resolve the §4 practical decisions** — budget (TM5/BS6) and model (TM1) first.
-2. **Create the dataset specification** — formats and authoring protocol for the fact-set, KB renderings, intent specifications, expected fact-sets, and forbidden claims (the §5 sequence made concrete).
+2. **Create the dataset specification** — formats and authoring protocol for the fact-set, KB renderings, intent specifications, expected fact-sets, and forbidden claims (the §5 sequence made concrete). **Complete:** `docs/benchmark/v0.1/dataset-specification.md` defines the fictional product domain (NiceHome ecosystem), the 8-document structure and per-document fact estimates (~75 total), the canonical fact schema (§5), the intent schema (§6), language rendering rules (§7), expected answer design (§8), the 12/12/12 difficulty split (§9), retrieval implications (§10), quality gates (§11), and versioning scheme (§12). Eight open questions DS1–DS8.
 3. **Create the canonical fact-set** — the first real benchmark artifact (§5 step 1).
 4. **Build and run the Stage 1 tokenizer-only script** — the first and only code needed before any model run.
 5. **Create the Stage 2 smoke-test plan** — intent selection, checklist, budget cap.
