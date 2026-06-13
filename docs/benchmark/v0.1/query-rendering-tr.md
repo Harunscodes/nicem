@@ -469,7 +469,7 @@
 
 - **intent_id:** INT-035
 - **language:** tr
-- **query_text:** "Siparişim tahmini teslimat penceresini çoktan geçti ama kayıp olduğu doğrulanmadı. Ne hakkım var — tam para iadesi mi, yeni ürün mü, yoksa başka bir şey mi?"
+- **query_text:** "Siparişim tahmini teslimat penceresini çoktan geçti ama kayıp olduğu doğrulanmadı. Bu durumda neye hakkım olduğunu öğrenebilir miyim — tam para iadesi mi, değişim ürünü mü, yoksa başka bir şey mi?"
 - **linked_fact_ids:** [F0507, F0508]
 - **expected_fact_set_id:** INT-035
 - **difficulty_level:** troubleshooting-process
