@@ -162,7 +162,7 @@
 
 - **intent_id:** INT-012
 - **language:** tr
-- **query_text:** "Hub olmadan NiceHome Plug'ı uzaktan açıp kapatabilir miyim?"
+- **query_text:** "Hub olmadan NiceHome Plug'ımı uzaktan açıp kapatabilir miyim?"
 - **linked_fact_ids:** [F0107]
 - **expected_fact_set_id:** INT-012
 - **difficulty_level:** simple
