@@ -1,6 +1,6 @@
 # NiceM Tokenizer and Model Choice v0.1
 
-**Status:** Decision rules defined — specific provider/model not yet chosen (pending budget and smoke-test; see §12)
+**Status:** Decision rules defined; TM1 now has a PROPOSED resolution — OpenAI GPT-4.1-mini/GPT-4.1 family — in `docs/benchmark/v0.1/tm1-tokenizer-model-decision.md` (awaiting project-owner confirmation; see §12)
 **Addresses:** BT1 / LS4 / LG2 open questions; framework §12 baseline-token-tax prerequisite (unblocking the final step)
 **Depends on:** `docs/methodology/baseline-token-tax-calculation-v0.1.md`, `docs/methodology/logging-schema-v0.1.md`, `docs/methodology/falsification-and-decision-rules-v0.1.md`
 **Feeds into:** Dataset construction (query tokenization sanity gate, §5 step 1), pilot implementation, M9 instrumentation choice
@@ -218,7 +218,7 @@ Candidate execution-tax cannot be interpreted unless token-tax is measured under
 
 | ID | Question | Status | Notes |
 |---|---|---|---|
-| TM1 | Which provider/model will v0.1 use? | Open — selection criteria defined in §6 | The actual choice; blocks Stages 2 and 3; does not block Stage 1 if a tokenizer equivalent is available locally |
+| TM1 | Which provider/model will v0.1 use? | PROPOSED — see `docs/benchmark/v0.1/tm1-tokenizer-model-decision.md` (tm1-v0.1.0) | Recommended default: OpenAI GPT-4.1-mini/GPT-4.1 family (one family, one tokenizer); status PROPOSED awaiting project-owner confirmation; on confirmation, Stage 1 is unblocked |
 | TM2 | Is provider-reported token usage sufficient, or should local counting serve as cross-check? | Open, leaning both if feasible | Log both where possible; use provider counts for cost, local for token-tax ratios; report divergences |
 | TM3 | What temperature setting should be used? | Open, recommendation ≤ 0.2 | Lower temperature reduces run-to-run nondeterminism; full determinism (temperature=0) is preferred if the provider supports it reliably |
 | TM4 | How should model version pinning be handled in API calls? | Open | Use a version-specific model identifier, never a "latest" alias; confirm the provider's version-pinning mechanism before Stage 3 |

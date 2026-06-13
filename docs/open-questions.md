@@ -262,7 +262,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 ### Tokenizer and model choice sub-questions (from tokenizer-model-choice-v0.1.md §12)
 
 - **TM1:** Which provider/model will v0.1 use?
-  - *Status: Open — selection criteria defined in §6; the actual choice; blocks Stages 2 and 3 but not Stage 1*
+  - *Status: PROPOSED — decision note `docs/benchmark/v0.1/tm1-tokenizer-model-decision.md` (tm1-v0.1.0) recommends the OpenAI GPT-4.1-mini/GPT-4.1 family (one family, one tokenizer) for all of v0.1, because local tokenizer access (via `tiktoken`) and later API execution are both easy to operationalize. Status PROPOSED, awaiting project-owner confirmation. On confirmation, Stage 1 is unblocked. Remaining sub-questions: exact tokenizer encoding name (TM1-a, TO_BE_CONFIRMED_IN_STAGE_1_TOOLING), exact model IDs for Agent A/B (TM1-b/c), and whether GPT-4.1-mini suffices for Stage 3 or GPT-4.1 is needed (TM1-d, settled by the Stage 2 smoke test).*
 
 - **TM2:** Is provider-reported token usage sufficient, or should local counting serve as a cross-check?
   - *Status: Open, leaning both — log both; provider counts for cost, local for token-tax ratios; report divergences*
