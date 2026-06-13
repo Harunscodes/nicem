@@ -378,7 +378,7 @@
 
 - **intent_id:** INT-028
 - **language:** tr
-- **query_text:** "NiceHome Sensor'um garantisi dahilinde ve çalışmıyor. Garanti talebinde nasıl bulunurum?"
+- **query_text:** "NiceHome Sensor'um garanti kapsamında ve çalışmıyor. Garanti talebinde nasıl bulunurum?"
 - **linked_fact_ids:** [F0205, F0206, F0207, F0208]
 - **expected_fact_set_id:** INT-028
 - **difficulty_level:** troubleshooting-process
