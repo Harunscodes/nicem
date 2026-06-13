@@ -56,9 +56,10 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | `query-rendering-nl.md` | **NEEDS_REVIEW** | External (QR8/LR6) | File exists; 36 queries confirmed; INT-001–036 all present; authored from intent specs (not translated from EN); no TODO_REVIEW in query_text; versioned qr-nl-v0.1.0 | Native Dutch speaker review required before Stage 2+ public claims; sufficient for internal Stage 1 |
 | `query-rendering-tr.md` | **PASS** | Project owner (QR9) | File exists; 36 queries confirmed; INT-001–036 all present; apostrophe suffix convention applied; controlled terms applied; QR9 review complete (7 corrections applied); versioned qr-tr-v0.1.0 | — |
 | `tm1-tokenizer-model-decision.md` | **PASS** | Project owner | File exists; resolves TM1 with recommended default (OpenAI GPT-4.1-mini/GPT-4.1 family); versioned tm1-v0.1.0 | Status PROPOSED — awaiting project-owner confirmation |
+| `query-variant-plan.md` | **PASS** | Project owner | File exists; 11 sections; qv-plan-v0.1.0; no variant texts yet — planning only | Variants are optional robustness layer; not required before Stage 1a |
 | All artifacts in `source-map.md` | **PASS** | Project owner | Every artifact created in this phase is catalogued in `docs/source-map.md` | — |
 
-**Inventory gate verdict: PASS** — all 14 artifacts exist. Content quality gates follow below.
+**Inventory gate verdict: PASS** — all 15 artifacts exist (14 benchmark artifacts + 1 variant planning document). Content quality gates follow below.
 
 ---
 
@@ -190,6 +191,44 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Dutch query native review (QR8/LR6) | **NEEDS_REVIEW** | Required before Stage 2+ public claims; internal Stage 1 use acceptable |
 
 **Query rendering gate verdict: PASS** on structural and parity checks; Turkish owner review (QR9) PASS; **NEEDS_REVIEW** on Dutch native review (QR8/LR6, deferred to pre-publication).
+
+---
+
+## 9c. Cross-language query semantic equivalence gate
+
+*Purpose: confirm that EN/NL/TR query renderings for each INT express the same intent, same conditions, same difficulty, and same absence of answer hints — so token-count differences reflect language/tokenization properties, not authoring differences.*
+
+| Criterion | Status | Evidence / Notes |
+|---|---|---|
+| Same intent expressed across all three languages per INT | **PASS** | Full 36-INT review conducted 2026-06-13; EN/NL/TR compared against `intent-set.md` and `expected-fact-mapping.md`; no intent-level meaning divergence found |
+| Same conditions preserved (conditional intents) | **PASS** | All 12 conditional intents (INT-013–024) carry the same activating conditions in all three languages; verified per entry |
+| Same difficulty level across languages | **PASS** | No language renders a simple intent as conditional or vice versa; same multi-fact or ordered-step requirements |
+| No answer hints in any language | **PASS** | Verified at authoring and confirmed in cross-language review; queries ask, do not guide |
+| INT-004 TR terminology alignment | **PASS** | "ücret iadesi" (fee refund) changed to "para iadem" (my money refund) 2026-06-13, aligning with "para iadesi" used in INT-011 and INT-035 TR; consistent controlled-register terminology across TR file |
+| INT-035 TR controlled term alignment | **PASS** | "yeni ürün" replaced with "değişim ürünü" in QR9 review; aligns with EN "replacement" and NL "vervanging" and controlled term "değişim" |
+| Natural register across all three languages | **PASS** | EN: neutral support-style; NL: natural ik/mijn product support; TR: natural Turkish support-style with correct apostrophe-suffix convention |
+| Cross-language audit single-evaluator caveat | **WAIVED_WITH_LIMITATION** | Review conducted by project owner (native Turkish, non-native Dutch); Dutch register and phrasing accepted for internal Stage 1 use; independent bilingual review required before publication-grade claims |
+
+**Cross-language equivalence gate verdict: PASS** for internal Stage 1 — no intent-level parity failures found; one terminology inconsistency (INT-004 TR) resolved; Dutch phrasing accepted under WAIVED_WITH_LIMITATION (native review pending for public claims).
+
+---
+
+## 9d. Query variant plan gate
+
+*Purpose: confirm that the query variant design is documented and that variants are correctly scoped as optional — i.e., that no variant creation is required before Stage 1a.*
+
+| Criterion | Status | Evidence / Notes |
+|---|---|---|
+| Query variant plan exists | **PASS** | `query-variant-plan.md` (qv-plan-v0.1.0) created 2026-06-13; 11 sections |
+| Variant type definitions fixed | **PASS** | V1–V5 defined in §4; V1 = existing primary rendering; V2–V5 = optional new texts |
+| Variant equivalence requirements defined | **PASS** | §5: same intent_id, linked facts, conditions, difficulty, expected answer; no answer hints; no new intent |
+| Language fairness rules defined | **PASS** | §6: authored from intent spec (not EN translation); comparable variant types across languages; Turkish apostrophe convention and controlled terms apply; Dutch native review required for public claims |
+| Stage 1a/1b separation documented | **PASS** | §7: Stage 1a = 108 primary queries only; Stage 1b = optional 540-query variant set; never mixed in headline metrics |
+| Variants not required before Stage 1a | **PASS** | §11 recommendation: defer variant authoring until Stage 1a tokenizer sanity gate passes and TM1 is confirmed |
+| No variant texts exist yet | **PASS** | qv-plan-v0.1.0 is planning only; `query-variants-en.md`, `query-variants-nl.md`, `query-variants-tr.md` not yet created |
+| Risks documented | **PASS** | §10: variant explosion, specificity drift in V3/V4, phrasing inflating token counts, metric complexity, scope risk for v0.1 all pre-registered |
+
+**Query variant plan gate verdict: PASS** — variant design is planned and scoped; no variant creation is required before Stage 1a; primary 108-query set remains the sole Stage 1a input.
 
 ---
 

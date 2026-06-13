@@ -58,7 +58,7 @@
 
 - **intent_id:** INT-004
 - **language:** tr
-- **query_text:** "Cihazımı iade ettikten sonra ücret iadesi nereye yapılır?"
+- **query_text:** "Cihazımı iade ettikten sonra para iadem nereye yapılır?"
 - **linked_fact_ids:** [F0307]
 - **expected_fact_set_id:** INT-004
 - **difficulty_level:** simple

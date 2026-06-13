@@ -392,7 +392,16 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Direction set — yes, where the AC requires it; AC2 (button hold durations) requires the device context to be stated (Hub vs. Plug) so the model can give the correct duration*
 
 - **QR4:** Is a single query sufficient, or should paraphrase variants be authored?
-  - *Status: Direction set — one canonical query per intent per language for v0.1; paraphrase robustness is a v0.2 question*
+  - *Status: Direction set — one canonical query per intent per language for v0.1; paraphrase robustness addressed by the query variant plan (qv-plan-v0.1.0); variants are optional and designed to run as Stage 1b after Stage 1a is complete. See `docs/benchmark/v0.1/query-variant-plan.md`.*
+
+- **QR10:** Should query variants (V2–V5) be created before or after Stage 1a?
+  - *Status: Direction set — after Stage 1a and after TM1 is confirmed. `query-variant-plan.md` §11 recommends deferring variant authoring until Stage 1a tokenizer sanity gate passes. Authoring 432 variant texts before the primary benchmark is validated risks rework if the tokenizer, model family, or intent set changes.*
+
+- **QR11:** How many variant types are needed for a meaningful phrasing-sensitivity analysis?
+  - *Status: Direction set (provisional) — five variant types (V1–V5) planned; V1=primary controlled, V2=concise natural, V3=context-rich, V4=indirect support-style, V5=alternate natural phrasing. Whether all five are necessary for v0.1 phrasing analysis or whether V2+V3 are sufficient is an open question to resolve before variant authoring begins.*
+
+- **QR12:** Should variant token counts be reported per-variant-type or aggregated as a distribution?
+  - *Status: Open — per-variant-type reporting is more interpretable (V2 is systematically shorter across languages; V3 is longer) but adds analysis complexity. `query-variant-plan.md` §7 requires variants to be reported separately from primary renderings and never mixed in headline metrics. Method for per-type vs. distribution reporting to be decided at Stage 1b analysis time.*
 
 - **QR5:** How should queries be stored — one file per language, or one combined file?
   - *Status: RESOLVED — one file per language: `query-rendering-en.md`, `query-rendering-nl.md`, `query-rendering-tr.md`; each has 36 entries in the schema (intent_id, language, query_text, linked_fact_ids, expected_fact_set_id, notes, review_status); all three files now created.*

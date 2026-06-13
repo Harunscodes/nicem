@@ -72,9 +72,9 @@ The current work is:
 - Defining open questions
 - Planning validation methodology
 
-**Status:** the v0.1 methodology layer is complete and the full benchmark artifact construction phase is complete. `docs/methodology/` covers the full methodology stack. `docs/benchmark/v0.1/` contains all 14 benchmark artifacts: canonical fact-set (78 facts), document plan (39 chunks), language rendering plan, three aligned KB renderings (EN/NL/TR, 39 chunks each), 36-intent set, expected-fact mapping, quality gates, query rendering plan, three query rendering files (EN/NL/TR, 36 queries each, 108 total), and a TM1 tokenizer/model decision note. The consolidated roadmap is `docs/methodology/validation-plan-v0.1.md`.
+**Status:** the v0.1 methodology layer is complete and the full benchmark artifact construction phase is complete. `docs/methodology/` covers the full methodology stack. `docs/benchmark/v0.1/` contains all 14 benchmark artifacts plus a query variant plan: canonical fact-set (78 facts), document plan (39 chunks), language rendering plan, three aligned KB renderings (EN/NL/TR, 39 chunks each), 36-intent set, expected-fact mapping, quality gates, query rendering plan, three query rendering files (EN/NL/TR, 36 queries each, 108 total), a TM1 tokenizer/model decision note, and a query variant plan (optional robustness layer, not required before Stage 1). The consolidated roadmap is `docs/methodology/validation-plan-v0.1.md`.
 
-No product code has been built yet. No experiments have been run yet. The benchmark is not yet executing. The Turkish query review (QR9) is complete. The TM1 decision note proposes the OpenAI GPT-4.1-mini/GPT-4.1 family (one family, one tokenizer) for v0.1; the only step remaining before Stage 1 (tokenizer-only sanity gate) is project-owner confirmation of that recommendation.
+No product code has been built yet. No experiments have been run yet. The benchmark is not yet executing. The Turkish query review (QR9) is complete. A cross-language semantic equivalence audit (EN/NL/TR) is complete and PASS for internal Stage 1 use. The TM1 decision note proposes the OpenAI GPT-4.1-mini/GPT-4.1 family (one family, one tokenizer) for v0.1; the only step remaining before Stage 1 (tokenizer-only sanity gate) is project-owner confirmation of that recommendation.
 
 ---
 
