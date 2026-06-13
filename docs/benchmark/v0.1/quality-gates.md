@@ -52,12 +52,12 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | `expected-fact-mapping.md` | **PASS** | Project owner | File exists; 36 mappings; IS1–IS7 pre-registered; versioned efm-v0.1.0 | Not yet frozen |
 | `quality-gates.md` | **PASS** | Project owner | This file; 16 sections; versioned qg-v0.1.0 | — |
 | `query-rendering-plan.md` | **PASS** | Project owner | File exists; 11 sections; QR1–QR9 open questions; versioned qr-plan-v0.1.0 | Not yet frozen |
-| `query-rendering-en.md` | **NOT_STARTED** | Project owner | File not yet created; 36 English query texts required | Blocks Stage 1 |
-| `query-rendering-nl.md` | **NOT_STARTED** | Project owner | File not yet created; 36 Dutch query texts required | Blocks Stage 1; Dutch review (QR8/LR6) required before Stage 2+ public claims |
-| `query-rendering-tr.md` | **NOT_STARTED** | Project owner | File not yet created; 36 Turkish query texts required | Blocks Stage 1; owner Turkish review (QR9) required before Stage 1 |
+| `query-rendering-en.md` | **PASS** | Project owner | File exists; 36 queries confirmed by automated grep; INT-001–036 all present; no fact/chunk IDs or answer hints in query_text; versioned qr-en-v0.1.0 | Not yet frozen; owner review pending |
+| `query-rendering-nl.md` | **NEEDS_REVIEW** | External (QR8/LR6) | File exists; 36 queries confirmed; INT-001–036 all present; authored from intent specs (not translated from EN); no TODO_REVIEW in query_text; versioned qr-nl-v0.1.0 | Native Dutch speaker review required before Stage 2+ public claims; sufficient for internal Stage 1 |
+| `query-rendering-tr.md` | **NEEDS_REVIEW** | Project owner (QR9) | File exists; 36 queries confirmed; INT-001–036 all present; apostrophe suffix convention applied; controlled terms applied; versioned qr-tr-v0.1.0 | Project-owner Turkish review required BEFORE Stage 1; QR9 is an active gate |
 | All artifacts in `source-map.md` | **PASS** | Project owner | Every artifact created in this phase is catalogued in `docs/source-map.md` | — |
 
-**Inventory gate verdict: PASS** for planning artifacts; **NOT_STARTED** for three query rendering files (required before Stage 1). Content quality gates follow below.
+**Inventory gate verdict: PASS** — all 13 artifacts exist. Content quality gates follow below.
 
 ---
 
@@ -166,6 +166,32 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 
 ---
 
+## 9b. Query rendering quality gate
+
+| Criterion | Status | Evidence / Notes |
+|---|---|---|
+| Exactly 36 EN queries | **PASS** | Automated grep: 36 `## INT-` headers in `query-rendering-en.md` |
+| Exactly 36 NL queries | **PASS** | Automated grep: 36 `## INT-` headers in `query-rendering-nl.md` |
+| Exactly 36 TR queries | **PASS** | Automated grep: 36 `## INT-` headers in `query-rendering-tr.md` |
+| Same INT IDs across all three files | **PASS** | `diff` of `## INT-` lines: EN==NL and EN==TR identical |
+| No fact IDs in query_text fields | **PASS** | Automated grep: zero matches for `F[0-9]{4}` in query_text lines |
+| No chunk/document IDs in query_text fields | **PASS** | Automated grep: zero matches for `D0[0-9]-S` in query_text lines |
+| No answer hints in query_text fields | **PASS** | Verified at authoring; queries ask, do not guide |
+| No TODO_REVIEW in query_text fields | **PASS** | Automated grep of actual query_text entries: zero matches |
+| All conditions preserved for conditional intents | **PASS** | Verified per entry; all 12 conditional intents carry their required conditions |
+| Troubleshooting intents preserve problem state | **PASS** | Verified per entry; all 12 troubleshooting intents describe symptom state |
+| English not systematically over-compressed | **PASS** | Natural clause structures used throughout; no artificial clipping |
+| Dutch not a literal translation of English | **PASS** | Dutch queries authored independently from intent specs; different sentence structures |
+| Turkish not a literal translation of English | **PASS** | Turkish queries authored independently; natural Turkish support-style phrasing |
+| Apostrophe suffix convention (TR) | **PASS** | Hub'ım, Camera'mı, Plan'ımı etc. applied consistently |
+| Controlled product names preserved (all languages) | **PASS** | NiceHome Hub/Sensor/Plug/Camera; Camera Plus Plan — untranslated in NL and TR |
+| Turkish query owner review (QR9) | **NEEDS_REVIEW** | Active gate — project owner must review `query-rendering-tr.md` before Stage 1 begins |
+| Dutch query native review (QR8/LR6) | **NEEDS_REVIEW** | Required before Stage 2+ public claims; internal Stage 1 use acceptable |
+
+**Query rendering gate verdict: PASS** on structural and parity checks; **NEEDS_REVIEW** on Turkish owner review (QR9, active — blocks Stage 1) and Dutch native review (QR8/LR6, deferred to pre-publication).
+
+---
+
 ## 10. Evaluation readiness gate
 
 | Criterion | Status | Evidence / Notes |
@@ -209,13 +235,13 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Tokenizer/model decision rules exist | **PASS** | `docs/methodology/tokenizer-model-choice-v0.1.md` |
 | Specific tokenizer/provider selected | **BLOCKED** | TM1 is unresolved — specific provider/model not yet chosen; tokenizer identity is required to run Stage 1 |
 | Query rendering plan exists | **PASS** | `query-rendering-plan.md` created; defines register, style, difficulty-preservation, AC controls, and QR1–QR9 open questions |
-| 36 × 3 = 108 query renderings exist | **NOT_STARTED** | `query-rendering-en.md`, `query-rendering-nl.md`, `query-rendering-tr.md` not yet authored; query-rendering-plan.md defines the constraints; these are the next artifacts before Stage 1 can begin |
-| Turkish query review (QR9) | **NOT_STARTED** | Project owner must review Turkish query renderings before Stage 1; QR9 pre-registered in query-rendering-plan.md |
+| 36 × 3 = 108 query renderings exist | **PASS** | `query-rendering-en.md` (36), `query-rendering-nl.md` (36), `query-rendering-tr.md` (36) all created; INT-001–036 present in each; parity confirmed by automated diff |
+| Turkish query review (QR9) | **NEEDS_REVIEW** | Active gate — project owner must review `query-rendering-tr.md` before Stage 1; QR9 pre-registered in query-rendering-plan.md |
 | KB renderings ready for tokenization | **PASS** | `kb-rendering-en.md`, `kb-rendering-nl.md`, `kb-rendering-tr.md` all exist and are structurally verified |
 | Token-tax calculation method documented | **PASS** | `docs/methodology/baseline-token-tax-calculation-v0.1.md` defines per-intent ratios and the five-step residual method |
 | Stage 1 go/no-go criteria defined | **PASS** | `validation-plan-v0.1.md` §7 defines the sanity check against literature expectations (Dutch ~1.1×–1.5×; Turkish above Dutch) |
 
-**Stage 1 gate verdict: BLOCKED** — three prerequisites missing: (1) tokenizer/provider not selected (TM1); (2) 108 query renderings not yet authored; (3) Turkish query renderings require owner review (QR9) before Stage 1.
+**Stage 1 gate verdict: BLOCKED** — two prerequisites remaining: (1) tokenizer/provider not selected (TM1); (2) Turkish query renderings require project-owner review (QR9) before Stage 1 begins. All 108 query renderings now exist.
 
 ---
 
@@ -265,14 +291,14 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 |---|---|---|
 | Quality review of existing artifacts | **YES** | None — all artifacts exist and pass structural checks |
 | Query rendering plan | **YES** | `query-rendering-plan.md` complete; defines authoring rules for all 108 queries |
-| Query rendering (authoring 108 queries) | **YES** | No blockers; query-rendering-en/nl/tr.md are the next artifacts to create |
-| Stage 1 tokenizer-only sanity gate | **NO** | TM1 (tokenizer/model); 108 query renderings not yet authored; Turkish query owner review (QR9) pending |
+| Query rendering (108 queries) | **YES** | All three files created; 36 queries each; parity confirmed; structural quality gates PASS |
+| Stage 1 tokenizer-only sanity gate | **NO** | TM1 (tokenizer/model not yet selected); Turkish query owner review (QR9) required before Stage 1 proceeds |
 | Stage 2 smoke test | **NO** | TM1, TM8, M9, TM5/BS6, AD1, EV1, query renderings |
 | Stage 3 full benchmark run | **NO** | All Stage 2 blockers + Stage 2 must complete first |
 | Internal exploratory review and planning | **YES** | All methodology documents complete; benchmark artifact construction complete |
 | Public or publication-grade claims | **NO** | Independent review not started; Dutch native review pending; all stages yet to run |
 
-**Current position:** The benchmark artifact and planning phase is complete. All planning artifacts exist and pass structural quality gates: dataset-specification, canonical-fact-set, document-plan, language-rendering-plan, three KB renderings, intent-set, expected-fact-mapping, quality-gates, and query-rendering-plan (10 artifacts). The next phase is query rendering: author query-rendering-en.md, query-rendering-nl.md, and query-rendering-tr.md (36 queries each), then Turkish owner review, then resolve TM1, then Stage 1.
+**Current position:** The full benchmark artifact construction phase is complete. All 13 artifacts exist and pass structural quality gates: dataset-specification, canonical-fact-set, document-plan, language-rendering-plan, three KB renderings, intent-set, expected-fact-mapping, quality-gates, query-rendering-plan, and three query rendering files (13 artifacts). The benchmark now has 108 user query renderings (36 × EN/NL/TR), all structurally verified. Two prerequisites remain before Stage 1: Turkish query owner review (QR9) and tokenizer/model selection (TM1).
 
 ---
 
@@ -280,23 +306,19 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 
 Listed in priority order. Each action unlocks subsequent steps.
 
-1. **Create `docs/benchmark/v0.1/query-rendering-en.md`** — 36 English query texts, authored from intent scenarios per `query-rendering-plan.md` register and difficulty rules. Unblocks: Stage 1 tokenizer sanity gate (once TM1 is also resolved).
+1. **Project-owner review of Turkish query renderings (QR9)** — review `query-rendering-tr.md` for language quality, natural phrasing, controlled terminology consistency, and apostrophe suffix correctness. This is an active gate that blocks Stage 1. Can be done in parallel with TM1 resolution.
 
-2. **Create `docs/benchmark/v0.1/query-rendering-nl.md`** — 36 Dutch query texts; authored from intent scenarios; `ik/mijn` register; `TODO_REVIEW` markers for any uncertain phrasing. Unblocks: Stage 1 for Dutch.
+2. **Project-owner review of Turkish KB rendering** (`kb-rendering-tr.md`) — formal read-through for language quality before the KB rendering is frozen. Unblocks: Turkish rendering freeze; Stage 2 for Turkish.
 
-3. **Create `docs/benchmark/v0.1/query-rendering-tr.md`** — 36 Turkish query texts; authored from intent scenarios; `cihazım` for ownership contexts; apostrophe suffixes; controlled terminology applied. After creation, owner must review (QR9) before Stage 1.
+3. **Decide Dutch review scope (QR8/LR6)** — is the Dutch rendering (KB + queries) sufficient for internal Stage 1/2 without a native reviewer? If deferred to pre-publication, document explicitly. Unblocks: Dutch artifact freeze decision.
 
-4. **Project-owner review of Turkish KB rendering** (`kb-rendering-tr.md`) — formal read-through by the native Turkish speaker; resolve any phrasing issues before the rendering is frozen. Can be done in parallel with query rendering. Unblocks: Turkish rendering freeze; Stage 2 for Turkish.
+4. **Resolve TM1 (specific tokenizer/model)** — select the provider/model and fix the tokenizer version. This is the highest-priority practical decision and the remaining structural blocker for Stage 1.
 
-5. **Decide Dutch review scope (QR8/LR6)** — is the Dutch rendering sufficient for internal Stage 1/2 without a native reviewer, or should native review be sought now? If external review is deferred to pre-publication, document the scope limitation explicitly. Unblocks: Dutch rendering freeze decision.
+5. **Resolve TM5/BS6 (pilot budget)** — approve spend before any API call; determines repetition count and smoke-test scope.
 
-6. **Resolve TM1 (specific tokenizer/model)** — select the provider/model and fix the tokenizer version; this is the highest-priority practical decision because it unlocks Stage 1. Recommended: resolve in parallel with query rendering authoring.
+6. **Resolve remaining practical decisions** — TM8 (embedding model), M9 (instrumentation platform), EV1 (audit fraction), AD1 (Agent A context condition). These can be resolved in parallel once budget is approved.
 
-7. **Resolve TM5/BS6 (pilot budget)** — approve spend before any API call; determines repetition count and smoke-test scope.
-
-8. **Resolve remaining practical decisions** — TM8 (embedding model), M9 (instrumentation platform), EV1 (audit fraction), AD1 (Agent A context condition). These can be resolved in parallel once budget is approved.
-
-9. **Run Stage 1 tokenizer-only sanity gate** — tokenize all 108 queries + 39 × 3 KB chunks; compute per-intent token-tax ratios; compare against literature expectations. Cost: near-zero. Unblocks: Stage 2 if go/no-go criteria pass.
+7. **Run Stage 1 tokenizer-only sanity gate** — tokenize all 108 queries + 39 × 3 KB chunks; compute per-intent token-tax ratios; compare against literature expectations. Cost: near-zero. Unblocks: Stage 2 if go/no-go criteria pass.
 
 ---
 

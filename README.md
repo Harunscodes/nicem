@@ -72,9 +72,9 @@ The current work is:
 - Defining open questions
 - Planning validation methodology
 
-**Status:** the v0.1 methodology layer is complete and the benchmark artifact construction phase is complete. `docs/methodology/` covers the full methodology stack. `docs/benchmark/v0.1/` contains the canonical fact-set (78 facts), document plan (39 chunks), language rendering plan, three aligned KB renderings (EN/NL/TR, 39 chunks each), 36-intent set, expected-fact mapping, and pre-run quality gates. The consolidated roadmap is `docs/methodology/validation-plan-v0.1.md`.
+**Status:** the v0.1 methodology layer is complete and the full benchmark artifact construction phase is complete. `docs/methodology/` covers the full methodology stack. `docs/benchmark/v0.1/` contains all 13 benchmark artifacts: canonical fact-set (78 facts), document plan (39 chunks), language rendering plan, three aligned KB renderings (EN/NL/TR, 39 chunks each), 36-intent set, expected-fact mapping, quality gates, query rendering plan, and three query rendering files (EN/NL/TR, 36 queries each, 108 total). The consolidated roadmap is `docs/methodology/validation-plan-v0.1.md`.
 
-No product code has been built yet. No experiments have been run yet. The benchmark is not yet executing. The next step is query rendering (108 queries: 36 intents × 3 languages), then tokenizer/model selection, then Stage 1 tokenizer-only sanity gate.
+No product code has been built yet. No experiments have been run yet. The benchmark is not yet executing. Two prerequisites remain before Stage 1 (tokenizer-only sanity gate): Turkish query owner review (QR9, active gate) and tokenizer/model selection (TM1).
 
 ---
 

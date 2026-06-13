@@ -395,19 +395,19 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Direction set — one canonical query per intent per language for v0.1; paraphrase robustness is a v0.2 question*
 
 - **QR5:** How should queries be stored — one file per language, or one combined file?
-  - *Status: Direction set — one file per language (`query-rendering-en.md`, `query-rendering-nl.md`, `query-rendering-tr.md`); each file has 36 entries in the defined schema (intent_id, language, query_text, linked_fact_ids, expected_fact_set_id, notes, review_status)*
+  - *Status: RESOLVED — one file per language: `query-rendering-en.md`, `query-rendering-nl.md`, `query-rendering-tr.md`; each has 36 entries in the schema (intent_id, language, query_text, linked_fact_ids, expected_fact_set_id, notes, review_status); all three files now created.*
 
 - **QR6:** Should query texts be versioned separately from the plan?
-  - *Status: Direction set — yes; the rendering files carry their own version (qr-en-v0.1.0, qr-nl-v0.1.0, qr-tr-v0.1.0); a version bump on one does not force a bump on others unless chunk IDs or fact IDs change*
+  - *Status: RESOLVED — yes; files versioned as qr-en-v0.1.0, qr-nl-v0.1.0, qr-tr-v0.1.0; a version bump on one does not force a bump on others unless chunk IDs or fact IDs change.*
 
 - **QR7:** How does query length affect token-tax measurement?
-  - *Status: Direction set — queries must be naturally equivalent across languages, not artificially equalized; observed query length differences are part of the token-tax signal and will be reported; if English queries are systematically shorter than Dutch/Turkish, investigate whether it is authoring compression or a genuine language effect*
+  - *Status: Direction set — queries must be naturally equivalent across languages, not artificially equalized; observed query length differences are part of the token-tax signal; English queries authored with natural clause structures; Stage 1 will produce the first token-tax table.*
 
 - **QR8:** Should Dutch query renderings be reviewed by a native speaker before Stage 1?
-  - *Status: Open — analogous to LR6 for KB; for Stage 1 (tokenizer-only) the rendering is sufficient; for Stage 2+ public claims, native Dutch review is required; project owner to decide timing*
+  - *Status: Direction set — `query-rendering-nl.md` is now created and structurally verified; for Stage 1 (tokenizer-only) the rendering is sufficient; for Stage 2+ public claims, native Dutch review is required before any publication-grade claim (QR8/LR6 dependency); project owner to decide timing.*
 
 - **QR9:** Should Turkish query renderings be reviewed by the project owner before Stage 1?
-  - *Status: Open and active — Turkish KB rendering review is pending (see LR3); Turkish query renderings require the same review before Stage 1 begins; project owner must review `query-rendering-tr.md` after authoring and confirm before Stage 1 proceeds*
+  - *Status: Open and active — `query-rendering-tr.md` is now created and structurally verified; project owner (native Turkish speaker) must review the file before Stage 1 begins; this is an active quality gate in `quality-gates.md` §12 and §9b. Review `query-rendering-tr.md` in full: language quality, natural phrasing, controlled terminology (canlı görüntü, değişim, yenilenmiş değişim cihazı), apostrophe suffix correctness.*
 
 ### Evaluation method sub-questions (from evaluation-method-v0.1.md §15)
 
