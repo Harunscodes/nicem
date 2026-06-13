@@ -407,7 +407,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Direction set — `query-rendering-nl.md` is now created and structurally verified; for Stage 1 (tokenizer-only) the rendering is sufficient; for Stage 2+ public claims, native Dutch review is required before any publication-grade claim (QR8/LR6 dependency); project owner to decide timing.*
 
 - **QR9:** Should Turkish query renderings be reviewed by the project owner before Stage 1?
-  - *Status: Open and active — `query-rendering-tr.md` is now created and structurally verified; project owner (native Turkish speaker) must review the file before Stage 1 begins; this is an active quality gate in `quality-gates.md` §12 and §9b. Review `query-rendering-tr.md` in full: language quality, natural phrasing, controlled terminology (canlı görüntü, değişim, yenilenmiş değişim cihazı), apostrophe suffix correctness.*
+  - *Status: RESOLVED — project owner reviewed all 36 Turkish queries on 2026-06-13. Seven phrasing corrections applied (INT-004, 012, 019, 028, 029, 033, 035): naturalness fixes, ownership suffix consistency, controlled term alignment ("değişim ürünü"), and one premise-framing improvement. No meaning errors found. Gate is now PASS in `quality-gates.md` §9b and §12.*
 
 ### Evaluation method sub-questions (from evaluation-method-v0.1.md §15)
 

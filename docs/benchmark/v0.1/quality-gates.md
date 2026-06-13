@@ -185,10 +185,10 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Turkish not a literal translation of English | **PASS** | Turkish queries authored independently; natural Turkish support-style phrasing |
 | Apostrophe suffix convention (TR) | **PASS** | Hub'ım, Camera'mı, Plan'ımı etc. applied consistently |
 | Controlled product names preserved (all languages) | **PASS** | NiceHome Hub/Sensor/Plug/Camera; Camera Plus Plan — untranslated in NL and TR |
-| Turkish query owner review (QR9) | **NEEDS_REVIEW** | Active gate — project owner must review `query-rendering-tr.md` before Stage 1 begins |
+| Turkish query owner review (QR9) | **PASS** | Project owner reviewed all 36 Turkish queries; 7 phrasing corrections applied (INT-004, 012, 019, 028, 029, 033, 035); no meaning errors found; review complete 2026-06-13 |
 | Dutch query native review (QR8/LR6) | **NEEDS_REVIEW** | Required before Stage 2+ public claims; internal Stage 1 use acceptable |
 
-**Query rendering gate verdict: PASS** on structural and parity checks; **NEEDS_REVIEW** on Turkish owner review (QR9, active — blocks Stage 1) and Dutch native review (QR8/LR6, deferred to pre-publication).
+**Query rendering gate verdict: PASS** on structural and parity checks; Turkish owner review (QR9) PASS; **NEEDS_REVIEW** on Dutch native review (QR8/LR6, deferred to pre-publication).
 
 ---
 
@@ -241,7 +241,7 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Token-tax calculation method documented | **PASS** | `docs/methodology/baseline-token-tax-calculation-v0.1.md` defines per-intent ratios and the five-step residual method |
 | Stage 1 go/no-go criteria defined | **PASS** | `validation-plan-v0.1.md` §7 defines the sanity check against literature expectations (Dutch ~1.1×–1.5×; Turkish above Dutch) |
 
-**Stage 1 gate verdict: BLOCKED** — two prerequisites remaining: (1) tokenizer/provider not selected (TM1); (2) Turkish query renderings require project-owner review (QR9) before Stage 1 begins. All 108 query renderings now exist.
+**Stage 1 gate verdict: BLOCKED** — one prerequisite remaining: tokenizer/provider not selected (TM1). All 108 query renderings exist and Turkish query review (QR9) is complete.
 
 ---
 
