@@ -257,7 +257,7 @@
 
 - **intent_id:** INT-019
 - **language:** tr
-- **query_text:** "Cihazım garanti kapsamında değiştiriliyor ve yerine yenilenmiş bir cihaz verileceği söylendi. Bu yenilenmiş cihazın garanti süresi ne kadar olacak?"
+- **query_text:** "Cihazım garanti kapsamında değiştiriliyor ve yerine yenilenmiş bir cihaz gönderileceğini öğrendim. Bu yenilenmiş cihazın garanti süresi ne kadar olacak?"
 - **linked_fact_ids:** [F0704, F0705]
 - **expected_fact_set_id:** INT-019
 - **difficulty_level:** conditional
