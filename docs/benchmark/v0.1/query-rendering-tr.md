@@ -443,7 +443,7 @@
 
 - **intent_id:** INT-033
 - **language:** tr
-- **query_text:** "NiceHome Plug'ım hiçbir komuta yanıt vermiyor — açılmıyor ve uygulamayı da görmüyor. Ne yapmalıyım?"
+- **query_text:** "NiceHome Plug'ım hiçbir komuta yanıt vermiyor — açılmıyor ve uygulama üzerinden de kontrol edilemiyor. Ne yapmalıyım?"
 - **linked_fact_ids:** [F0610, F0611]
 - **expected_fact_set_id:** INT-033
 - **difficulty_level:** troubleshooting-process
