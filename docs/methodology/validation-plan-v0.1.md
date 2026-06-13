@@ -108,16 +108,28 @@ All gates must pass before Stage 2 begins. Each gate has an owner action and a f
 
 ## 7. Stage 1 — Tokenizer-only sanity gate
 
+**Status: COMPLETE — 2026-06-13.** Results in `results/stage1a/`. All sanity checks PASS.
+
 (Per tokenizer-model-choice §5 Stage 1; executable at near-zero cost once the tokenizer is fixed.)
 
-- Tokenize all 108 query renderings (36 intents × 3 languages).
-- Tokenize all 24 KB document renderings (8 × 3), or their chunked equivalents.
-- Compute per-intent token-tax ratios (Dutch/English, Turkish/English) per baseline-token-tax §6.
-- Compare against rough literature expectations: Dutch ~1.1×–1.5×; Turkish above Dutch (exact value is a v0.1 empirical contribution — no strong literature prior for Turkish on this task type).
-- Flag suspicious renderings: any intent whose ratio is an extreme outlier against its language's distribution gets manually inspected before proceeding.
-- Record the full token-tax table with `tokenizer_name`/`tokenizer_version` before any model run.
+- Tokenize all 108 query renderings (36 intents × 3 languages). ✓ Done.
+- Tokenize all 117 KB chunks (39 × 3 languages). ✓ Done.
+- Compute per-intent token-tax ratios (Dutch/English, Turkish/English) per baseline-token-tax §6. ✓ Done.
+- Compare against rough literature expectations: Dutch ~1.1×–1.5×; Turkish above Dutch. ✓ PASS.
+- Flag suspicious renderings. ✓ 7 outliers documented and explained (see `results/stage1a/token_tax_outliers.md`).
+- Record the full token-tax table with `tokenizer_name`/`tokenizer_version`. ✓ Done (`o200k_base_approx`; see tokenizer resolution note).
 
-**Go/no-go:** proceed to Stage 2 only if the ratios are plausible against the literature and no rendering looks defective. Implausible ratios mean a rendering problem or a tokenizer-assumption problem — both cheaper to fix now than after API spend.
+**Key results:**
+- Query NL/EN: median 1.000, mean 1.018 (Dutch mild premium; small query texts reduce the signal)
+- Query TR/EN: median 1.083, mean 1.147 (Turkish above English; partially compressed by Turkish syntactic compactness in short queries)
+- KB NL/EN: median 1.074, mean 1.086 (Dutch mild premium; clearly visible in longer texts)
+- KB TR/EN: median 1.370, mean 1.426 (Turkish clear premium; 38/39 chunks show TR > NL)
+
+**Pre-registered Stage 2 note:** For short queries (10–20 tokens), Turkish token-tax premium is smaller than for KB chunks. This is a linguistic observation (Turkish syntactic compactness), not a dataset error. Stage 2 should not assume uniform per-intent query token-tax premium.
+
+**Tokenizer note (TM1-a):** Network policy in the execution environment blocks `openaipublic.blob.core.windows.net` (tiktoken BPE data host). Fallback tokenizer `o200k_base_approx` was used (o200k_base regex + BPE heuristic). For publication-grade counts, re-run `scripts/stage1a_tokenizer_sanity_gate.py` in a network-accessible environment. The script auto-switches to exact tiktoken when available.
+
+**Go/no-go:** ✓ PROCEED to Stage 2 planning. Ratios are plausible against the literature; no rendering looks defective.
 
 ---
 

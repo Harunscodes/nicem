@@ -1,0 +1,109 @@
+intent_id,language,query_text,token_count
+INT-001,en,How long is the warranty on NiceHome devices?,9
+INT-001,nl,Hoe lang is de garantie op NiceHome-apparaten?,9
+INT-001,tr,NiceHome cihazlarında garanti süresi ne kadardır?,13
+INT-002,en,How many days do I have to return a NiceHome device?,12
+INT-002,nl,Hoeveel dagen heb ik om een NiceHome-apparaat te retourneren?,11
+INT-002,tr,NiceHome cihazını iade etmek için kaç günüm var?,13
+INT-003,en,What does the NiceHome Sensor measure?,7
+INT-003,nl,Wat meet de NiceHome Sensor?,6
+INT-003,tr,NiceHome Sensor ne ölçer?,6
+INT-004,en,"After I return my device, where does my refund go?",12
+INT-004,nl,"Nadat ik mijn apparaat heb geretourneerd, waar wordt mijn terugbetaling naartoe gestuurd?",16
+INT-004,tr,Cihazımı iade ettikten sonra para iadem nereye yapılır?,13
+INT-005,en,I have the Camera Plus Plan. How long are my cloud video recordings kept?,16
+INT-005,nl,Ik heb het Camera Plus Plan. Hoe lang worden mijn cloudvideo-opnames bewaard?,15
+INT-005,tr,Camera Plus Plan'ım var. Bulut video kayıtlarım ne kadar süre saklanır?,20
+INT-006,en,How long is the free trial for the Camera Plus Plan?,12
+INT-006,nl,Hoe lang duurt de gratis proefperiode van het Camera Plus Plan?,13
+INT-006,tr,Camera Plus Plan'ın ücretsiz deneme süresi ne kadar?,13
+INT-007,en,How long does Standard shipping take?,7
+INT-007,nl,Hoe lang duurt standaardverzending?,6
+INT-007,tr,Standart kargo ne kadar sürer?,7
+INT-008,en,Can I use the NiceHome Camera outside?,8
+INT-008,nl,Kan ik de NiceHome Camera buiten gebruiken?,8
+INT-008,tr,NiceHome Camera'yı dışarıda kullanabilir miyim?,10
+INT-009,en,How long does it typically take to repair a NiceHome device?,12
+INT-009,nl,Hoe lang duurt het doorgaans om een NiceHome-apparaat te repareren?,12
+INT-009,tr,NiceHome cihazının tamiri genellikle ne kadar sürer?,11
+INT-010,en,"Does NiceHome offer a cloud subscription, and what is it called?",14
+INT-010,nl,"Biedt NiceHome een cloudabonnement aan, en hoe heet dat?",12
+INT-010,tr,NiceHome bir bulut aboneliği sunuyor mu? Sunuyorsa adı nedir?,13
+INT-011,en,How long does it take to receive my refund after I return a device?,15
+INT-011,nl,Hoe lang duurt het voordat ik mijn terugbetaling ontvang nadat ik een apparaat heb geretourneerd?,18
+INT-011,tr,Cihazımı iade ettikten sonra para iademi almam ne kadar sürer?,14
+INT-012,en,Can I turn the NiceHome Plug on and off remotely if I don't have a Hub?,18
+INT-012,nl,Kan ik de NiceHome Plug op afstand in- en uitschakelen zonder een Hub?,16
+INT-012,tr,Hub olmadan NiceHome Plug'ımı uzaktan açıp kapatabilir miyim?,12
+INT-013,en,I have a Gen 1 Hub. Can I use a Gen 2 NiceHome Sensor with it?,20
+INT-013,nl,Ik heb een Hub van de eerste generatie. Kan ik daar een NiceHome Sensor van de tweede generatie op aansluiten?,22
+INT-013,tr,Birinci nesil bir Hub'ım var. Buna ikinci nesil bir NiceHome Sensor bağlayabilir miyim?,19
+INT-014,en,"I opened my NiceHome Plug but decided I don't want it. It's undamaged and I'm still within the return window. Can I return it, and who pays for return shipping?",37
+INT-014,nl,"Ik heb mijn NiceHome Plug uitgepakt maar wil hem niet meer houden. Het apparaat is onbeschadigd en ik zit nog binnen de retourperiode. Kan ik hem terugsturen, en wie betaalt de retourverzendkosten?",39
+INT-014,tr,NiceHome Plug'ımın kutusunu açtım ama artık istemiyorum. Cihaz hasarsız ve iade sürem dolmadı. İade edebilir miyim? İade kargosu kimin sorumluluğunda?,39
+INT-015,en,I dropped my NiceHome Camera and now it doesn't work. Does the warranty cover this?,18
+INT-015,nl,Ik heb mijn NiceHome Camera laten vallen en nu werkt hij niet meer. Valt dit onder de garantie?,20
+INT-015,tr,NiceHome Camera'mı düşürdüm ve çalışmıyor. Bu durum garanti kapsamında mı?,22
+INT-016,en,I opened the casing of my NiceHome Hub and replaced some internal parts. Now it won't work. Does the warranty still apply?,26
+INT-016,nl,Ik heb de behuizing van mijn NiceHome Hub geopend en een aantal interne onderdelen vervangen. Nu werkt hij niet meer. Valt dit nog onder de garantie?,29
+INT-016,tr,NiceHome Hub'ımın kasasını açarak içindeki bazı parçaları değiştirdim. Şimdi çalışmıyor. Garanti hâlâ geçerli mi?,37
+INT-017,en,"If I cancel my Camera Plus Plan in the middle of a billing period, do I still have access to cloud storage until the end of the period? And will I get a partial refund?",38
+INT-017,nl,"Als ik mijn Camera Plus Plan opzeg midden in een factureringsperiode, heb ik dan nog toegang tot cloudopslag tot het einde van de periode? En krijg ik een gedeeltelijke terugbetaling?",36
+INT-017,tr,"Camera Plus Plan'ımı faturalandırma döneminin ortasında iptal edersem, dönem sonuna kadar bulut depolama erişimim devam eder mi? Kısmi para iadesi alır mıyım?",41
+INT-018,en,"My NiceHome Hub is 3 years old and has a hardware fault. Can it still be repaired, and what would I need to pay?",28
+INT-018,nl,"Mijn NiceHome Hub is drie jaar oud en heeft een hardwarefout. Kan hij nog worden gerepareerd, en wat moet ik betalen?",25
+INT-018,tr,NiceHome Hub'ım üç yaşında ve donanım arızası var. Hâlâ tamir ettirilebilir mi? Ne kadar ödemem gerekir?,29
+INT-019,en,My device is being replaced under warranty and I've been told the replacement will be a refurbished unit. How long will the warranty on the refurbished replacement be?,31
+INT-019,nl,Mijn apparaat wordt vervangen onder garantie en ik heb gehoord dat het vervangende apparaat een gereviseerd exemplaar is. Hoe lang is de garantie op dat vervangende apparaat?,29
+INT-019,tr,Cihazım garanti kapsamında değiştiriliyor ve yerine yenilenmiş bir cihaz gönderileceğini öğrendim. Bu yenilenmiş cihazın garanti süresi ne kadar olacak?,41
+INT-020,en,I placed an order 4 hours ago and want to cancel it before it ships. Is that still possible?,22
+INT-020,nl,Ik heb vier uur geleden een bestelling geplaatst en wil die annuleren voordat hij wordt verstuurd. Kan dat nog?,21
+INT-020,tr,Dört saat önce bir sipariş verdim ve kargoya verilmeden iptal etmek istiyorum. Bu hâlâ mümkün mü?,24
+INT-021,en,I want Express shipping for a NiceHome Camera that is currently backordered. Is Express shipping available?,18
+INT-021,nl,Ik wil expresverzending voor een NiceHome Camera die momenteel niet op voorraad is. Is dat mogelijk?,19
+INT-021,tr,Stokta olmayan bir NiceHome Camera için ekspres kargo seçmek istiyorum. Bu mümkün mü?,19
+INT-022,en,I paid for the Camera Plus Plan and want to get a refund through the device return process. Is that possible?,23
+INT-022,nl,Ik heb het Camera Plus Plan betaald en wil via het retourproces een terugbetaling krijgen voor het abonnement. Is dat mogelijk?,25
+INT-022,tr,Camera Plus Plan için ödeme yaptım ve abonelik bedelimi cihaz iade süreci aracılığıyla geri almak istiyorum. Bu mümkün mü?,31
+INT-023,en,I cracked the screen of my NiceHome Camera myself. Can I return it for a refund?,18
+INT-023,nl,Ik heb het scherm van mijn NiceHome Camera zelf gebarsten. Kan ik hem retourneren voor een terugbetaling?,20
+INT-023,tr,NiceHome Camera'mın ekranını kendi elimle çatlattım. İade edip para alabilir miyim?,20
+INT-024,en,I upgraded my Camera Plus Plan in the middle of a billing period. When does the new plan take effect?,22
+INT-024,nl,Ik heb mijn Camera Plus Plan geüpgraded midden in een factureringsperiode. Wanneer gaat het nieuwe plan in?,22
+INT-024,tr,Camera Plus Plan'ımı faturalandırma döneminin ortasında yükselttim. Yeni plan ne zaman geçerli olur?,29
+INT-025,en,My NiceHome devices are all showing as offline. What steps should I take to diagnose and fix the problem?,21
+INT-025,nl,Al mijn NiceHome-apparaten worden als offline weergegeven. Welke stappen kan ik nemen om het verbindingsprobleem te diagnosticeren en op te lossen?,26
+INT-025,tr,Tüm NiceHome cihazlarım çevrimdışı görünüyor. Bağlantı sorununu teşhis etmek ve gidermek için hangi adımları izlemeliyim?,31
+INT-026,en,How do I add a new NiceHome Sensor to my system?,12
+INT-026,nl,Hoe voeg ik een nieuwe NiceHome Sensor toe aan mijn systeem?,12
+INT-026,tr,Sisteme yeni bir NiceHome Sensor'u nasıl eklerim?,10
+INT-027,en,I followed the pairing steps but my device didn't pair successfully. What should I try next?,20
+INT-027,nl,"Ik heb de koppelstappen gevolgd, maar het apparaat heeft niet gekoppeld. Wat moet ik nu proberen?",20
+INT-027,tr,Eşleştirme adımlarını uyguladım ama cihaz eşleşmedi. Ne yapmam gerekiyor?,20
+INT-028,en,My NiceHome Sensor is still under warranty and has stopped working. How do I make a warranty claim?,20
+INT-028,nl,Mijn NiceHome Sensor heeft nog garantie en werkt niet meer. Hoe dien ik een garantieclaim in?,19
+INT-028,tr,NiceHome Sensor'um garanti kapsamında ve çalışmıyor. Garanti talebinde nasıl bulunurum?,19
+INT-029,en,I want to return an unopened NiceHome Hub and I'm still within the return window. What steps do I need to follow?,25
+INT-029,nl,Ik wil een ongeopende NiceHome Hub retourneren en ik zit nog binnen de retourperiode. Welke stappen moet ik volgen?,22
+INT-029,tr,Açılmamış NiceHome Hub'ımı iade etmek istiyorum ve iade sürem içindeyim. Hangi adımları izlemeliyim?,25
+INT-030,en,I forgot my password and can't log in to my account. How do I reset my password?,20
+INT-030,nl,Ik ben mijn wachtwoord vergeten en kan niet meer inloggen op mijn account. Hoe kan ik mijn wachtwoord opnieuw instellen?,22
+INT-030,tr,Şifremi unuttum ve hesabıma giriş yapamıyorum. Şifremi nasıl sıfırlayabilirim?,25
+INT-031,en,"How do I factory reset my NiceHome Hub, and what do I need to do afterward?",18
+INT-031,nl,"Hoe herstel ik mijn NiceHome Hub naar de fabrieksinstellingen, en wat moet ik daarna doen?",19
+INT-031,tr,NiceHome Hub'ımı fabrika ayarlarına nasıl sıfırlarım? Sıfırladıktan sonra ne yapmam gerekiyor?,25
+INT-032,en,I'm about to factory reset my NiceHome Camera and I'm worried about my cloud video recordings. Will a factory reset delete them?,26
+INT-032,nl,Ik ga mijn NiceHome Camera terugzetten naar de fabrieksinstellingen en ik maak me zorgen over mijn cloudvideo-opnames. Worden die verwijderd door een fabrieksreset?,29
+INT-032,tr,NiceHome Camera'mı fabrika ayarlarına sıfırlamak üzereyim ve bulut video kayıtlarım konusunda endişeleniyorum. Fabrika sıfırlaması bu kayıtları siler mi?,41
+INT-033,en,My NiceHome Plug is completely unresponsive — it won't turn on and doesn't react to the app at all. What should I do?,28
+INT-033,nl,Mijn NiceHome Plug reageert nergens op — hij gaat niet aan en reageert ook niet op de app. Wat kan ik doen?,24
+INT-033,tr,NiceHome Plug'ım hiçbir komuta yanıt vermiyor — açılmıyor ve uygulama üzerinden de kontrol edilemiyor. Ne yapmalıyım?,29
+INT-034,en,My NiceHome Hub light is blinking red. What does this mean and what should I do?,18
+INT-034,nl,Het lampje van mijn NiceHome Hub knippert rood. Wat betekent dit en wat moet ik doen?,18
+INT-034,tr,NiceHome Hub'ımın ışığı kırmızı yanıp sönüyor. Bu ne anlama geliyor ve ne yapmalıyım?,27
+INT-035,en,"My order is well past the estimated delivery window, but it hasn't been confirmed as lost. What am I entitled to — a full refund, a replacement, or something else?",36
+INT-035,nl,"Mijn bestelling is ruim na de verwachte leverdatum, maar er is geen bevestiging dat de zending verloren is gegaan. Waar heb ik recht op — een volledige terugbetaling, een vervanging, of iets anders?",39
+INT-035,tr,"Siparişim tahmini teslimat penceresini çoktan geçti ama kayıp olduğu doğrulanmadı. Bu durumda neye hakkım olduğunu öğrenebilir miyim — tam para iadesi mi, değişim ürünü mü, yoksa başka bir şey mi?",54
+INT-036,en,My NiceHome Camera has been lost or stolen. Can I remove it from my account remotely to prevent unauthorized use?,23
+INT-036,nl,Mijn NiceHome Camera is verloren gegaan of gestolen. Kan ik hem op afstand uit mijn account verwijderen om ongeautoriseerd gebruik te voorkomen?,25
+INT-036,tr,NiceHome Camera'm kayboldu ya da çalındı. Yetkisiz kullanımı önlemek için hesabımdan uzaktan kaldırabilir miyim?,29

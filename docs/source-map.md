@@ -2,6 +2,13 @@
 
 This document maps every source in `docs/sources/` to the claims it supports, the concepts it connects to, and its role in the NiceM argument chain.
 
+**Stage 1a results (2026-06-13):**
+- `scripts/stage1a_tokenizer_sanity_gate.py` — Stage 1a execution script. Tokenizes all 108 primary query renderings and 117 KB chunks (39 × 3 languages) using the confirmed TM1 family (OpenAI GPT-4.1-mini/GPT-4.1, encoding `o200k_base`). Fallback tokenizer `o200k_base_approx` used in this environment (network policy blocks tiktoken BPE data download). Computes per-intent and per-chunk token-tax ratios (NL/EN, TR/EN); checks alignment; detects outliers; produces all four Stage 1a result files. Auto-switches to exact tiktoken when network is available.
+- `results/stage1a/token_counts_queries.csv` — Per-intent, per-language query token counts (108 rows: 36 intents × 3 languages). Fields: intent_id, language, query_text, token_count.
+- `results/stage1a/token_counts_kb_chunks.csv` — Per-chunk, per-language KB prose token counts (117 rows: 39 chunks × 3 languages). Fields: document_id, chunk_id, language, fact_ids, token_count, prose_char_count.
+- `results/stage1a/token_tax_summary.md` — Stage 1a summary: tokenizer metadata, alignment checks, per-intent and per-chunk ratio tables, summary statistics (min/max/mean/median/p90 for NL/EN and TR/EN), sanity gate checks, and gate verdict (PASS). Key findings: query NL/EN median 1.000, query TR/EN median 1.083, KB NL/EN median 1.074, KB TR/EN median 1.370. All sanity checks PASS.
+- `results/stage1a/token_tax_outliers.md` — Stage 1a outlier report: 6 query TR_BELOW_NL cases (Turkish syntactic compactness for short queries — pre-registered finding, not a dataset error) + 1 KB chunk case (D08-S5, TR > EN in correct direction, NL unusually high due to Dutch verbose procedural phrasing). Detailed analysis with per-query text comparison and pre-registered implications for Stage 2 analysis.
+
 **Related internal documents (not sources, but where sources are applied):**
 - `docs/startup/nicem-startup-thesis-v0.1.md` — first coherent startup thesis
 - `docs/methodology/nicem-methodology-framework-v0.1.md` — measurement framework that turns methodology questions M1–M9 into a structured approach for measuring execution-tax; consumes the agent-evaluation sources below

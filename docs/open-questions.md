@@ -262,7 +262,10 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 ### Tokenizer and model choice sub-questions (from tokenizer-model-choice-v0.1.md §12)
 
 - **TM1:** Which provider/model will v0.1 use?
-  - *Status: RESOLVED — CONFIRMED by project owner 2026-06-13. Decision note `docs/benchmark/v0.1/tm1-tokenizer-model-decision.md` (tm1-v0.1.1): the OpenAI GPT-4.1-mini/GPT-4.1 family (one family, one tokenizer) is the v0.1 tokenizer/model family for both Stage 1 counting and Stage 2/3 execution. v0.1 will not compare multiple tokenizers or model families. Stage 1a is unblocked. Remaining sub-questions do not block Stage 1a: exact tokenizer encoding name (TM1-a, confirmed in Stage 1 tooling), version-pinned model IDs for Agent A/B (TM1-b/c, set at Stage 2 setup), and whether GPT-4.1-mini suffices for Stage 3 or GPT-4.1 is needed (TM1-d, settled by the Stage 2 smoke test).*
+  - *Status: RESOLVED — CONFIRMED by project owner 2026-06-13. Decision note `docs/benchmark/v0.1/tm1-tokenizer-model-decision.md` (tm1-v0.1.1): the OpenAI GPT-4.1-mini/GPT-4.1 family (one family, one tokenizer) is the v0.1 tokenizer/model family for both Stage 1 counting and Stage 2/3 execution. v0.1 will not compare multiple tokenizers or model families. Stage 1a is complete. Remaining sub-questions do not block Stage 2: exact tokenizer encoding name (TM1-a, see below), version-pinned model IDs for Agent A/B (TM1-b/c, set at Stage 2 setup), and whether GPT-4.1-mini suffices for Stage 3 or GPT-4.1 is needed (TM1-d, settled by the Stage 2 smoke test).*
+
+- **TM1-a (Stage 1a finding):** Exact tiktoken encoding name for GPT-4.1 family.
+  - *Status: PARTIALLY RESOLVED — target encoding is `o200k_base` (confirmed from tiktoken model registry: GPT-4.1-mini and GPT-4.1 both map to `o200k_base`). Network policy in the Stage 1a execution environment blocked `openaipublic.blob.core.windows.net` (tiktoken BPE data host); fallback tokenizer `o200k_base_approx` used (o200k_base regex + BPE heuristic). For authoritative token counts, re-run `scripts/stage1a_tokenizer_sanity_gate.py` in a network-accessible environment. Script auto-switches to exact tiktoken when available. Fallback counts are sufficient for the directional sanity gate and pre-registered Stage 2 planning. Exact encoding name to record in logging schema: `o200k_base`.*
 
 - **TM2:** Is provider-reported token usage sufficient, or should local counting serve as a cross-check?
   - *Status: Open, leaning both — log both; provider counts for cost, local for token-tax ratios; report divergences*
@@ -393,6 +396,12 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 
 - **QR4:** Is a single query sufficient, or should paraphrase variants be authored?
   - *Status: Direction set — one canonical query per intent per language for v0.1; paraphrase robustness addressed by the query variant plan (qv-plan-v0.1.0); variants are optional and designed to run as Stage 1b after Stage 1a is complete. See `docs/benchmark/v0.1/query-variant-plan.md`.*
+
+- **ST1 (Stage 1a finding):** For short Turkish queries (10–20 tokens), is the Turkish token-tax premium near-zero or negative relative to English?
+  - *Status: Observed in Stage 1a (2026-06-13) — 6 of 36 Turkish queries show TR/EN < 1.0 and TR < NL. Diagnosed as Turkish syntactic compactness: agglutinative morphology reduces the number of syntactic words in a sentence, partially offsetting the subword-splitting premium. For KB chunks (longer texts), TR > NL holds for 38/39 chunks (median KB TR/EN = 1.37). Pre-registered for Stage 2: do not assume uniform per-intent query token-tax premium for Turkish; short-form queries may have near-zero or negative Turkish query token-tax even when KB chunk token-tax is positive. This does not falsify the token-tax hypothesis; it establishes its scope (more pronounced in longer texts). See `results/stage1a/token_tax_outliers.md` for full analysis.*
+
+- **ST2 (Stage 1a finding):** Does Dutch query token-tax match literature expectations for short query texts?
+  - *Status: Observed in Stage 1a — query NL/EN median 1.000 (range 0.857–1.333), which is at the lower end of the Petrov et al. expected range (1.1–1.5). KB NL/EN median is 1.074, closer to expectations. Short queries reduce the signal because Dutch compounds and long forms appear less frequently in short questions than in policy text. Pre-registered for Stage 2 analysis.*
 
 - **QR10:** Should query variants (V2–V5) be created before or after Stage 1a?
   - *Status: Direction set — after Stage 1a and after TM1 is confirmed. `query-variant-plan.md` §11 recommends deferring variant authoring until Stage 1a tokenizer sanity gate passes. Authoring 432 variant texts before the primary benchmark is validated risks rework if the tokenizer, model family, or intent set changes.*
