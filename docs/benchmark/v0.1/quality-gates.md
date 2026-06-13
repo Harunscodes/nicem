@@ -55,7 +55,7 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | `query-rendering-en.md` | **PASS** | Project owner | File exists; 36 queries confirmed by automated grep; INT-001–036 all present; no fact/chunk IDs or answer hints in query_text; versioned qr-en-v0.1.0 | Not yet frozen; owner review pending |
 | `query-rendering-nl.md` | **NEEDS_REVIEW** | External (QR8/LR6) | File exists; 36 queries confirmed; INT-001–036 all present; authored from intent specs (not translated from EN); no TODO_REVIEW in query_text; versioned qr-nl-v0.1.0 | Native Dutch speaker review required before Stage 2+ public claims; sufficient for internal Stage 1 |
 | `query-rendering-tr.md` | **PASS** | Project owner (QR9) | File exists; 36 queries confirmed; INT-001–036 all present; apostrophe suffix convention applied; controlled terms applied; QR9 review complete (7 corrections applied); versioned qr-tr-v0.1.0 | — |
-| `tm1-tokenizer-model-decision.md` | **PASS** | Project owner | File exists; resolves TM1 with recommended default (OpenAI GPT-4.1-mini/GPT-4.1 family); versioned tm1-v0.1.0 | Status PROPOSED — awaiting project-owner confirmation |
+| `tm1-tokenizer-model-decision.md` | **PASS** | Project owner | File exists; resolves TM1 with confirmed choice (OpenAI GPT-4.1-mini/GPT-4.1 family); versioned tm1-v0.1.1 | Status CONFIRMED 2026-06-13; exact tokenizer encoding name (TM1-a) confirmed in Stage 1 tooling |
 | `query-variant-plan.md` | **PASS** | Project owner | File exists; 11 sections; qv-plan-v0.1.0; no variant texts yet — planning only | Variants are optional robustness layer; not required before Stage 1a |
 | All artifacts in `source-map.md` | **PASS** | Project owner | Every artifact created in this phase is catalogued in `docs/source-map.md` | — |
 
@@ -273,7 +273,7 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Criterion | Status | Notes |
 |---|---|---|
 | Tokenizer/model decision rules exist | **PASS** | `docs/methodology/tokenizer-model-choice-v0.1.md` |
-| Specific tokenizer/provider selected | **NEEDS_REVIEW** | TM1 decision note created (`tm1-tokenizer-model-decision.md`, tm1-v0.1.0): recommended default OpenAI GPT-4.1-mini/GPT-4.1 family, status PROPOSED; awaits project-owner confirmation. Exact `tiktoken` encoding name marked TO_BE_CONFIRMED_IN_STAGE_1_TOOLING |
+| Specific tokenizer/provider selected | **PASS** | TM1 CONFIRMED 2026-06-13 (`tm1-tokenizer-model-decision.md`, tm1-v0.1.1): OpenAI GPT-4.1-mini/GPT-4.1 family for all of v0.1. Exact `tiktoken` encoding name (TM1-a) confirmed in Stage 1 tooling — a setup step, not a gate blocker |
 | Query rendering plan exists | **PASS** | `query-rendering-plan.md` created; defines register, style, difficulty-preservation, AC controls, and QR1–QR9 open questions |
 | 36 × 3 = 108 query renderings exist | **PASS** | `query-rendering-en.md` (36), `query-rendering-nl.md` (36), `query-rendering-tr.md` (36) all created; INT-001–036 present in each; parity confirmed by automated diff |
 | Turkish query review (QR9) | **PASS** | Project owner reviewed all 36 Turkish queries (2026-06-13); 7 phrasing corrections applied; no meaning errors |
@@ -281,7 +281,7 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Token-tax calculation method documented | **PASS** | `docs/methodology/baseline-token-tax-calculation-v0.1.md` defines per-intent ratios and the five-step residual method |
 | Stage 1 go/no-go criteria defined | **PASS** | `validation-plan-v0.1.md` §7 defines the sanity check against literature expectations (Dutch ~1.1×–1.5×; Turkish above Dutch) |
 
-**Stage 1 gate verdict: NEEDS_REVIEW** — all artifacts ready; QR9 complete; the TM1 decision note proposes a default (OpenAI GPT-4.1-mini/GPT-4.1). One action remains before Stage 1 runs: **project-owner confirmation of the TM1 recommendation** plus verification of the exact `tiktoken` encoding name (TM1-a). On confirmation, Stage 1 is unblocked.
+**Stage 1 gate verdict: PASS** — all artifacts ready; QR9 complete; cross-language equivalence audit PASS; TM1 CONFIRMED (OpenAI GPT-4.1-mini/GPT-4.1 family). Stage 1a is unblocked. The only remaining step is a tooling-setup task: confirm the exact `tiktoken` encoding name (TM1-a) when the Stage 1 counting script is built. Stage 1a requires no API calls.
 
 ---
 
@@ -291,7 +291,7 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 
 | Criterion | Status | Notes |
 |---|---|---|
-| Specific model/provider selected (TM1) | **NEEDS_REVIEW** | TM1 decision note proposes OpenAI GPT-4.1-mini/GPT-4.1 family (status PROPOSED); awaits project-owner confirmation. Exact tier (mini vs. full) for Stage 3 settled by smoke test |
+| Specific model/provider selected (TM1) | **PASS** | TM1 CONFIRMED: OpenAI GPT-4.1-mini/GPT-4.1 family. Exact tier (mini vs. full) for Stage 3 settled by smoke test (TM1-d); version-pinned model IDs to be set at Stage 2 setup (TM1-b/c) |
 | Embedding model for Agent B selected (TM8/AD2) | **BLOCKED** | Multilingual coverage must be confirmed; same model across all languages; separate from TM1 completion-model choice |
 | Instrumentation platform (M9) | **BLOCKED** | Must capture minimal logging fields |
 | Smoke-test intent subset selected | **NOT_STARTED** | Should be chosen after Stage 1; recommend 1 simple + 1 conditional + 1 troubleshooting-process covering different documents |
@@ -301,7 +301,7 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Human audit fraction pre-committed (EV1) | **NOT_STARTED** | Must be set before Stage 2 analysis begins |
 | Direct LLM context condition (AD1: A0 vs. A1) | **NOT_STARTED** | Choice of no-context vs. full-KB-in-context for Agent A must be made; affects Stage 2 design and cost |
 
-**Stage 2 gate verdict: BLOCKED** — TM1 is proposed and awaiting confirmation; four open decisions remain (TM8, M9, TM5, AD1) plus two pending starts (EV1, smoke-test subset).
+**Stage 2 gate verdict: BLOCKED** — TM1 is now CONFIRMED, but four open decisions remain (TM8, M9, TM5, AD1) plus two pending starts (EV1, smoke-test subset).
 
 ---
 
@@ -316,7 +316,7 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | Independent bilingual review not yet started | NOT_STARTED | Required before any external publication; not a Stage 1/2 blocker for internal use |
 | AC4 direct coverage absent (IS1) | WAIVED_WITH_LIMITATION | The benchmark does not directly test whether models confuse live-view subscription-independence; this gap is pre-registered; observed AC4 violations are logged as secondary observations in INT-005 |
 | Some facts covered only indirectly (F0110, F0612, F0708, others) | WAIVED_WITH_LIMITATION | Coverage gaps documented in `intent-set.md`; these facts are present in the KB and may be tested incidentally but are not evaluation targets |
-| Specific model/provider selection (TM1) | NEEDS_REVIEW | Decision note proposes OpenAI GPT-4.1-mini/GPT-4.1 (status PROPOSED); project-owner confirmation unblocks Stage 1 |
+| Specific model/provider selection (TM1) | RESOLVED | CONFIRMED 2026-06-13: OpenAI GPT-4.1-mini/GPT-4.1 family; Stage 1a unblocked; exact tokenizer encoding name (TM1-a) confirmed in Stage 1 tooling |
 | Instrumentation platform not yet selected (M9) | BLOCKED | Blocks Stage 2 and later |
 | Human audit fraction not yet decided (EV1) | NOT_STARTED | Must be decided and pre-committed before Stage 2 analysis |
 | Pilot budget not yet approved (TM5/BS6) | NOT_STARTED | Must be approved before any API spend |
@@ -332,13 +332,13 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | Quality review of existing artifacts | **YES** | None — all artifacts exist and pass structural checks |
 | Query rendering plan | **YES** | `query-rendering-plan.md` complete; defines authoring rules for all 108 queries |
 | Query rendering (108 queries) | **YES** | All three files created; 36 queries each; parity confirmed; structural quality gates PASS |
-| Stage 1 tokenizer-only sanity gate | **PENDING CONFIRMATION** | All artifacts ready; QR9 complete; only project-owner confirmation of the TM1 recommendation (+ exact tokenizer encoding name) remains |
-| Stage 2 smoke test | **NO** | TM1, TM8, M9, TM5/BS6, AD1, EV1, query renderings |
+| Stage 1 tokenizer-only sanity gate | **YES** | All artifacts ready; QR9 complete; cross-language equivalence audit PASS; TM1 CONFIRMED. Only remaining step is the Stage 1 tooling task of confirming the exact tokenizer encoding name (TM1-a) and writing the counting script. No API calls |
+| Stage 2 smoke test | **NO** | TM8, M9, TM5/BS6, AD1, EV1 (TM1 now resolved) |
 | Stage 3 full benchmark run | **NO** | All Stage 2 blockers + Stage 2 must complete first |
 | Internal exploratory review and planning | **YES** | All methodology documents complete; benchmark artifact construction complete |
 | Public or publication-grade claims | **NO** | Independent review not started; Dutch native review pending; all stages yet to run |
 
-**Current position:** The full benchmark artifact construction phase is complete (14 artifacts, all structurally verified). QR9 (Turkish query review) is complete. TM1 has a decision note proposing OpenAI GPT-4.1-mini/GPT-4.1 as the v0.1 model family and tokenizer (status PROPOSED). The only action remaining before Stage 1 can run is **project-owner confirmation of the TM1 recommendation**, plus verifying the exact `tiktoken` encoding name (TM1-a) at Stage 1 tooling time.
+**Current position:** The full benchmark artifact construction phase is complete (14 artifacts + variant plan, all structurally verified). QR9 (Turkish query review) is complete. The cross-language semantic equivalence audit is complete and PASS for internal Stage 1. TM1 is **CONFIRMED**: OpenAI GPT-4.1-mini/GPT-4.1 is the v0.1 model family and tokenizer. **Stage 1a is unblocked.** The only remaining work before producing Stage 1a token counts is the tooling task: confirm the exact `tiktoken` encoding name (TM1-a) and write the counting script. No API calls are required for Stage 1a.
 
 ---
 
@@ -346,11 +346,11 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 
 Listed in priority order. Each action unlocks subsequent steps.
 
-1. **Confirm TM1 (`tm1-tokenizer-model-decision.md`)** — project owner confirms or overrides the recommended OpenAI GPT-4.1-mini/GPT-4.1 family. On confirmation, status moves PROPOSED → RESOLVED and Stage 1 is unblocked. Highest-priority action; it is the only remaining Stage 1 prerequisite.
+1. **~~Confirm TM1~~ — DONE (2026-06-13).** OpenAI GPT-4.1-mini/GPT-4.1 family confirmed for all of v0.1; Stage 1a unblocked.
 
-2. **Verify the exact tokenizer encoding name (TM1-a)** — confirm the `tiktoken` encoding mapped to the GPT-4.1 family before recording Stage 1 counts (currently TO_BE_CONFIRMED_IN_STAGE_1_TOOLING). Done at Stage 1 tooling setup.
+2. **Build the Stage 1 counting tooling and verify the exact tokenizer encoding name (TM1-a)** — install `tiktoken`, confirm the encoding mapped to the GPT-4.1 family, and record it as `tokenizer_name`/`tokenizer_version`. This is a tooling-setup step, the first concrete Stage 1a task. No API calls.
 
-3. **Run Stage 1 tokenizer-only sanity gate** — tokenize all 108 queries + 39 × 3 KB chunks; compute per-intent token-tax ratios; compare against literature expectations. Cost: near-zero. Unblocks: Stage 2 if go/no-go criteria pass.
+3. **Run Stage 1a tokenizer-only sanity gate** — tokenize all 108 queries + 39 × 3 KB chunks; compute per-intent token-tax ratios; compare against literature expectations (Dutch ~1.1×–1.5×; Turkish above Dutch). Cost: near-zero. Unblocks: Stage 2 if go/no-go criteria pass.
 
 4. **Project-owner review of Turkish KB rendering** (`kb-rendering-tr.md`) — formal read-through for language quality before the KB rendering is frozen. Unblocks: Turkish rendering freeze; Stage 2 for Turkish.
 

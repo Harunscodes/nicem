@@ -136,7 +136,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Direction set — author from fact-set (not translated from English task prompts)*
 
 - **LS4:** Which tokenizer and model will be used as the primary measurement baseline?
-  - *Status: Open — token-tax component of the execution-tax decomposition depends on this; must be decided before dataset construction*
+  - *Status: RESOLVED — same as TM1: OpenAI GPT-4.1-mini/GPT-4.1 family, confirmed 2026-06-13. See `docs/benchmark/v0.1/tm1-tokenizer-model-decision.md` (tm1-v0.1.1).*
 
 - **LS5:** Should v0.1 include a fourth language (e.g., Spanish) as a near-English control to isolate Dutch-specific effects?
   - *Status: Open — only needed if Dutch-English comparison shows unexpected results; increases KB burden*
@@ -239,7 +239,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 ### Baseline token-tax sub-questions (from baseline-token-tax-calculation-v0.1.md §14)
 
 - **BT1 / LS4 / LG2:** Which model/tokenizer will v0.1 use?
-  - *Status: Partially resolved — `docs/methodology/tokenizer-model-choice-v0.1.md` defines the staged approach (Stage 1 tokenizer-only sanity gate → Stage 2 smoke test → Stage 3 full run), selection criteria (§6), tokenizer requirements (§7), pricing requirements (§8), and version-drift rules. Stage 1 is executable now if a tokenizer equivalent is available locally. Specific provider/model not yet chosen (TM1). Seven open sub-questions TM1–TM8.*
+  - *Status: RESOLVED — `docs/methodology/tokenizer-model-choice-v0.1.md` defines the staged approach and rules; TM1 is now CONFIRMED (2026-06-13): OpenAI GPT-4.1-mini/GPT-4.1 family, one family/one tokenizer, accessible locally via `tiktoken` for Stage 1a. See `docs/benchmark/v0.1/tm1-tokenizer-model-decision.md` (tm1-v0.1.1). Remaining TM sub-questions (TM1-a tokenizer encoding name, TM1-b/c model IDs, TM1-d tier, TM8 embedding, TM5 budget) gate Stage 2+, not Stage 1a.*
 
 - **BT2:** How will full prompt tokens be captured?
   - *Status: Open — depends on the M9 instrumentation platform; fallback is per-call input_tokens totals*
@@ -262,7 +262,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 ### Tokenizer and model choice sub-questions (from tokenizer-model-choice-v0.1.md §12)
 
 - **TM1:** Which provider/model will v0.1 use?
-  - *Status: PROPOSED — decision note `docs/benchmark/v0.1/tm1-tokenizer-model-decision.md` (tm1-v0.1.0) recommends the OpenAI GPT-4.1-mini/GPT-4.1 family (one family, one tokenizer) for all of v0.1, because local tokenizer access (via `tiktoken`) and later API execution are both easy to operationalize. Status PROPOSED, awaiting project-owner confirmation. On confirmation, Stage 1 is unblocked. Remaining sub-questions: exact tokenizer encoding name (TM1-a, TO_BE_CONFIRMED_IN_STAGE_1_TOOLING), exact model IDs for Agent A/B (TM1-b/c), and whether GPT-4.1-mini suffices for Stage 3 or GPT-4.1 is needed (TM1-d, settled by the Stage 2 smoke test).*
+  - *Status: RESOLVED — CONFIRMED by project owner 2026-06-13. Decision note `docs/benchmark/v0.1/tm1-tokenizer-model-decision.md` (tm1-v0.1.1): the OpenAI GPT-4.1-mini/GPT-4.1 family (one family, one tokenizer) is the v0.1 tokenizer/model family for both Stage 1 counting and Stage 2/3 execution. v0.1 will not compare multiple tokenizers or model families. Stage 1a is unblocked. Remaining sub-questions do not block Stage 1a: exact tokenizer encoding name (TM1-a, confirmed in Stage 1 tooling), version-pinned model IDs for Agent A/B (TM1-b/c, set at Stage 2 setup), and whether GPT-4.1-mini suffices for Stage 3 or GPT-4.1 is needed (TM1-d, settled by the Stage 2 smoke test).*
 
 - **TM2:** Is provider-reported token usage sufficient, or should local counting serve as a cross-check?
   - *Status: Open, leaning both — log both; provider counts for cost, local for token-tax ratios; report divergences*

@@ -82,9 +82,9 @@ The order matters: the fact-set precedes everything, and no language rendering p
 
 **Full benchmark artifact construction phase is now complete.** All 14 benchmark artifacts exist: dataset-specification, canonical-fact-set, document-plan, language-rendering-plan, three KB renderings (EN/NL/TR), intent-set, expected-fact-mapping, quality-gates, query-rendering-plan, three query rendering files (EN/NL/TR), and the TM1 tokenizer/model decision note. The 108 user query renderings (36 × 3 languages) have been authored, structurally verified (36 entries each; same INT IDs across languages; no fact/chunk IDs or answer hints in query_text), and committed. A cross-language semantic equivalence audit was completed (2026-06-13); all 36 intents PASS for internal Stage 1 use. A query variant plan (`query-variant-plan.md`, qv-plan-v0.1.0) has been created, defining an optional Stage 1b robustness layer; variants are not required before Stage 1a.
 
-One prerequisite remains before Stage 1 can begin:
+Both prerequisites for Stage 1 are now resolved:
 1. ~~Project-owner Turkish review of `query-rendering-tr.md` (QR9)~~ — **RESOLVED 2026-06-13**
-2. Tokenizer/model selection (TM1) — **PROPOSED**: `tm1-tokenizer-model-decision.md` recommends OpenAI GPT-4.1-mini/GPT-4.1 family; awaits project-owner confirmation
+2. ~~Tokenizer/model selection (TM1)~~ — **CONFIRMED 2026-06-13**: `tm1-tokenizer-model-decision.md` (tm1-v0.1.1) fixes the OpenAI GPT-4.1-mini/GPT-4.1 family for all of v0.1. **Stage 1a is unblocked**; the remaining step is the tooling task of confirming the exact `tiktoken` encoding name (TM1-a) and writing the counting script. No API calls.
 
 The consolidated pre-run gate status is in `docs/benchmark/v0.1/quality-gates.md` (qg-v0.1.0).
 

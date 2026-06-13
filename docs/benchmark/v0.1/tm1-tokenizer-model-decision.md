@@ -1,10 +1,10 @@
 # TM1 Tokenizer / Model Decision v0.1
 
-**Status:** PROPOSED — awaiting project-owner confirmation
-**Role:** Resolves open question TM1 (which provider/model v0.1 uses) with a concrete recommended default. This is the operational decision note that sits beneath the decision *rules* in `tokenizer-model-choice-v0.1.md`. That document defines the criteria and staged approach; this document records the actual proposed choice and its consequences.
-**Version:** tm1-v0.1.0
+**Status:** CONFIRMED — project-owner confirmed 2026-06-13
+**Role:** Resolves open question TM1 (which provider/model v0.1 uses) with the confirmed decision. This is the operational decision note that sits beneath the decision *rules* in `tokenizer-model-choice-v0.1.md`. That document defines the criteria and staged approach; this document records the actual confirmed choice and its consequences.
+**Version:** tm1-v0.1.1
 **Depends on:** `docs/methodology/tokenizer-model-choice-v0.1.md`, `docs/methodology/baseline-token-tax-calculation-v0.1.md`, `docs/benchmark/v0.1/quality-gates.md`
-**Feeds into:** Stage 1 tokenizer-only sanity gate (unblocks it once confirmed); Stage 2/3 model execution
+**Feeds into:** Stage 1 tokenizer-only sanity gate (now unblocked); Stage 2/3 model execution
 
 ---
 
@@ -45,11 +45,13 @@ All candidates assume a single model family for the entire v0.1 pilot. The relev
 
 ---
 
-## 4. Recommended v0.1 choice
+## 4. Confirmed v0.1 choice
 
-**Recommended default (use unless the project owner overrides):**
+**Confirmed decision (project owner, 2026-06-13):**
 
-> **OpenAI GPT-4.1-mini (or GPT-4.1) — model family and tokenizer — for all of v0.1.**
+> **OpenAI GPT-4.1-mini / GPT-4.1 — model family and tokenizer — for all of v0.1.**
+
+This is the v0.1 tokenizer/model family for both Stage 1 counting and Stage 2/3 execution. The only item left to confirm is the exact tokenizer package/encoding name, which is resolved in Stage 1 tooling (TM1-a) — not a blocker for proceeding.
 
 Rationale:
 
@@ -59,7 +61,7 @@ Rationale:
 
 **Tokenizer naming:** the exact `tiktoken` encoding name to use for the GPT-4.1 family is marked `TO_BE_CONFIRMED_IN_STAGE_1_TOOLING`. It must be verified against the installed tooling before Stage 1 counts are recorded, and logged as `tokenizer_name` / `tokenizer_version` per the logging schema.
 
-**Override note:** if the project owner intends to run later experiments on Claude or an open model, choose that family's tokenizer instead — the decision rule (§2) then forces a different tokenizer for Stage 1, and this recommendation is superseded.
+**Scope note:** this decision fixes the family for all of v0.1. Changing to Claude or an open model later would, per the decision rule (§2), force a different Stage 1 tokenizer and require Stage 1 to be rerun under that tokenizer (§7). Such a change is out of scope for v0.1 unless explicitly made by a version bump of this note.
 
 ---
 
@@ -112,14 +114,14 @@ Once Stage 1 passes and the project owner approves the model:
 
 ## 9. Decision status
 
-**PROPOSED, awaiting project-owner confirmation.**
+**CONFIRMED by project owner, 2026-06-13.**
 
-The recommended default is OpenAI GPT-4.1-mini / GPT-4.1 (one family, one tokenizer) for all of v0.1. On project-owner approval:
+The v0.1 tokenizer/model family is OpenAI GPT-4.1-mini / GPT-4.1 (one family, one tokenizer) for all of v0.1. Effect of this confirmation:
 
-- TM1 moves to RESOLVED in `quality-gates.md` and `open-questions.md`.
-- Stage 1 becomes unblocked and can run (after confirming the exact `tiktoken` encoding name, TM1-a).
-- TM1-b/c/d, TM8, and TM5/BS6 remain open but do **not** block Stage 1; they gate Stage 2+.
+- TM1 is RESOLVED in `quality-gates.md` and `open-questions.md`.
+- **Stage 1a is unblocked.** It can run once the exact tokenizer encoding name (TM1-a) is confirmed in Stage 1 tooling — a tooling-setup step, not a decision blocker. Stage 1a requires **no API calls**.
+- TM1-b/c/d (exact version-pinned model IDs, mini-vs-full tier), TM8 (embedding model), and TM5/BS6 (pilot budget) remain open but do **not** block Stage 1a; they gate Stage 2+.
 
 ---
 
-*Version: tm1-v0.1.0. This note records the proposed resolution of TM1. The governing decision rules are in `docs/methodology/tokenizer-model-choice-v0.1.md`. Token-tax results are tokenizer-specific and must always be reported with the tokenizer and model named.*
+*Version: tm1-v0.1.1. This note records the confirmed resolution of TM1. The governing decision rules are in `docs/methodology/tokenizer-model-choice-v0.1.md`. Token-tax results are tokenizer-specific and must always be reported with the tokenizer and model named.*
