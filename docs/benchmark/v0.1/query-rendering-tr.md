@@ -391,7 +391,7 @@
 
 - **intent_id:** INT-029
 - **language:** tr
-- **query_text:** "Açılmamış bir NiceHome Hub'ı iade etmek istiyorum ve iade sürem içindeyim. Hangi adımları izlemeliyim?"
+- **query_text:** "Açılmamış NiceHome Hub'ımı iade etmek istiyorum ve iade sürem içindeyim. Hangi adımları izlemeliyim?"
 - **linked_fact_ids:** [F0309, F0310, F0311]
 - **expected_fact_set_id:** INT-029
 - **difficulty_level:** troubleshooting-process
