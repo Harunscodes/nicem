@@ -314,7 +314,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 ### Intent set open questions (from intent-set.md)
 
 - **IS1:** Should a dedicated simple intent for F0110 (live view unavailable when Hub offline) be added to directly test AC4? Currently covered only indirectly.
-  - *Status: Open — recommend adding in v0.2 or as INT-037 if 36 is relaxed; AC4 coverage flagged as the thinnest in the set*
+  - *Status: WAIVED_WITH_LIMITATION for v0.1 — confirmed in quality-gates.md §8 and §14; pre-registered as secondary observation in expected-fact-mapping.md; dedicated intent deferred to v0.2*
 
 - **IS2:** Should a dedicated simple intent for F0612 (Sensor recalibration) be added for D06 non-connectivity coverage?
   - *Status: Open — F0612 is the only D06 fact with no direct intent; low priority given D06 has 13 facts and 5 intents already*

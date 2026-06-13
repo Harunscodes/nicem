@@ -664,6 +664,12 @@ docs/benchmark/v0.1/quality-gates.md
   Implements the quality gates defined in §11 as a checklist with owner fields and
   pass/fail status. Updated as artifacts are reviewed and frozen.
   Created once artifact construction begins; updated continuously.
+  STATUS: CREATED — qg-v0.1.0. Artifact inventory PASS; fact-set PASS+NEEDS_REVIEW
+  (freeze); chunk alignment PASS; rendering alignment PASS+NEEDS_REVIEW (terminology);
+  language review NEEDS_REVIEW (TR owner, NL native); intent-set PASS+WAIVED (AC4);
+  expected-fact-mapping PASS; evaluation readiness PASS (Stage 1); logging PASS
+  (Stage 1), BLOCKED (Stage 2, M9); Stage 1 BLOCKED (TM1, query renderings);
+  Stage 2 BLOCKED (TM1, TM8, M9, TM5, AD1, EV1). Next: query rendering authoring.
 ```
 
 ---

@@ -80,7 +80,7 @@ The order matters: the fact-set precedes everything, and no language rendering p
 7. **Review all renderings** — KB completeness check per language (all five task skeletons answerable), bilingual review of the Turkish KB (LS1), intent-rendering review, register consistency (LS2).
 8. **Freeze the dataset version** — assign `kb_version`, `kb_rendering_version` per language, and `benchmark_version`; no edits after freeze without a version bump.
 
-This plan does not generate any of these artifacts. The next concrete deliverable is a **dataset specification** (§14) that defines formats and authoring protocol for steps 1–6.
+This plan does not generate any of these artifacts. **Benchmark artifact construction is now complete** (steps 1–6 and supporting documents). The consolidated pre-run gate status is in `docs/benchmark/v0.1/quality-gates.md` (qg-v0.1.0). The next artifact before Stage 1 can begin is the **query rendering** (108 queries: 36 intents × 3 languages), preceded by a query-rendering plan.
 
 ---
 
