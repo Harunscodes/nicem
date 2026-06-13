@@ -655,6 +655,10 @@ docs/benchmark/v0.1/expected-fact-mapping.md
   Maps each intent_id to its required_facts and expected_outcome.
   Designed to be the evaluator's reference — no KB rendering text, only semantic fact content.
   Created after intent-set.md is stable.
+  STATUS: CREATED — efm-v0.1.0, not yet frozen. All 36 intents mapped. Global
+  evaluation rules (PASS/FAIL/UNCERTAIN operationalization, condition rule, order
+  rule, partial rule, extra-info rule). IS1-IS7 pre-registered. 7 ordered-step
+  intents; AC1-AC9 coverage confirmed (AC4 indirect only, IS1 deferred to v0.2).
 
 docs/benchmark/v0.1/quality-gates.md
   Implements the quality gates defined in §11 as a checklist with owner fields and

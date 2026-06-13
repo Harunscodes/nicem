@@ -323,16 +323,16 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Open — currently covered as secondary context in INT-015; may improve D07 depth*
 
 - **IS4:** INT-003 requires all three Sensor measurements. Should "two out of three" be UNCERTAIN or FAIL?
-  - *Status: Open — recommend pre-registering as UNCERTAIN (partial but not wrong); to be confirmed in expected-fact-mapping.md*
+  - *Status: RESOLVED in expected-fact-mapping.md — 2 of 3 = UNCERTAIN (partial, not wrong); ≤1 = FAIL (too incomplete); all 3 + fabricated 4th = FAIL (forbidden claim)*
 
 - **IS5:** INT-025/INT-026 test full ordered sequences. Is exact step order required, or "all steps, substantially correct order"?
-  - *Status: Open — recommend exact order required (sequences are causally ordered, not arbitrary lists); to be confirmed in expected-fact-mapping.md*
+  - *Status: RESOLVED in expected-fact-mapping.md — causal order required for all 7 ordered-step intents (steps are causally ordered, not arbitrary lists); wrong order = FAIL; minor phrasing variation = PASS*
 
 - **IS6:** INT-019 refurbished warranty floor — should all three misreadings be pre-registered as FAIL patterns?
-  - *Status: Open — yes, recommend explicit pre-registration of flat-90, full-2-year-reset, and no-warranty as FAIL in expected-fact-mapping.md*
+  - *Status: RESOLVED in expected-fact-mapping.md — all three explicitly pre-registered: (a) flat 90-day reset, (b) full 2-year reset, (c) no warranty = all FAIL; "longer of remainder or 90 days" required for PASS*
 
 - **IS7:** INT-035 delay vs. loss — is mentioning both remedies acceptable if delay remedy is correctly identified?
-  - *Status: Open — recommend: acceptable (proactive correct context) as long as the delay-specific remedy is clearly identified for the described scenario*
+  - *Status: RESOLVED in expected-fact-mapping.md — acceptable (PASS) to mention both remedies correctly as long as delay-specific remedy (shipping-fee refund) is identified for the described scenario; stating replacement for delay = FAIL*
 
 ### Language rendering open questions (from language-rendering-plan.md §13)
 
