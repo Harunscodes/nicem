@@ -80,7 +80,9 @@ The order matters: the fact-set precedes everything, and no language rendering p
 7. **Review all renderings** — KB completeness check per language (all five task skeletons answerable), bilingual review of the Turkish KB (LS1), intent-rendering review, register consistency (LS2).
 8. **Freeze the dataset version** — assign `kb_version`, `kb_rendering_version` per language, and `benchmark_version`; no edits after freeze without a version bump.
 
-This plan does not generate any of these artifacts. **Benchmark artifact construction is now complete** (steps 1–6 and supporting documents). The consolidated pre-run gate status is in `docs/benchmark/v0.1/quality-gates.md` (qg-v0.1.0). The next artifact before Stage 1 can begin is the **query rendering** (108 queries: 36 intents × 3 languages), preceded by a query-rendering plan.
+**Benchmark artifact and planning phase is now complete** (steps 1–6 and supporting documents, plus quality gates and query rendering plan). The consolidated pre-run gate status is in `docs/benchmark/v0.1/quality-gates.md` (qg-v0.1.0). The query rendering plan is `docs/benchmark/v0.1/query-rendering-plan.md` (qr-plan-v0.1.0).
+
+The next artifacts before Stage 1 can begin are the **query renderings**: `query-rendering-en.md`, `query-rendering-nl.md`, `query-rendering-tr.md` — 36 queries each (108 total), authored per `query-rendering-plan.md`. After authoring, Turkish queries require project-owner review (QR9) before Stage 1.
 
 ---
 

@@ -50,9 +50,14 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | `kb-rendering-tr.md` | **PASS** | Project owner | File exists; 39 chunks confirmed by automated grep; versioned kb-tr-v0.1.0 | Not yet frozen; project-owner Turkish review pending |
 | `intent-set.md` | **PASS** | Project owner | File exists; 36 intents (12/12/12); all 8 documents represented; versioned intent-v0.1.0 | Not yet frozen |
 | `expected-fact-mapping.md` | **PASS** | Project owner | File exists; 36 mappings; IS1–IS7 pre-registered; versioned efm-v0.1.0 | Not yet frozen |
+| `quality-gates.md` | **PASS** | Project owner | This file; 16 sections; versioned qg-v0.1.0 | — |
+| `query-rendering-plan.md` | **PASS** | Project owner | File exists; 11 sections; QR1–QR9 open questions; versioned qr-plan-v0.1.0 | Not yet frozen |
+| `query-rendering-en.md` | **NOT_STARTED** | Project owner | File not yet created; 36 English query texts required | Blocks Stage 1 |
+| `query-rendering-nl.md` | **NOT_STARTED** | Project owner | File not yet created; 36 Dutch query texts required | Blocks Stage 1; Dutch review (QR8/LR6) required before Stage 2+ public claims |
+| `query-rendering-tr.md` | **NOT_STARTED** | Project owner | File not yet created; 36 Turkish query texts required | Blocks Stage 1; owner Turkish review (QR9) required before Stage 1 |
 | All artifacts in `source-map.md` | **PASS** | Project owner | Every artifact created in this phase is catalogued in `docs/source-map.md` | — |
 
-**Inventory gate verdict: PASS** (all artifacts exist). Content quality gates follow below.
+**Inventory gate verdict: PASS** for planning artifacts; **NOT_STARTED** for three query rendering files (required before Stage 1). Content quality gates follow below.
 
 ---
 
@@ -203,12 +208,14 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 |---|---|---|
 | Tokenizer/model decision rules exist | **PASS** | `docs/methodology/tokenizer-model-choice-v0.1.md` |
 | Specific tokenizer/provider selected | **BLOCKED** | TM1 is unresolved — specific provider/model not yet chosen; tokenizer identity is required to run Stage 1 |
-| 36 × 3 = 108 query renderings exist | **NOT_STARTED** | Query renderings (EN/NL/TR text for each intent) have not been authored; query-rendering-plan.md and query-rendering files are the next artifacts before Stage 1 can begin |
+| Query rendering plan exists | **PASS** | `query-rendering-plan.md` created; defines register, style, difficulty-preservation, AC controls, and QR1–QR9 open questions |
+| 36 × 3 = 108 query renderings exist | **NOT_STARTED** | `query-rendering-en.md`, `query-rendering-nl.md`, `query-rendering-tr.md` not yet authored; query-rendering-plan.md defines the constraints; these are the next artifacts before Stage 1 can begin |
+| Turkish query review (QR9) | **NOT_STARTED** | Project owner must review Turkish query renderings before Stage 1; QR9 pre-registered in query-rendering-plan.md |
 | KB renderings ready for tokenization | **PASS** | `kb-rendering-en.md`, `kb-rendering-nl.md`, `kb-rendering-tr.md` all exist and are structurally verified |
 | Token-tax calculation method documented | **PASS** | `docs/methodology/baseline-token-tax-calculation-v0.1.md` defines per-intent ratios and the five-step residual method |
 | Stage 1 go/no-go criteria defined | **PASS** | `validation-plan-v0.1.md` §7 defines the sanity check against literature expectations (Dutch ~1.1×–1.5×; Turkish above Dutch) |
 
-**Stage 1 gate verdict: BLOCKED** — two prerequisites missing: (1) tokenizer/provider not selected (TM1); (2) 108 query renderings not yet authored.
+**Stage 1 gate verdict: BLOCKED** — three prerequisites missing: (1) tokenizer/provider not selected (TM1); (2) 108 query renderings not yet authored; (3) Turkish query renderings require owner review (QR9) before Stage 1.
 
 ---
 
@@ -257,14 +264,15 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | Activity | Ready? | Blocking issues |
 |---|---|---|
 | Quality review of existing artifacts | **YES** | None — all artifacts exist and pass structural checks |
-| Query rendering (authoring 108 queries) | **YES** | No blockers; next artifact to create |
-| Stage 1 tokenizer-only sanity gate | **NO** | TM1 (tokenizer/model), 108 query renderings not yet authored |
+| Query rendering plan | **YES** | `query-rendering-plan.md` complete; defines authoring rules for all 108 queries |
+| Query rendering (authoring 108 queries) | **YES** | No blockers; query-rendering-en/nl/tr.md are the next artifacts to create |
+| Stage 1 tokenizer-only sanity gate | **NO** | TM1 (tokenizer/model); 108 query renderings not yet authored; Turkish query owner review (QR9) pending |
 | Stage 2 smoke test | **NO** | TM1, TM8, M9, TM5/BS6, AD1, EV1, query renderings |
 | Stage 3 full benchmark run | **NO** | All Stage 2 blockers + Stage 2 must complete first |
 | Internal exploratory review and planning | **YES** | All methodology documents complete; benchmark artifact construction complete |
 | Public or publication-grade claims | **NO** | Independent review not started; Dutch native review pending; all stages yet to run |
 
-**Current position:** The benchmark artifact construction phase is complete. All nine artifacts (dataset-specification, canonical-fact-set, document-plan, language-rendering-plan, three KB renderings, intent-set, expected-fact-mapping) exist and pass structural quality gates. The benchmark is ready for the next phase: query rendering, then practical decisions, then Stage 1.
+**Current position:** The benchmark artifact and planning phase is complete. All planning artifacts exist and pass structural quality gates: dataset-specification, canonical-fact-set, document-plan, language-rendering-plan, three KB renderings, intent-set, expected-fact-mapping, quality-gates, and query-rendering-plan (10 artifacts). The next phase is query rendering: author query-rendering-en.md, query-rendering-nl.md, and query-rendering-tr.md (36 queries each), then Turkish owner review, then resolve TM1, then Stage 1.
 
 ---
 
@@ -272,21 +280,23 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 
 Listed in priority order. Each action unlocks subsequent steps.
 
-1. **Project-owner review of Turkish KB rendering** (`kb-rendering-tr.md`) — formal read-through by the native Turkish speaker; resolve any phrasing issues before the rendering is frozen. Unblocks: Turkish rendering freeze; Stage 2 for Turkish.
+1. **Create `docs/benchmark/v0.1/query-rendering-en.md`** — 36 English query texts, authored from intent scenarios per `query-rendering-plan.md` register and difficulty rules. Unblocks: Stage 1 tokenizer sanity gate (once TM1 is also resolved).
 
-2. **Decide Dutch review scope** — is the Dutch rendering sufficient for internal Stage 1/2 without a native reviewer, or should native review be sought now? If external review is deferred to pre-publication, document the scope limitation explicitly. Unblocks: Dutch rendering freeze decision.
+2. **Create `docs/benchmark/v0.1/query-rendering-nl.md`** — 36 Dutch query texts; authored from intent scenarios; `ik/mijn` register; `TODO_REVIEW` markers for any uncertain phrasing. Unblocks: Stage 1 for Dutch.
 
-3. **Create `docs/benchmark/v0.1/query-rendering-plan.md`** — defines how the 36 language-neutral intent scenarios are rendered into natural-language query text in English, Dutch, and Turkish; fixes register and format for queries (register parity with KB to avoid artificial retrieval advantages). Unblocks: query rendering authoring.
+3. **Create `docs/benchmark/v0.1/query-rendering-tr.md`** — 36 Turkish query texts; authored from intent scenarios; `cihazım` for ownership contexts; apostrophe suffixes; controlled terminology applied. After creation, owner must review (QR9) before Stage 1.
 
-4. **Create `docs/benchmark/v0.1/query-rendering-en.md`, `query-rendering-nl.md`, `query-rendering-tr.md`** — 36 × 3 = 108 query texts; authored from intent scenarios, not from KB renderings. Unblocks: Stage 1 tokenizer sanity gate (once TM1 is also resolved).
+4. **Project-owner review of Turkish KB rendering** (`kb-rendering-tr.md`) — formal read-through by the native Turkish speaker; resolve any phrasing issues before the rendering is frozen. Can be done in parallel with query rendering. Unblocks: Turkish rendering freeze; Stage 2 for Turkish.
 
-5. **Resolve TM1 (specific tokenizer/model)** — select the provider/model and fix the tokenizer version; this is the highest-priority practical decision because it unlocks Stage 1. Recommended: resolve in parallel with query rendering authoring.
+5. **Decide Dutch review scope (QR8/LR6)** — is the Dutch rendering sufficient for internal Stage 1/2 without a native reviewer, or should native review be sought now? If external review is deferred to pre-publication, document the scope limitation explicitly. Unblocks: Dutch rendering freeze decision.
 
-6. **Resolve TM5/BS6 (pilot budget)** — approve spend before any API call; determines repetition count and smoke-test scope.
+6. **Resolve TM1 (specific tokenizer/model)** — select the provider/model and fix the tokenizer version; this is the highest-priority practical decision because it unlocks Stage 1. Recommended: resolve in parallel with query rendering authoring.
 
-7. **Resolve remaining practical decisions** — TM8 (embedding model), M9 (instrumentation platform), EV1 (audit fraction), AD1 (Agent A context condition). These can be resolved in parallel once budget is approved.
+7. **Resolve TM5/BS6 (pilot budget)** — approve spend before any API call; determines repetition count and smoke-test scope.
 
-8. **Run Stage 1 tokenizer-only sanity gate** — tokenize all 108 queries + 39 × 3 KB chunks; compute per-intent token-tax ratios; compare against literature expectations. Cost: near-zero. Unblocks: Stage 2 if go/no-go criteria pass.
+8. **Resolve remaining practical decisions** — TM8 (embedding model), M9 (instrumentation platform), EV1 (audit fraction), AD1 (Agent A context condition). These can be resolved in parallel once budget is approved.
+
+9. **Run Stage 1 tokenizer-only sanity gate** — tokenize all 108 queries + 39 × 3 KB chunks; compute per-intent token-tax ratios; compare against literature expectations. Cost: near-zero. Unblocks: Stage 2 if go/no-go criteria pass.
 
 ---
 

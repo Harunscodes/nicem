@@ -380,6 +380,35 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 - **DP7:** How will chunk IDs map to fact IDs?
   - *Status: Direction set — each chunk = one document section; proposed scheme `<document_id>-S<section_number>` (e.g., D03-S2) with fact-ID list in rendering metadata; must be identical across languages so semantic_units_retrieved is comparable; finalize in language-rendering-plan.md*
 
+### Query rendering open questions (from query-rendering-plan.md §9)
+
+- **QR1:** Should conditional queries use one sentence or two?
+  - *Status: Direction set — two sentences preferred (setup sentence + question); max two sentences; conditional-intent queries must not collapse the condition into the question in a way that answers the question by implication*
+
+- **QR2:** Should troubleshooting queries describe only the symptom, or also what was already tried?
+  - *Status: Direction set — symptom only at this stage; adding "already tried X" introduces a variable not in the intent specification; deferred to v0.2 if retry-scenario intents are added*
+
+- **QR3:** Should queries include device names that activate ambiguity controls?
+  - *Status: Direction set — yes, where the AC requires it; AC2 (button hold durations) requires the device context to be stated (Hub vs. Plug) so the model can give the correct duration*
+
+- **QR4:** Is a single query sufficient, or should paraphrase variants be authored?
+  - *Status: Direction set — one canonical query per intent per language for v0.1; paraphrase robustness is a v0.2 question*
+
+- **QR5:** How should queries be stored — one file per language, or one combined file?
+  - *Status: Direction set — one file per language (`query-rendering-en.md`, `query-rendering-nl.md`, `query-rendering-tr.md`); each file has 36 entries in the defined schema (intent_id, language, query_text, linked_fact_ids, expected_fact_set_id, notes, review_status)*
+
+- **QR6:** Should query texts be versioned separately from the plan?
+  - *Status: Direction set — yes; the rendering files carry their own version (qr-en-v0.1.0, qr-nl-v0.1.0, qr-tr-v0.1.0); a version bump on one does not force a bump on others unless chunk IDs or fact IDs change*
+
+- **QR7:** How does query length affect token-tax measurement?
+  - *Status: Direction set — queries must be naturally equivalent across languages, not artificially equalized; observed query length differences are part of the token-tax signal and will be reported; if English queries are systematically shorter than Dutch/Turkish, investigate whether it is authoring compression or a genuine language effect*
+
+- **QR8:** Should Dutch query renderings be reviewed by a native speaker before Stage 1?
+  - *Status: Open — analogous to LR6 for KB; for Stage 1 (tokenizer-only) the rendering is sufficient; for Stage 2+ public claims, native Dutch review is required; project owner to decide timing*
+
+- **QR9:** Should Turkish query renderings be reviewed by the project owner before Stage 1?
+  - *Status: Open and active — Turkish KB rendering review is pending (see LR3); Turkish query renderings require the same review before Stage 1 begins; project owner must review `query-rendering-tr.md` after authoring and confirm before Stage 1 proceeds*
+
 ### Evaluation method sub-questions (from evaluation-method-v0.1.md §15)
 
 - **EV1:** What percentage of outputs should receive human review?
