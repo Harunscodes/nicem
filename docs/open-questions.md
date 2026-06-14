@@ -199,7 +199,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: RESOLVED (CONFIRMED 2026-06-14, with TM8) — yes: one multilingual embedding model (`text-embedding-3-small`) is used for EN/NL/TR, keeping the design constant; uneven per-language retrieval quality becomes a measured property, not an experimenter-introduced confound. See `docs/benchmark/v0.1/stage2-decision-plan.md` §6.*
 
 - **AD3:** How many chunks should Simple RAG retrieve (top-k)?
-  - *Status: Open — fixed k across languages required; interacts with chunk size and BS4*
+  - *Status: Provisional value set for Stage 2 — `docs/benchmark/v0.1/stage2-smoke-test-run-plan.md` §8 sets `top_k = 3`, fixed across all languages and intents. The INT-031 two-chunk case (D08-S3 + D08-S4) is the stress test: if Agent B fails to retrieve both required chunks at k=3, top_k may need adjustment (applied uniformly across languages, and logged). Confirmed for Stage 2; revisit after the smoke test before Stage 3.*
 
 - **AD4:** Should retries be allowed in v0.1?
   - *Status: Open — single-pass is cleaner but empties the retry column; one bounded retry on retrieval failure would populate it; must be identical across languages either way*

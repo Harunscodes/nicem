@@ -57,10 +57,11 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | `query-rendering-tr.md` | **PASS** | Project owner (QR9) | File exists; 36 queries confirmed; INT-001–036 all present; apostrophe suffix convention applied; controlled terms applied; QR9 review complete (7 corrections applied); versioned qr-tr-v0.1.0 | — |
 | `tm1-tokenizer-model-decision.md` | **PASS** | Project owner | File exists; resolves TM1 with confirmed choice (OpenAI GPT-4.1-mini/GPT-4.1 family); versioned tm1-v0.1.1 | Status CONFIRMED 2026-06-13; exact tokenizer encoding name (TM1-a) confirmed in Stage 1 tooling |
 | `query-variant-plan.md` | **PASS** | Project owner | File exists; 11 sections; qv-plan-v0.1.0; no variant texts yet — planning only | Variants are optional robustness layer; not required before Stage 1a |
-| `stage2-decision-plan.md` | **PASS** | Project owner | File exists; 14 sections; s2-plan-v0.1.0 (2026-06-14); recommended defaults for all 5 blocking Stage 2 decisions | All five decisions awaiting project-owner confirmation |
+| `stage2-decision-plan.md` | **PASS** | Project owner | File exists; 14 sections; s2-plan-v0.1.1 (2026-06-14); all 5 Stage 2 decisions CONFIRMED | All five decisions confirmed 2026-06-14 |
+| `stage2-smoke-test-run-plan.md` | **PASS** | Project owner | File exists; 18 sections; s2-runplan-v0.1.0 (2026-06-14); defines the 30-run smoke test, prompts, retrieval, logging, budget enforcement | Does NOT start Stage 2; runner not yet implemented |
 | All artifacts in `source-map.md` | **PASS** | Project owner | Every artifact created in this phase is catalogued in `docs/source-map.md` | — |
 
-**Inventory gate verdict: PASS** — all 16 artifacts exist (14 benchmark artifacts + 1 variant planning document + 1 Stage 2 decision plan). Content quality gates follow below.
+**Inventory gate verdict: PASS** — all 17 artifacts exist (14 benchmark artifacts + 1 variant planning document + 1 Stage 2 decision plan + 1 Stage 2 smoke-test run plan). Content quality gates follow below.
 
 ---
 
@@ -350,13 +351,14 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Logging pipeline ready | **NEEDS_REVIEW** | M9 decided (local JSONL); the logging runner script itself must be implemented and reviewed before runs |
 | Human audit fraction pre-committed (EV1) | **PASS** | EV1 CONFIRMED 2026-06-14: audit all Stage 2 outputs manually (PASS, FAIL, UNCERTAIN); no sampling |
 | Direct LLM context condition (AD1: A0 vs. A1) | **PASS** | AD1 CONFIRMED 2026-06-14: A1 — Direct LLM with full relevant-language KB rendering in context |
-| Version-pinned model IDs set (TM1-b/c) | **NOT_STARTED** | Exact completion + embedding model IDs to be recorded in the smoke-test run plan before the first API call |
-| Smoke-test run plan exists | **NOT_STARTED** | `stage2-smoke-test-run-plan.md` not yet created — next artifact |
+| Version-pinned model IDs set (TM1-b/c) | **NOT_STARTED** | Exact completion + embedding model IDs to be recorded before the first API call; placeholders in run plan §6 |
+| Smoke-test run plan exists | **PASS** | `stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0) created 2026-06-14; defines intents, run matrix, prompts, retrieval, logging, budget enforcement, pass/fail criteria |
+| `pricing_version` recorded | **NOT_STARTED** | Date-stamped rate table (completion + embedding) to be recorded before the first API call |
 | Minimal logging runner implemented | **NOT_STARTED** | Runner script must exist, enforce the budget cap, and be reviewed before any API call |
 
-**Stage 2 decision plan:** `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.1, 2026-06-14) documents all five blocking decisions, now **CONFIRMED** by the project owner. Resolution order applied: M9 → AD1 → TM8 → EV1 → TM5/BS6.
+**Stage 2 decision plan:** `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.1, 2026-06-14) documents all five blocking decisions, now **CONFIRMED**. **Stage 2 smoke-test run plan:** `docs/benchmark/v0.1/stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0, 2026-06-14) defines the full 30-run smoke test.
 
-**Stage 2 gate verdict: BLOCKED** — all five decisions are now CONFIRMED (M9, AD1, TM8, EV1, TM5/BS6), but Stage 2 is not yet runnable: the smoke-test run plan (`stage2-smoke-test-run-plan.md`), the minimal logging runner, and the version-pinned model IDs (TM1-b/c) must all be created and reviewed, and the budget cap implemented or manually enforced, before the first API call.
+**Stage 2 gate verdict: BLOCKED** — all five decisions are CONFIRMED and the run plan exists, but Stage 2 is not yet runnable: the minimal logging runner must be implemented and reviewed, the version-pinned model IDs (TM1-b/c) and `pricing_version` must be recorded, and the budget cap implemented or manually enforced, before the first API call.
 
 ---
 
@@ -377,8 +379,9 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | Pilot budget (TM5/BS6) | RESOLVED 2026-06-14 | $25 USD hard cap; stop-and-review at $20; cap must be implemented/enforced before any call; `stage2-decision-plan.md` §8 |
 | Embedding model for Agent B (TM8) | RESOLVED 2026-06-14 | OpenAI `text-embedding-3-small`; same model across EN/NL/TR; `stage2-decision-plan.md` §6 |
 | Agent A context condition (AD1) | RESOLVED 2026-06-14 | A1 (full relevant-language KB in context); `stage2-decision-plan.md` §5 |
-| Smoke-test run plan not yet created | NOT_STARTED | `stage2-smoke-test-run-plan.md` — next artifact; blocks first API call |
+| Smoke-test run plan | RESOLVED 2026-06-14 | `stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0) created; 30-run plan defined |
 | Minimal logging runner not yet implemented | NOT_STARTED | Runner must enforce budget cap and be reviewed; blocks first API call |
+| Exact model IDs (TM1-b/c) + `pricing_version` not yet recorded | NOT_STARTED | Must be recorded before first API call; placeholders in run plan §6 |
 
 ---
 
@@ -390,12 +393,12 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | Query rendering plan | **YES** | `query-rendering-plan.md` complete; defines authoring rules for all 108 queries |
 | Query rendering (108 queries) | **YES** | All three files created; 36 queries each; parity confirmed; structural quality gates PASS |
 | Stage 1 tokenizer-only sanity gate | **COMPLETE** | Stage 1a run 2026-06-13; all sanity checks PASS; token-tax ratios in expected direction and range; results in `results/stage1a/`; tokenizer fallback (TM1-a) documented; re-run with exact tiktoken for authoritative counts |
-| Stage 2 smoke test | **NO** | Five decisions CONFIRMED 2026-06-14; remaining: smoke-test run plan, logging runner, TM1-b/c model IDs, budget-cap enforcement |
+| Stage 2 smoke test | **NO** | Five decisions CONFIRMED + run plan created (2026-06-14); remaining: logging runner, TM1-b/c model IDs, `pricing_version`, budget-cap enforcement |
 | Stage 3 full benchmark run | **NO** | All Stage 2 blockers + Stage 2 must complete first |
 | Internal exploratory review and planning | **YES** | All methodology documents complete; benchmark artifact construction complete |
 | Public or publication-grade claims | **NO** | Independent review not started; Dutch native review pending; all stages yet to run |
 
-**Current position:** Stage 1a (tokenizer-only sanity gate) is **COMPLETE** as of 2026-06-13. All artifacts are structurally verified. QR9 (Turkish query review) is complete. TM1 is CONFIRMED (OpenAI GPT-4.1-mini/GPT-4.1). Stage 1a produced token-tax baselines for all 108 queries and 117 KB chunks; all sanity checks PASS (results in `results/stage1a/`). A tokenizer fallback was used (TM1-a; network restriction prevented exact tiktoken load); re-run with exact tiktoken for publication-grade counts. **All five Stage 2 decisions (M9, AD1, TM8, EV1, TM5/BS6) are now CONFIRMED (2026-06-14).** Stage 2 remains blocked on execution prerequisites only: the smoke-test run plan (`stage2-smoke-test-run-plan.md`), the minimal logging runner, the version-pinned model IDs (TM1-b/c), and the budget-cap enforcement mechanism. No API call may be made until these exist and are reviewed.
+**Current position:** Stage 1a (tokenizer-only sanity gate) is **COMPLETE** as of 2026-06-13. All artifacts are structurally verified. QR9 (Turkish query review) is complete. TM1 is CONFIRMED (OpenAI GPT-4.1-mini/GPT-4.1). Stage 1a produced token-tax baselines for all 108 queries and 117 KB chunks; all sanity checks PASS (results in `results/stage1a/`). A tokenizer fallback was used (TM1-a; network restriction prevented exact tiktoken load); re-run with exact tiktoken for publication-grade counts. **All five Stage 2 decisions (M9, AD1, TM8, EV1, TM5/BS6) are CONFIRMED (2026-06-14), and the Stage 2 smoke-test run plan (`stage2-smoke-test-run-plan.md`, s2-runplan-v0.1.0) is complete.** Stage 2 remains blocked on the remaining execution prerequisites: the minimal logging runner, the version-pinned model IDs (TM1-b/c), the `pricing_version`, and the budget-cap enforcement mechanism. No API call may be made until the runner exists and is reviewed.
 
 ---
 
@@ -417,9 +420,11 @@ Listed in priority order. Each action unlocks subsequent steps.
 
 7. **~~Resolve remaining Stage 2 decisions~~ — DONE (2026-06-14).** All five (M9, AD1, TM8, EV1, TM5/BS6) CONFIRMED; see `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.1).
 
-8. **Create the Stage 2 smoke-test run plan** — `docs/benchmark/v0.1/stage2-smoke-test-run-plan.md`: 5 intents, prompt templates (Agent A = A1, Agent B = Simple RAG), KB indexing procedure, retrieval top-k, run order, budget-enforcement mechanism, version-pinned model IDs (TM1-b/c). This is the next artifact.
+8. **~~Create the Stage 2 smoke-test run plan~~ — DONE (2026-06-14).** `docs/benchmark/v0.1/stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0): 5 intents, run matrix, prompt plans (Agent A = A1, Agent B = Simple RAG), KB indexing, retrieval top-k=3, run order, budget enforcement, logging fields, pass/fail criteria.
 
-9. **Implement and review the minimal logging runner** — must enforce the $25 budget cap and capture all required JSONL fields. No API call until the run plan and runner are reviewed.
+9. **Record exact model IDs (TM1-b/c) and `pricing_version`** — version-pinned `gpt-4.1-mini` snapshot + embedding model version + date-stamped rate table. Placeholders are in run plan §6.
+
+10. **Implement and review the minimal logging runner** — must enforce the $25 budget cap and capture all required JSONL fields. No API call until the runner is reviewed.
 
 ---
 
