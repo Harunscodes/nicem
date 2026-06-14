@@ -1,6 +1,6 @@
 # Stage 2 Smoke Runner — Dry-Run Validation
 
-**Generated:** 2026-06-14T05:49:10.208663+00:00
+**Generated:** 2026-06-14T05:58:45.148047+00:00
 **Mode:** dry-run (no API calls, no embeddings, no API key)
 **Runner:** `scripts/stage2_smoke_runner.py`
 
@@ -23,6 +23,10 @@
 | `budget_hard_cap_usd` | `25.0` |
 | `budget_stop_review_usd` | `20.0` |
 | `allow_api_calls` | `False` |
+| `pricing.completion_input_usd_per_1k` | `None` |
+| `pricing.completion_output_usd_per_1k` | `None` |
+| `pricing.embedding_usd_per_1k` | `None` |
+| `pricing_configured` | `False` |
 
 ## Artifact versions parsed
 
@@ -59,6 +63,9 @@
 - CONFIG['allow_api_calls'] is False
 - response_model_id is still a placeholder
 - pricing_version is still a placeholder
+- completion input price is not configured
+- completion output price is not configured
+- embedding price is not configured
 - OPENAI_API_KEY is not present in the environment
 
 Additionally, no real completion or embedding code is implemented: `_call_completion_api` and `_create_embeddings` are unreachable stubs that raise `NotImplementedError`. Stage 2 live execution cannot occur from this skeleton.

@@ -58,10 +58,11 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | `tm1-tokenizer-model-decision.md` | **PASS** | Project owner | File exists; resolves TM1 with confirmed choice (OpenAI GPT-4.1-mini/GPT-4.1 family); versioned tm1-v0.1.1 | Status CONFIRMED 2026-06-13; exact tokenizer encoding name (TM1-a) confirmed in Stage 1 tooling |
 | `query-variant-plan.md` | **PASS** | Project owner | File exists; 11 sections; qv-plan-v0.1.0; no variant texts yet — planning only | Variants are optional robustness layer; not required before Stage 1a |
 | `stage2-decision-plan.md` | **PASS** | Project owner | File exists; 14 sections; s2-plan-v0.1.1 (2026-06-14); all 5 Stage 2 decisions CONFIRMED | All five decisions confirmed 2026-06-14 |
-| `stage2-smoke-test-run-plan.md` | **PASS** | Project owner | File exists; 18 sections; s2-runplan-v0.1.0 (2026-06-14); defines the 30-run smoke test, prompts, retrieval, logging, budget enforcement | Does NOT start Stage 2; runner not yet implemented |
+| `stage2-smoke-test-run-plan.md` | **PASS** | Project owner | File exists; 18 sections; s2-runplan-v0.1.0 (2026-06-14); defines the 30-run smoke test, prompts, retrieval, logging, budget enforcement | Does NOT start Stage 2 |
+| `stage2-live-run-readiness.md` | **PASS** | Project owner | File exists; 10 sections; s2-live-readiness-v0.1.0 (2026-06-14); blockers, guards, budget design, approval checklist, rollback conditions | Live execution BLOCKED; does NOT authorize a run |
 | All artifacts in `source-map.md` | **PASS** | Project owner | Every artifact created in this phase is catalogued in `docs/source-map.md` | — |
 
-**Inventory gate verdict: PASS** — all 17 artifacts exist (14 benchmark artifacts + 1 variant planning document + 1 Stage 2 decision plan + 1 Stage 2 smoke-test run plan). Content quality gates follow below.
+**Inventory gate verdict: PASS** — all 18 artifacts exist (14 benchmark artifacts + 1 variant planning document + 1 Stage 2 decision plan + 1 Stage 2 smoke-test run plan + 1 Stage 2 live-run readiness document). Content quality gates follow below.
 
 ---
 
@@ -355,11 +356,13 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Smoke-test run plan exists | **PASS** | `stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0) created 2026-06-14; defines intents, run matrix, prompts, retrieval, logging, budget enforcement, pass/fail criteria |
 | `pricing_version` recorded | **NOT_STARTED** | Date-stamped rate table (completion + embedding) to be recorded before the first API call |
 | Minimal logging runner (dry-run skeleton) | **PASS** | `scripts/stage2_smoke_runner.py` created 2026-06-14; dry-run builds all 30 runs, validates all required fields, total cost $0, no API key required; outputs in `results/stage2/dry_run_*` |
-| Logging runner (live API paths) | **NOT_STARTED** | Completion + embedding paths are unreachable stubs; must be implemented + reviewed; `allow_api_calls` is False; placeholders block API mode |
+| Logging runner — live-mode scaffolding | **PASS** | `stage2_smoke_runner.py` has pricing table, `estimate_cost_usd`, `BudgetGuard`, strict `can_run_api_mode` guard, and `--live`/`--confirm-spend` flags; live mode refuses by default; verified 2026-06-14 |
+| Logging runner — live API/embedding paths | **NOT_STARTED** | Completion + embedding paths are unreachable stubs; must be implemented + reviewed; `allow_api_calls` is False; model/pricing placeholders block live mode |
+| Live-run readiness documented | **PASS** | `stage2-live-run-readiness.md` (s2-live-readiness-v0.1.0): blockers, guards, budget design, approval checklist, rollback conditions |
 
 **Stage 2 decision plan:** `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.1, 2026-06-14) documents all five blocking decisions, now **CONFIRMED**. **Stage 2 smoke-test run plan:** `docs/benchmark/v0.1/stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0, 2026-06-14) defines the full 30-run smoke test.
 
-**Stage 2 gate verdict: BLOCKED** — all five decisions are CONFIRMED, the run plan exists, and the dry-run logging skeleton (`scripts/stage2_smoke_runner.py`) passes all structural validations (30 runs, all required fields, $0 cost, no API key). Stage 2 is still not runnable: the live completion + embedding paths are unimplemented stubs, the version-pinned model IDs (TM1-b/c) and `pricing_version` are placeholders, `allow_api_calls` is False, and the budget cap is not yet programmatically enforced. All must be resolved and reviewed before the first API call.
+**Stage 2 gate verdict: BLOCKED** — all five decisions are CONFIRMED; the run plan, the live-run readiness document, and the runner (dry-run skeleton + live-mode scaffolding) all exist. The dry-run passes all structural validations (30 runs, all required fields, $0 cost, no API key), and live mode is refused by default through a strict multi-condition guard. Stage 2 is still not runnable: the live completion + embedding paths are unimplemented stubs; the version-pinned model IDs (TM1-b/c), `pricing_version`, and pricing table are placeholders; `allow_api_calls` is False; and the `--live`/`--confirm-spend` flags are required. All blockers and the manual approval checklist are tracked in `stage2-live-run-readiness.md`.
 
 ---
 
@@ -382,8 +385,10 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | Agent A context condition (AD1) | RESOLVED 2026-06-14 | A1 (full relevant-language KB in context); `stage2-decision-plan.md` §5 |
 | Smoke-test run plan | RESOLVED 2026-06-14 | `stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0) created; 30-run plan defined |
 | Logging runner — dry-run skeleton | RESOLVED 2026-06-14 | `scripts/stage2_smoke_runner.py`; all structural validations PASS; outputs in `results/stage2/dry_run_*` |
+| Logging runner — live-mode scaffolding | RESOLVED 2026-06-14 | Pricing table, cost estimation, `BudgetGuard`, strict guard, CLI flags; live refused by default |
 | Logging runner — live API/embedding paths | NOT_STARTED | Unreachable stubs; must be implemented + reviewed; blocks first API call |
-| Exact model IDs (TM1-b/c) + `pricing_version` not yet recorded | NOT_STARTED | Must be recorded before first API call; placeholders in runner CONFIG and run plan §6 |
+| Exact model IDs (TM1-b/c) + `pricing_version` + pricing table not yet recorded | NOT_STARTED | Placeholders in runner CONFIG; must be set before first API call; see `stage2-live-run-readiness.md` §2–§4 |
+| Manual approval checklist for live run | NOT_STARTED | `stage2-live-run-readiness.md` §8; must be completed before `allow_api_calls=True` |
 
 ---
 
@@ -395,12 +400,12 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | Query rendering plan | **YES** | `query-rendering-plan.md` complete; defines authoring rules for all 108 queries |
 | Query rendering (108 queries) | **YES** | All three files created; 36 queries each; parity confirmed; structural quality gates PASS |
 | Stage 1 tokenizer-only sanity gate | **COMPLETE** | Stage 1a run 2026-06-13; all sanity checks PASS; token-tax ratios in expected direction and range; results in `results/stage1a/`; tokenizer fallback (TM1-a) documented; re-run with exact tiktoken for authoritative counts |
-| Stage 2 smoke test | **NO** | Five decisions CONFIRMED + run plan + dry-run runner skeleton (2026-06-14); remaining: live API/embedding paths, TM1-b/c model IDs, `pricing_version`, budget-cap enforcement, `allow_api_calls=True` after review |
+| Stage 2 smoke test | **NO** | Decisions CONFIRMED + run plan + readiness doc + runner (dry-run + live scaffolding) (2026-06-14); remaining: live API/embedding paths, TM1-b/c model IDs, `pricing_version` + pricing table, manual approval checklist, `allow_api_calls=True` + `--live --confirm-spend` after review |
 | Stage 3 full benchmark run | **NO** | All Stage 2 blockers + Stage 2 must complete first |
 | Internal exploratory review and planning | **YES** | All methodology documents complete; benchmark artifact construction complete |
 | Public or publication-grade claims | **NO** | Independent review not started; Dutch native review pending; all stages yet to run |
 
-**Current position:** Stage 1a (tokenizer-only sanity gate) is **COMPLETE** as of 2026-06-13. All artifacts are structurally verified. QR9 (Turkish query review) is complete. TM1 is CONFIRMED (OpenAI GPT-4.1-mini/GPT-4.1). Stage 1a produced token-tax baselines for all 108 queries and 117 KB chunks; all sanity checks PASS (results in `results/stage1a/`). A tokenizer fallback was used (TM1-a; network restriction prevented exact tiktoken load); re-run with exact tiktoken for publication-grade counts. **All five Stage 2 decisions (M9, AD1, TM8, EV1, TM5/BS6) are CONFIRMED (2026-06-14), the Stage 2 smoke-test run plan (`stage2-smoke-test-run-plan.md`, s2-runplan-v0.1.0) is complete, and the dry-run logging skeleton (`scripts/stage2_smoke_runner.py`) passes all structural validations.** Stage 2 remains blocked on: the live completion + embedding paths (currently unreachable stubs), the version-pinned model IDs (TM1-b/c) and `pricing_version` (currently placeholders), programmatic budget-cap enforcement, and `allow_api_calls=True` after review. No API call may be made until these are resolved and the runner reviewed.
+**Current position:** Stage 1a (tokenizer-only sanity gate) is **COMPLETE** as of 2026-06-13. All artifacts are structurally verified. QR9 (Turkish query review) is complete. TM1 is CONFIRMED (OpenAI GPT-4.1-mini/GPT-4.1). Stage 1a produced token-tax baselines for all 108 queries and 117 KB chunks; all sanity checks PASS (results in `results/stage1a/`). A tokenizer fallback was used (TM1-a; network restriction prevented exact tiktoken load); re-run with exact tiktoken for publication-grade counts. **All five Stage 2 decisions (M9, AD1, TM8, EV1, TM5/BS6) are CONFIRMED (2026-06-14); the run plan, the live-run readiness document (`stage2-live-run-readiness.md`), and the runner (dry-run skeleton + live-mode scaffolding with a strict guard, pricing table, `BudgetGuard`, and `--live`/`--confirm-spend` flags) all exist.** The dry-run passes all structural validations; live mode is refused by default. Stage 2 remains blocked on: the live completion + embedding paths (unreachable stubs), the version-pinned model IDs (TM1-b/c), `pricing_version` + pricing table (placeholders), the manual approval checklist, and `allow_api_calls=True` + `--live --confirm-spend` after review. No API call may be made until these are resolved and the runner reviewed.
 
 ---
 
@@ -426,9 +431,11 @@ Listed in priority order. Each action unlocks subsequent steps.
 
 9. **~~Implement the dry-run logging runner skeleton~~ — DONE (2026-06-14).** `scripts/stage2_smoke_runner.py`; dry-run builds 30 runs, validates all required fields, $0 cost, no API key; outputs in `results/stage2/dry_run_*`.
 
-10. **Record exact model IDs (TM1-b/c) and `pricing_version`** — version-pinned `gpt-4.1-mini` snapshot + embedding model version + date-stamped rate table. Placeholders are in runner CONFIG and run plan §6.
+10. **~~Add live-mode scaffolding to the runner~~ — DONE (2026-06-14).** Pricing table, `estimate_cost_usd`, `BudgetGuard` (writes `results/stage2/budget_state.json`), strict `can_run_api_mode` guard, `--live`/`--confirm-spend` flags. Live refused by default. Readiness documented in `stage2-live-run-readiness.md`.
 
-11. **Implement and review the live runner paths** — completion + embedding calls (currently stubs) + programmatic budget-cap enforcement. Set `allow_api_calls=True` only after review. No API call until reviewed.
+11. **Record exact model IDs (TM1-b/c), `pricing_version`, and pricing table** — version-pinned `gpt-4.1-mini` snapshot + embedding version + per-1k rates. Placeholders are in runner CONFIG (`stage2-live-run-readiness.md` §2–§4).
+
+12. **Implement and review the live runner paths** — completion + embedding calls (currently stubs) + wire `BudgetGuard` into the run loop. Complete the manual approval checklist (`stage2-live-run-readiness.md` §8). Set `allow_api_calls=True` only after review. No API call until reviewed.
 
 ---
 

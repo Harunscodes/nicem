@@ -43,6 +43,14 @@ CONFIG = {
     "tokenizer_name": "o200k_base",                      # encoding family
     "pricing_version": "TO_CONFIRM_BEFORE_API_RUN",      # placeholder
 
+    # Pricing table (USD per 1,000 tokens) — placeholders (None) until the
+    # pricing_version is confirmed. Live mode is refused while any is None.
+    "pricing": {
+        "completion_input_usd_per_1k": None,   # TO_CONFIRM
+        "completion_output_usd_per_1k": None,  # TO_CONFIRM
+        "embedding_usd_per_1k": None,          # TO_CONFIRM
+    },
+
     # Budget (CONFIRMED, TM5/BS6)
     "budget_hard_cap_usd": 25.00,
     "budget_stop_review_usd": 20.00,
@@ -81,6 +89,7 @@ RESULTS_DIR = REPO_ROOT / "results" / "stage2"
 
 QUERY_FILES = {lang: BENCH_DIR / f"query-rendering-{lang}.md" for lang in LANGUAGES}
 KB_FILES = {lang: BENCH_DIR / f"kb-rendering-{lang}.md" for lang in LANGUAGES}
+BUDGET_STATE_PATH = RESULTS_DIR / "budget_state.json"
 
 # Required logging fields (Stage 2 run plan §12)
 REQUIRED_LOG_FIELDS = [
@@ -292,10 +301,95 @@ def validate(runs: list, query_data: dict, kb_data: dict) -> dict:
 
 
 # --------------------------------------------------------------------------
+# Cost estimation (live-mode scaffolding; not used in dry-run)
+# --------------------------------------------------------------------------
+def pricing_configured() -> bool:
+    """True only when every pricing field is a real number."""
+    p = CONFIG.get("pricing", {})
+    return all(isinstance(p.get(k), (int, float)) for k in (
+        "completion_input_usd_per_1k",
+        "completion_output_usd_per_1k",
+        "embedding_usd_per_1k",
+    ))
+
+
+def estimate_cost_usd(input_tokens: int, output_tokens: int,
+                      embedding_tokens: int = 0) -> float:
+    """Estimate run cost from token counts and the configured pricing table.
+
+    Raises if pricing is not configured — callers must check pricing_configured()
+    first. Never invoked in dry-run (where token counts are None).
+    """
+    if not pricing_configured():
+        raise ValueError("Pricing table is not configured; cannot estimate cost.")
+    p = CONFIG["pricing"]
+    cost = 0.0
+    cost += (input_tokens / 1000.0) * p["completion_input_usd_per_1k"]
+    cost += (output_tokens / 1000.0) * p["completion_output_usd_per_1k"]
+    cost += (embedding_tokens / 1000.0) * p["embedding_usd_per_1k"]
+    return round(cost, 6)
+
+
+# --------------------------------------------------------------------------
+# Budget guard (live-mode scaffolding)
+# --------------------------------------------------------------------------
+class BudgetGuard:
+    """Tracks cumulative estimated spend and enforces the hard/stop thresholds.
+
+    State is persisted to results/stage2/budget_state.json. This guard is only
+    exercised in live mode (which is refused by default). It never auto-retries.
+    """
+
+    def __init__(self, hard_cap: float, stop_review: float, state_path: Path):
+        self.hard_cap = hard_cap
+        self.stop_review = stop_review
+        self.state_path = state_path
+        self.cumulative_cost = 0.0
+        self.run_count = 0
+        self.status = "ok"
+
+    def precheck(self, next_cost: float) -> tuple:
+        """Decide whether the next run may proceed. Returns (proceed, reason)."""
+        projected = self.cumulative_cost + next_cost
+        if projected > self.hard_cap:
+            self.status = "halt_hard_cap"
+            return (False, f"projected ${projected:.4f} would exceed hard cap "
+                           f"${self.hard_cap:.2f}")
+        if projected >= self.stop_review:
+            self.status = "pause_stop_review"
+            return (False, f"projected ${projected:.4f} reaches stop-review "
+                           f"${self.stop_review:.2f}; manual approval required")
+        self.status = "ok"
+        return (True, "within budget")
+
+    def record(self, cost: float) -> None:
+        self.cumulative_cost = round(self.cumulative_cost + cost, 6)
+        self.run_count += 1
+        self.write_state()
+
+    def write_state(self) -> None:
+        state = {
+            "cumulative_cost_usd": self.cumulative_cost,
+            "run_count": self.run_count,
+            "hard_cap_usd": self.hard_cap,
+            "stop_review_usd": self.stop_review,
+            "status": self.status,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        self.state_path.parent.mkdir(parents=True, exist_ok=True)
+        self.state_path.write_text(
+            json.dumps(state, indent=2) + "\n", encoding="utf-8")
+
+
+# --------------------------------------------------------------------------
 # API-mode guard (req 19) — no API code is implemented (req 20–21)
 # --------------------------------------------------------------------------
-def can_run_api_mode() -> tuple:
-    """Return (allowed: bool, blockers: list[str])."""
+def can_run_api_mode(args=None) -> tuple:
+    """Return (allowed: bool, blockers: list[str]).
+
+    Strict live-mode guard: every condition must hold before any API call is
+    even contemplated. `args` carries the CLI confirmation flags.
+    """
     blockers = []
     if not CONFIG.get("allow_api_calls"):
         blockers.append("CONFIG['allow_api_calls'] is False")
@@ -303,10 +397,26 @@ def can_run_api_mode() -> tuple:
         blockers.append("response_model_id is still a placeholder")
     if CONFIG["pricing_version"] in PLACEHOLDER_TOKENS:
         blockers.append("pricing_version is still a placeholder")
+    if not isinstance(CONFIG["pricing"].get("completion_input_usd_per_1k"),
+                      (int, float)):
+        blockers.append("completion input price is not configured")
+    if not isinstance(CONFIG["pricing"].get("completion_output_usd_per_1k"),
+                      (int, float)):
+        blockers.append("completion output price is not configured")
+    if not isinstance(CONFIG["pricing"].get("embedding_usd_per_1k"),
+                      (int, float)):
+        blockers.append("embedding price is not configured")
     if not isinstance(CONFIG.get("budget_hard_cap_usd"), (int, float)):
         blockers.append("budget_hard_cap_usd is not set")
+    if not isinstance(CONFIG.get("budget_stop_review_usd"), (int, float)):
+        blockers.append("budget_stop_review_usd is not set")
     if not os.environ.get("OPENAI_API_KEY"):
         blockers.append("OPENAI_API_KEY is not present in the environment")
+    if args is not None:
+        if not getattr(args, "live", False):
+            blockers.append("--live flag was not passed")
+        if not getattr(args, "confirm_spend", False):
+            blockers.append("--confirm-spend flag was not passed")
     return (len(blockers) == 0, blockers)
 
 
@@ -388,6 +498,9 @@ def write_validation_md(validation: dict, runs: list, query_data: dict,
               "tokenizer_name", "pricing_version", "top_k",
               "budget_hard_cap_usd", "budget_stop_review_usd", "allow_api_calls"]:
         lines.append(f"| `{k}` | `{CONFIG[k]}` |")
+    for pk, pv in CONFIG["pricing"].items():
+        lines.append(f"| `pricing.{pk}` | `{pv}` |")
+    lines.append(f"| `pricing_configured` | `{pricing_configured()}` |")
     lines.append("")
     lines.append("## Artifact versions parsed")
     lines.append("")
@@ -449,23 +562,34 @@ def write_validation_md(validation: dict, runs: list, query_data: dict,
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="NiceM Stage 2 smoke-test logging runner (skeleton).")
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
+        "--dry-run", dest="dry_run", action="store_true", default=True,
+        help="Dry-run mode (default): no API calls, no embeddings, no key.")
+    mode_group.add_argument(
+        "--live", dest="live", action="store_true", default=False,
+        help="Request live mode. Refused unless ALL guards pass.")
     parser.add_argument(
-        "--mode", choices=["dry-run", "api"], default="dry-run",
-        help="Execution mode. Default: dry-run (no API calls).")
+        "--confirm-spend", dest="confirm_spend", action="store_true",
+        default=False,
+        help="Explicit spend confirmation; required (with --live) for live mode.")
     args = parser.parse_args()
 
-    dry_run = args.mode == "dry-run"
+    # --live overrides the default --dry-run.
+    dry_run = not args.live
 
     if not dry_run:
-        allowed, blockers = can_run_api_mode()
+        # Strict guard: live mode is refused unless every precondition holds.
+        allowed, blockers = can_run_api_mode(args)
         if not allowed:
-            print("API mode refused. Unsatisfied preconditions:")
+            print("LIVE mode refused. Unsatisfied preconditions:")
             for b in blockers:
                 print(f"  - {b}")
             print("\nNo API calls were made. Exiting.")
             return 1
-        # Even if config preconditions pass, the live paths are stubs.
-        print("API mode preconditions satisfied, but live call paths are not "
+        # Even if every config + CLI precondition passes, the live paths are
+        # unreachable stubs — no API call can occur from this skeleton.
+        print("LIVE preconditions satisfied, but live call paths are not "
               "implemented in this skeleton (intentional). No API calls made.")
         return 1
 
