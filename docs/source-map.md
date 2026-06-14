@@ -9,6 +9,13 @@ This document maps every source in `docs/sources/` to the claims it supports, th
 - `results/stage1a/token_tax_summary.md` — Stage 1a summary: tokenizer metadata, alignment checks, per-intent and per-chunk ratio tables, summary statistics (min/max/mean/median/p90 for NL/EN and TR/EN), sanity gate checks, and gate verdict (PASS). Key findings: query NL/EN median 1.000, query TR/EN median 1.083, KB NL/EN median 1.074, KB TR/EN median 1.370. All sanity checks PASS.
 - `results/stage1a/token_tax_outliers.md` — Stage 1a outlier report: 6 query TR_BELOW_NL cases (Turkish syntactic compactness for short queries — pre-registered finding, not a dataset error) + 1 KB chunk case (D08-S5, TR > EN in correct direction, NL unusually high due to Dutch verbose procedural phrasing). Detailed analysis with per-query text comparison and pre-registered implications for Stage 2 analysis.
 
+**Stage 2 runner and dry-run outputs (2026-06-14):**
+- `scripts/stage2_smoke_runner.py` — minimal Stage 2 smoke-test logging runner (skeleton). Parses the three query-rendering and three KB-rendering files, builds the 30 planned runs (5 intents × 3 languages × 2 agents), generates stable run_ids, populates all required logging fields (run plan §12), validates structure, and enforces budget rules structurally. Default mode is dry-run: no API calls, no embeddings, no API key required; `endpoint_outcome=NOT_RUN`, `estimated_cost_usd=0`, `raw_output_path=null`. API mode is refused unless `allow_api_calls=True`, model ID and `pricing_version` are non-placeholder, budget cap is set, and `OPENAI_API_KEY` is present; the live completion/embedding paths are unreachable stubs that raise `NotImplementedError`. CONFIG block holds the confirmed and placeholder values.
+- `results/stage2/dry_run_runs.jsonl` — 30 dry-run run records (one JSONL line each), all required fields populated, dry-run sentinels set.
+- `results/stage2/dry_run_runs.csv` — tabular export of the 30 dry-run records.
+- `results/stage2/dry_run_run_matrix.csv` — compact run matrix (run_id, intent, language, agent, query_text, outcome, cost).
+- `results/stage2/dry_run_validation.md` — dry-run validation report: config snapshot, parsed artifact versions, validation-check table (all PASS), API-execution status (BLOCKED), and remaining blockers before the first live API call.
+
 **Related internal documents (not sources, but where sources are applied):**
 - `docs/startup/nicem-startup-thesis-v0.1.md` — first coherent startup thesis
 - `docs/methodology/nicem-methodology-framework-v0.1.md` — measurement framework that turns methodology questions M1–M9 into a structured approach for measuring execution-tax; consumes the agent-evaluation sources below
