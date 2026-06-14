@@ -1,9 +1,9 @@
 # Stage 2 Live-Run Readiness v0.1
 
-**Version:** s2-live-readiness-v0.1.0
+**Version:** s2-live-readiness-v0.1.1
 **Date:** 2026-06-14
-**Status:** Dry-run PASS; **live execution BLOCKED.** This document defines the conditions, guards, and approval steps required before the first Stage 2 API call. It does not authorize a live run.
-**Depends on:** `stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0), `stage2-decision-plan.md` (s2-plan-v0.1.1), `scripts/stage2_smoke_runner.py`, `logging-schema-v0.1.md`
+**Status:** Dry-run PASS; model IDs + pricing **CONFIRMED** (2026-06-14); **live execution still BLOCKED.** This document defines the conditions, guards, and approval steps required before the first Stage 2 API call. It does not authorize a live run.
+**Depends on:** `stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0), `stage2-decision-plan.md` (s2-plan-v0.1.1), `stage2-model-pricing-config.md` (s2-model-pricing-v0.1.1), `scripts/stage2_smoke_runner.py`, `logging-schema-v0.1.md`
 **Feeds into:** the final manual approval step before live Stage 2 execution
 
 ---
@@ -14,10 +14,11 @@
 |---|---|
 | Stage 2 decisions (M9, AD1, TM8, EV1, TM5/BS6) | **CONFIRMED** (2026-06-14) |
 | Stage 2 smoke-test run plan | **COMPLETE** (s2-runplan-v0.1.0) |
+| Model IDs + pricing config | **CONFIRMED** (2026-06-14) — `stage2-model-pricing-config.md` (s2-model-pricing-v0.1.1) |
 | Logging runner — dry-run skeleton | **PASS** — `scripts/stage2_smoke_runner.py`; 30 runs, all required fields, $0 cost, no API key |
 | Live-mode scaffolding (guards, pricing, budget) | **IMPLEMENTED** — refuses to run by default |
 | Live completion + embedding paths | **NOT IMPLEMENTED** — unreachable stubs |
-| Live execution | **BLOCKED** |
+| Live execution | **BLOCKED** (`allow_api_calls=False`; live paths are stubs) |
 
 Stage 2 cannot run live from the current runner. The live call paths are unreachable stubs (`_call_completion_api`, `_create_embeddings`) that raise `NotImplementedError`, and the strict live-mode guard refuses to proceed until every precondition in §6 is satisfied.
 
@@ -25,11 +26,14 @@ Stage 2 cannot run live from the current runner. The live call paths are unreach
 
 ## 2. Exact blockers before the first API call
 
-All of the following must be resolved (and reviewed) before any live run:
+**RESOLVED (2026-06-14)** — confirmed in `stage2-model-pricing-config.md` (s2-model-pricing-v0.1.1) and set in the runner `CONFIG`:
 
-1. **`response_model_id`** is still the placeholder `TO_CONFIRM_EXACT_MODEL_ID` (TM1-b/c). Must be a version-pinned snapshot.
-2. **`pricing_version`** is still the placeholder `TO_CONFIRM_BEFORE_API_RUN`. Must be a date-stamped rate-table identifier.
-3. **Pricing table** (`completion_input_usd_per_1k`, `completion_output_usd_per_1k`, `embedding_usd_per_1k`) is unset (all `None`). Must be configured with real rates.
+1. ~~**`response_model_id`** placeholder~~ → **RESOLVED**: `gpt-4.1-mini-2025-04-14` (version-pinned snapshot). Reconfirm against the live `/v1/models` listing immediately before the run.
+2. ~~**`pricing_version`** placeholder~~ → **RESOLVED**: `openai-2026-06-14`.
+3. ~~**Pricing table** unset~~ → **RESOLVED**: input `0.00040`, output `0.00160`, embedding `0.00002` (USD/1K). `pricing_configured()` now returns `True`.
+
+**STILL OPEN** — must be resolved (and reviewed) before any live run:
+
 4. **Live call paths** are unimplemented stubs. The completion and embedding functions must be implemented and reviewed.
 5. **Programmatic budget enforcement** must be wired into the run loop (the `BudgetGuard` class exists but is not yet exercised by a live loop).
 6. **`allow_api_calls`** is `False`. Must be explicitly set to `True` — only after review.
@@ -40,25 +44,26 @@ All of the following must be resolved (and reviewed) before any live run:
 
 ## 3. Required model IDs
 
-| Field | Required value | Current |
+| Field | Required value | Current (CONFIRMED 2026-06-14) |
 |---|---|---|
-| `response_model_id` | Version-pinned completion model, e.g. `gpt-4.1-mini-YYYY-MM-DD` (never a "latest" alias) | `TO_CONFIRM_EXACT_MODEL_ID` |
+| `response_model_id` | Version-pinned completion model (never a "latest" alias) | `gpt-4.1-mini-2025-04-14` |
 | `embedding_model_id` | `text-embedding-3-small` (CONFIRMED, TM8) | `text-embedding-3-small` |
-| `embedding_model_version` | Exact embedding snapshot if the provider exposes one | `TO_CONFIRM` |
+| `embedding_model_version` | Exact embedding snapshot if the provider exposes one | `not-exposed-by-provider` |
 | `tokenizer_name` | `o200k_base` (encoding family, for traceability) | `o200k_base` |
 
-The exact model IDs must be recorded in the runner `CONFIG` and in `stage2-smoke-test-run-plan.md` §6 before the run.
+The model IDs are recorded in the runner `CONFIG`. Reconfirm `gpt-4.1-mini-2025-04-14` is available and non-deprecated against the live `/v1/models` listing immediately before the run. See `stage2-model-pricing-config.md` §2.
 
 ---
 
 ## 4. Required pricing_version
 
-- **`pricing_version`** must be a date-stamped identifier covering both the completion and embedding model rates, e.g. `openai-2026-06-14`.
-- The pricing table fields below must all be set (USD per 1,000 tokens), sourced from the provider's published rates as of `pricing_version`:
-  - `pricing.completion_input_usd_per_1k`
-  - `pricing.completion_output_usd_per_1k`
-  - `pricing.embedding_usd_per_1k`
-- The runner's `pricing_configured()` helper returns `True` only when all three are real numbers. Live mode is refused while any is `None`.
+- **`pricing_version`** is **CONFIRMED**: `openai-2026-06-14` (date of verification against OpenAI's official API pricing).
+- The pricing table fields are all set (USD per 1,000 tokens), sourced from OpenAI's published rates as of `pricing_version`:
+  - `pricing.completion_input_usd_per_1k` = `0.00040` (gpt-4.1-mini, $0.40/1M)
+  - `pricing.completion_output_usd_per_1k` = `0.00160` (gpt-4.1-mini, $1.60/1M)
+  - `pricing.embedding_usd_per_1k` = `0.00002` (text-embedding-3-small, $0.02/1M)
+- The runner's `pricing_configured()` helper now returns `True`. Live mode is nonetheless refused because `allow_api_calls=False` and the live call paths are stubs.
+- Before the first run, re-verify the published rates have not changed; if they have, bump `pricing_version`. Full sourcing in `stage2-model-pricing-config.md` §3 / §8.
 
 ---
 
@@ -121,16 +126,16 @@ At every step the `BudgetGuard` pre-checks projected cost; the loop pauses at $2
 
 Before flipping `allow_api_calls = True` and launching a live run, the project owner confirms each item:
 
-- [ ] `response_model_id` set to a version-pinned snapshot (no "latest" alias)
-- [ ] `embedding_model_version` recorded
-- [ ] `pricing_version` set to a date-stamped identifier
-- [ ] All three pricing fields populated from the provider's published rates
-- [ ] `estimate_cost_usd` verified against a hand-calculated example
+- [x] `response_model_id` set to a version-pinned snapshot (no "latest" alias) — `gpt-4.1-mini-2025-04-14` (reconfirm against live `/v1/models` at run time)
+- [x] `embedding_model_version` recorded — `not-exposed-by-provider`
+- [x] `pricing_version` set to a date-stamped identifier — `openai-2026-06-14`
+- [x] All three pricing fields populated from the provider's published rates — input 0.00040 / output 0.00160 / embedding 0.00002 (USD/1K)
+- [x] `estimate_cost_usd` verified against a hand-calculated example — hand-calc (s2-model-pricing §4.3) + runner self-test PASS (0.00202)
 - [ ] `BudgetGuard` wired into the live run loop and tested with synthetic costs
 - [ ] Live completion + embedding paths implemented and code-reviewed
-- [ ] Dry-run re-run: 30 records, $0 cost, all validations PASS
+- [x] Dry-run re-run: 30 records, $0 cost, all validations PASS (11/11, 2026-06-14)
 - [ ] `OPENAI_API_KEY` available in the run environment (not committed, not logged)
-- [ ] Budget cap ($25) and stop-review ($20) confirmed
+- [x] Budget cap ($25) and stop-review ($20) confirmed
 - [ ] Evaluation plan ready (`expected-fact-mapping.md`; all outputs audited)
 - [ ] Single-evaluator exploratory label acknowledged for any shared result
 
@@ -160,4 +165,4 @@ On a stop: do not auto-retry. Preserve `results/stage2/budget_state.json` and al
 
 ---
 
-*This document defines live-run readiness. It does not authorize a live run. Live execution remains BLOCKED until every blocker in §2 is resolved, the manual approval checklist in §8 is complete, and the runner is reviewed. Version: s2-live-readiness-v0.1.0.*
+*This document defines live-run readiness. It does not authorize a live run. Live execution remains BLOCKED until the still-open blockers in §2 (items 4–8) are resolved, the manual approval checklist in §8 is complete, and the runner is reviewed. Version: s2-live-readiness-v0.1.1.*

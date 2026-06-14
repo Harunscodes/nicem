@@ -35,20 +35,38 @@ from pathlib import Path
 # Placeholders MUST be replaced with confirmed values before any live API run.
 # The runner refuses API mode while placeholders remain (see can_run_api_mode).
 
+# --------------------------------------------------------------------------
+# Confirmed pricing constants (official OpenAI sources; verified 2026-06-14)
+# --------------------------------------------------------------------------
+# Source: OpenAI API pricing (developers.openai.com / openai.com/api/pricing).
+# Published rates converted from USD-per-1M to USD-per-1K tokens.
+#   gpt-4.1-mini:           input  $0.40 /1M = $0.00040 /1K
+#                           cached $0.10 /1M = $0.00010 /1K (informational)
+#                           output $1.60 /1M = $0.00160 /1K
+#   text-embedding-3-small: $0.02 /1M = $0.00002 /1K
+# See docs/benchmark/v0.1/stage2-model-pricing-config.md for sourcing/date.
+PRICING_VERSION = "openai-2026-06-14"
+GPT_4_1_MINI_INPUT_USD_PER_1K = 0.00040
+GPT_4_1_MINI_CACHED_INPUT_USD_PER_1K = 0.00010   # informational; not used in estimate
+GPT_4_1_MINI_OUTPUT_USD_PER_1K = 0.00160
+TEXT_EMBEDDING_3_SMALL_USD_PER_1K = 0.00002
+
 CONFIG = {
     # Model / tokenizer / pricing
-    "response_model_id": "TO_CONFIRM_EXACT_MODEL_ID",   # placeholder (TM1-b/c)
+    # response_model_id: version-pinned snapshot confirmed from official docs.
+    # Reconfirm against the live /v1/models listing at run time (live-readiness).
+    "response_model_id": "gpt-4.1-mini-2025-04-14",      # CONFIRMED (TM1-b/c)
     "embedding_model_id": "text-embedding-3-small",      # CONFIRMED (TM8)
-    "embedding_model_version": "TO_CONFIRM",             # placeholder
+    "embedding_model_version": "not-exposed-by-provider",  # no dated snapshot
     "tokenizer_name": "o200k_base",                      # encoding family
-    "pricing_version": "TO_CONFIRM_BEFORE_API_RUN",      # placeholder
+    "pricing_version": PRICING_VERSION,                  # CONFIRMED 2026-06-14
 
-    # Pricing table (USD per 1,000 tokens) — placeholders (None) until the
-    # pricing_version is confirmed. Live mode is refused while any is None.
+    # Pricing table (USD per 1,000 tokens) — CONFIRMED from official OpenAI
+    # sources (2026-06-14). Live mode is still refused (allow_api_calls=False).
     "pricing": {
-        "completion_input_usd_per_1k": None,   # TO_CONFIRM
-        "completion_output_usd_per_1k": None,  # TO_CONFIRM
-        "embedding_usd_per_1k": None,          # TO_CONFIRM
+        "completion_input_usd_per_1k": GPT_4_1_MINI_INPUT_USD_PER_1K,
+        "completion_output_usd_per_1k": GPT_4_1_MINI_OUTPUT_USD_PER_1K,
+        "embedding_usd_per_1k": TEXT_EMBEDDING_3_SMALL_USD_PER_1K,
     },
 
     # Budget (CONFIRMED, TM5/BS6)

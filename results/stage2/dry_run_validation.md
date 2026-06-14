@@ -1,6 +1,6 @@
 # Stage 2 Smoke Runner — Dry-Run Validation
 
-**Generated:** 2026-06-14T18:34:10.405385+00:00
+**Generated:** 2026-06-14T19:07:14.634751+00:00
 **Mode:** dry-run (no API calls, no embeddings, no API key)
 **Runner:** `scripts/stage2_smoke_runner.py`
 
@@ -14,19 +14,19 @@
 
 | Key | Value |
 |---|---|
-| `response_model_id` | `TO_CONFIRM_EXACT_MODEL_ID` |
+| `response_model_id` | `gpt-4.1-mini-2025-04-14` |
 | `embedding_model_id` | `text-embedding-3-small` |
-| `embedding_model_version` | `TO_CONFIRM` |
+| `embedding_model_version` | `not-exposed-by-provider` |
 | `tokenizer_name` | `o200k_base` |
-| `pricing_version` | `TO_CONFIRM_BEFORE_API_RUN` |
+| `pricing_version` | `openai-2026-06-14` |
 | `top_k` | `3` |
 | `budget_hard_cap_usd` | `25.0` |
 | `budget_stop_review_usd` | `20.0` |
 | `allow_api_calls` | `False` |
-| `pricing.completion_input_usd_per_1k` | `None` |
-| `pricing.completion_output_usd_per_1k` | `None` |
-| `pricing.embedding_usd_per_1k` | `None` |
-| `pricing_configured` | `False` |
+| `pricing.completion_input_usd_per_1k` | `0.0004` |
+| `pricing.completion_output_usd_per_1k` | `0.0016` |
+| `pricing.embedding_usd_per_1k` | `2e-05` |
+| `pricing_configured` | `True` |
 
 ## Artifact versions parsed
 
@@ -62,11 +62,6 @@
 **API execution remains BLOCKED.** The following preconditions are not satisfied:
 
 - CONFIG['allow_api_calls'] is False
-- response_model_id is still a placeholder
-- pricing_version is still a placeholder
-- completion input price is not configured
-- completion output price is not configured
-- embedding price is not configured
 - OPENAI_API_KEY is not present in the environment
 
 Additionally, no real completion or embedding code is implemented: `_call_completion_api` and `_create_embeddings` are unreachable stubs that raise `NotImplementedError`. Stage 2 live execution cannot occur from this skeleton.

@@ -1,8 +1,8 @@
 # Stage 2 Model and Pricing Configuration v0.1
 
-**Version:** s2-model-pricing-v0.1.0
+**Version:** s2-model-pricing-v0.1.1
 **Date:** 2026-06-14
-**Status:** Configuration PENDING — all placeholders must be confirmed before the first live API call. This document does not authorize a live run.
+**Status:** Model IDs and pricing **CONFIRMED** from official OpenAI sources (2026-06-14). Live execution still BLOCKED (`allow_api_calls=False`; live call paths are unreachable stubs). This document does not authorize a live run.
 **Depends on:** `stage2-decision-plan.md` (s2-plan-v0.1.1), `stage2-live-run-readiness.md` (s2-live-readiness-v0.1.0), `scripts/stage2_smoke_runner.py`
 **Feeds into:** Manual approval checklist (s2-live-readiness-v0.1.0 §8) — items 1–5
 
@@ -24,18 +24,18 @@ This document is a **configuration reference**. It does not contain live pricing
 
 ## 2. Model identifiers
 
-| Field | Required value | Status |
+| Field | Confirmed value | Status |
 |---|---|---|
-| `response_model_id` | Version-pinned completion snapshot, e.g. `gpt-4.1-mini-2025-04-14` (never a "latest" alias) | **PLACEHOLDER** — `TO_CONFIRM_EXACT_MODEL_ID` |
+| `response_model_id` | `gpt-4.1-mini-2025-04-14` (version-pinned snapshot) | **CONFIRMED** (TM1-b/c, 2026-06-14) — reconfirm against live `/v1/models` at run time |
 | `embedding_model_id` | `text-embedding-3-small` | **CONFIRMED** (TM8, s2-plan-v0.1.1) |
-| `embedding_model_version` | Exact embedding snapshot if provider exposes one | **PLACEHOLDER** — `TO_CONFIRM` |
+| `embedding_model_version` | `not-exposed-by-provider` (no dated snapshot for this embedding model) | **CONFIRMED** (recorded 2026-06-14) |
 | `tokenizer_name` | `o200k_base` | **CONFIRMED** (TM1, Stage 1a) |
 
 ### Notes on model ID requirements
 
-- `response_model_id` must be a **version-pinned snapshot**, not a rolling alias. Example: `gpt-4.1-mini-2025-04-14`, not `gpt-4.1-mini`.
+- `response_model_id` must be a **version-pinned snapshot**, not a rolling alias. The confirmed value `gpt-4.1-mini-2025-04-14` is the dated snapshot (not the `gpt-4.1-mini` rolling alias). It must be reconfirmed against the live `/v1/models` listing immediately before the first run (live-readiness item).
 - A change to `response_model_id` between runs requires re-labeling all results that used the previous ID.
-- `embedding_model_version` should be recorded if the provider exposes a snapshot identifier. If not exposed, record `"not-exposed-by-provider"` (not a placeholder).
+- `embedding_model_version` is recorded as `not-exposed-by-provider` because `text-embedding-3-small` does not publish a dated snapshot identifier. This is a confirmed value, not a placeholder.
 - The tokenizer `o200k_base` is the encoding family for all GPT-4.1-mini/GPT-4.1 variants (confirmed in Stage 1a). This does not change with the completion model snapshot.
 
 ### Where these values appear in the runner
@@ -55,28 +55,32 @@ CONFIG["tokenizer_name"]          → logged in every run record
 
 `pricing_version` is a date-stamped identifier recording which published rate table was used. Format: `openai-YYYY-MM-DD`.
 
-**Current value:** `TO_CONFIRM_BEFORE_API_RUN` (placeholder)
+**Confirmed value:** `openai-2026-06-14`
 
-Before the first API call, replace with the actual date the rates were verified from the provider's published pricing page, e.g. `openai-2026-06-14`.
+Verified on 2026-06-14 against OpenAI's official API pricing (developers.openai.com / openai.com/api/pricing). If the published rates change, bump `pricing_version` and re-record the table.
 
 ### 3.2 Rate fields
 
-All three of the following must be set (USD per 1,000 tokens) before live mode is permitted:
+All three are CONFIRMED (USD per 1,000 tokens), converted from OpenAI's published USD-per-1M rates:
 
-| Field | Units | Source | Current value |
+| Field | Confirmed value (USD/1K) | Published rate (USD/1M) | Source |
 |---|---|---|---|
-| `pricing.completion_input_usd_per_1k` | USD / 1,000 input tokens | OpenAI published rates as of `pricing_version` | **None** (placeholder) |
-| `pricing.completion_output_usd_per_1k` | USD / 1,000 output tokens | OpenAI published rates as of `pricing_version` | **None** (placeholder) |
-| `pricing.embedding_usd_per_1k` | USD / 1,000 tokens embedded | OpenAI published rates as of `pricing_version` | **None** (placeholder) |
+| `pricing.completion_input_usd_per_1k` | **0.00040** | $0.40 / 1M input | OpenAI API pricing, gpt-4.1-mini, 2026-06-14 |
+| `pricing.completion_output_usd_per_1k` | **0.00160** | $1.60 / 1M output | OpenAI API pricing, gpt-4.1-mini, 2026-06-14 |
+| `pricing.embedding_usd_per_1k` | **0.00002** | $0.02 / 1M | OpenAI API pricing, text-embedding-3-small, 2026-06-14 |
 
-### 3.3 How to populate the pricing table
+**Informational (not used in `estimate_cost_usd`):** gpt-4.1-mini cached input is **$0.10 / 1M = $0.00010 / 1K**. The Stage 2 estimator uses the standard (non-cached) input rate, which is conservative (higher) for budget purposes. If prompt caching is enabled in a future stage, add a `completion_cached_input_usd_per_1k` field and adjust the formula.
 
-1. Go to the provider's published pricing page for GPT-4.1-mini and text-embedding-3-small.
-2. Record the input, output, and embedding rates (USD per 1,000 tokens).
-3. Set `pricing_version` to `openai-YYYY-MM-DD` where YYYY-MM-DD is today's date.
-4. Update the three pricing fields in `CONFIG["pricing"]` in the runner.
-5. Verify using the hand-calculation in §4.
-6. Update this document to record the confirmed values and date.
+### 3.3 How the pricing table was populated (completed 2026-06-14)
+
+1. Consulted OpenAI's official API pricing (developers.openai.com / openai.com/api/pricing) for gpt-4.1-mini and text-embedding-3-small.
+2. Recorded input ($0.40/1M), output ($1.60/1M), and embedding ($0.02/1M) rates; converted to USD-per-1K.
+3. Set `pricing_version = openai-2026-06-14` (verification date).
+4. Updated the three pricing fields in `CONFIG["pricing"]` (via named constants — see §6 and the runner).
+5. Verified with the hand-calculation in §4 and the runner self-test (§6).
+6. Recorded the confirmed values in §8.
+
+To refresh in the future (rates change, new model snapshot), repeat steps 1–6 and bump `pricing_version`.
 
 ---
 
@@ -110,14 +114,14 @@ def estimate_cost_usd(input_tokens, output_tokens, embedding_tokens=0):
 
 The function raises `ValueError` if the pricing table is not configured. `pricing_configured()` returns `True` only when all three fields are real numbers.
 
-### 4.3 Hand-calculation example (illustrative only — uses placeholder rates)
+### 4.3 Hand-calculation example (confirmed rates, `openai-2026-06-14`)
 
-This example uses **illustrative rates** to verify the formula. These are NOT the confirmed rates. Replace with real rates when `pricing_version` is confirmed.
+This example uses the **confirmed rates** from §3.2.
 
-Illustrative rates (hypothetical):
-- Input: $0.40 / 1M tokens = $0.0004 / 1K tokens
-- Output: $1.60 / 1M tokens = $0.0016 / 1K tokens
-- Embedding: $0.02 / 1M tokens = $0.000020 / 1K tokens
+Confirmed rates (USD per 1K tokens):
+- Input: $0.00040 (gpt-4.1-mini, $0.40/1M)
+- Output: $0.00160 (gpt-4.1-mini, $1.60/1M)
+- Embedding: $0.00002 (text-embedding-3-small, $0.02/1M)
 
 Scenario: Agent B run, INT-031-tr-B (highest complexity case)
 - Estimated input tokens: 2,500 (system + full-KB context + query)
@@ -126,27 +130,27 @@ Scenario: Agent B run, INT-031-tr-B (highest complexity case)
 
 Calculation:
 ```
-completion input:  (2500 / 1000) × 0.0004 = $0.001000
-completion output: (300  / 1000) × 0.0016 = $0.000480
-embedding:         (25   / 1000) × 0.00002 = $0.000001 (rounded)
-------------------------------------------------------------
-total:                                       $0.001481
+completion input:  (2500 / 1000) × 0.00040 = $0.001000
+completion output: (300  / 1000) × 0.00160 = $0.000480
+embedding:         (25   / 1000) × 0.00002 = $0.0000005 → $0.000001 (round 6dp)
+---------------------------------------------------------------
+total:                                        ≈ $0.001481
 ```
 
 Agent A run equivalent (no embedding, same input/output tokens):
 ```
-completion input:  (2500 / 1000) × 0.0004 = $0.001000
-completion output: (300  / 1000) × 0.0016 = $0.000480
-------------------------------------------------------------
-total:                                       $0.001480
+completion input:  (2500 / 1000) × 0.00040 = $0.001000
+completion output: (300  / 1000) × 0.00160 = $0.000480
+---------------------------------------------------------------
+total:                                        = $0.001480
 ```
 
-30-run total (rough upper bound at these illustrative rates):
+30-run rough upper bound at confirmed rates (assuming ~$0.0015/run):
 ```
-30 × $0.0015 ≈ $0.045 — well within the $25 hard cap.
+30 × $0.0015 ≈ $0.045 — far below the $25 hard cap and the $20 stop-review.
 ```
 
-The actual rates at confirmed `pricing_version` may differ. The hand-calculation must be redone with real rates before the first live run (manual approval checklist §8 item 5 in s2-live-readiness-v0.1.0).
+Actual token counts (and therefore cost) are measured per run at execution time. This estimate confirms the smoke test is comfortably within budget. The `estimate_cost_usd` implementation is independently verified by the runner self-test (§6).
 
 ---
 
@@ -162,7 +166,7 @@ Each run record includes:
 }
 ```
 
-In dry-run, `estimated_cost_usd = 0` and `pricing_version` remains the placeholder. This is correct and expected.
+In dry-run, `estimated_cost_usd = 0` regardless of the (now confirmed) pricing table, because dry-run performs no API call and logs no token counts. `pricing_version` is `openai-2026-06-14`. This is correct and expected.
 
 ### 5.2 Budget enforcement (BudgetGuard)
 
@@ -207,39 +211,43 @@ A change that invalidates past results must be documented in the run log (`evalu
 
 ---
 
-## 8. Confirmed values (to be filled before live run)
-
-This table is empty until the project owner confirms values and updates this document:
+## 8. Confirmed values (verified 2026-06-14)
 
 | Field | Confirmed value | Confirmed date | Source |
 |---|---|---|---|
-| `response_model_id` | — | — | — |
-| `embedding_model_version` | — | — | — |
-| `pricing_version` | — | — | — |
-| `completion_input_usd_per_1k` | — | — | — |
-| `completion_output_usd_per_1k` | — | — | — |
-| `embedding_usd_per_1k` | — | — | — |
+| `response_model_id` | `gpt-4.1-mini-2025-04-14` | 2026-06-14 | OpenAI API docs (model snapshot listing) — reconfirm against live `/v1/models` at run time |
+| `embedding_model_version` | `not-exposed-by-provider` | 2026-06-14 | text-embedding-3-small publishes no dated snapshot |
+| `pricing_version` | `openai-2026-06-14` | 2026-06-14 | OpenAI API pricing (developers.openai.com / openai.com/api/pricing) |
+| `completion_input_usd_per_1k` | `0.00040` ($0.40/1M) | 2026-06-14 | OpenAI API pricing, gpt-4.1-mini |
+| `completion_output_usd_per_1k` | `0.00160` ($1.60/1M) | 2026-06-14 | OpenAI API pricing, gpt-4.1-mini |
+| `embedding_usd_per_1k` | `0.00002` ($0.02/1M) | 2026-06-14 | OpenAI API pricing, text-embedding-3-small |
+
+**Informational:** gpt-4.1-mini cached input = `0.00010` ($0.10/1M), 2026-06-14. Not used by `estimate_cost_usd` (the estimator uses the standard input rate, which is conservative for budgeting).
+
+**Remaining live-readiness item:** reconfirm `gpt-4.1-mini-2025-04-14` is still an available, non-deprecated snapshot against the live `/v1/models` endpoint immediately before the first run, and re-verify the published rates have not changed (bump `pricing_version` if they have).
 
 ---
 
 ## 9. Relation to live-run readiness
 
-Blockers 1–3 in `stage2-live-run-readiness.md` (s2-live-readiness-v0.1.0 §2) are directly addressed by this document:
+Blockers 1–3 in `stage2-live-run-readiness.md` (s2-live-readiness-v0.1.0 §2) are now **RESOLVED** by this document:
 
-- **Blocker 1** (`response_model_id` is a placeholder) → resolved by confirming the value in §8 of this document and updating `CONFIG["response_model_id"]`.
-- **Blocker 2** (`pricing_version` is a placeholder) → resolved by confirming the date-stamped identifier in §8.
-- **Blocker 3** (pricing table is unset) → resolved by confirming all three rate fields in §8 and `CONFIG["pricing"]`.
+- **Blocker 1** (`response_model_id` placeholder) → **RESOLVED**: `gpt-4.1-mini-2025-04-14` confirmed in §8 and set in `CONFIG["response_model_id"]`. (Reconfirm against live `/v1/models` at run time.)
+- **Blocker 2** (`pricing_version` placeholder) → **RESOLVED**: `openai-2026-06-14` confirmed in §8.
+- **Blocker 3** (pricing table unset) → **RESOLVED**: all three rate fields confirmed in §8 and set in `CONFIG["pricing"]`.
 
-Manual approval checklist items 1–5 (s2-live-readiness-v0.1.0 §8) map to this document:
+Manual approval checklist items 1–5 (s2-live-readiness-v0.1.0 §8) — status:
 
-| Checklist item | Reference |
-|---|---|
-| `response_model_id` set to version-pinned snapshot | §2 |
-| `embedding_model_version` recorded | §2 |
-| `pricing_version` set to date-stamped identifier | §3.1 |
-| All three pricing fields populated | §3.2 |
-| `estimate_cost_usd` verified against hand-calculation | §4.3 |
+| Checklist item | Reference | Status |
+|---|---|---|
+| `response_model_id` set to version-pinned snapshot | §2 | DONE (reconfirm at run time) |
+| `embedding_model_version` recorded | §2 | DONE (`not-exposed-by-provider`) |
+| `pricing_version` set to date-stamped identifier | §3.1 | DONE |
+| All three pricing fields populated | §3.2 | DONE |
+| `estimate_cost_usd` verified against hand-calculation | §4.3, §6 | DONE (hand-calc + runner self-test PASS) |
+
+Remaining live-readiness blockers (still open): live completion + embedding paths (stubs), `BudgetGuard` wired into the live loop, `allow_api_calls=True` after review, `OPENAI_API_KEY` in the environment, and `--live --confirm-spend` flags.
 
 ---
 
-*This document records the model and pricing configuration for Stage 2. It does not authorize a live run. Live execution remains BLOCKED until all placeholders in §8 are confirmed and the full manual approval checklist in s2-live-readiness-v0.1.0 §8 is complete. Version: s2-model-pricing-v0.1.0.*
+*This document records the confirmed model and pricing configuration for Stage 2. It does not authorize a live run. Live execution remains BLOCKED until the remaining live-readiness blockers in s2-live-readiness-v0.1.0 §2 are resolved, the manual approval checklist in §8 is complete, and `allow_api_calls=True` is set after review. Version: s2-model-pricing-v0.1.1.*

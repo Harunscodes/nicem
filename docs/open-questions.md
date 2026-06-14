@@ -267,6 +267,9 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 - **TM1-a (Stage 1a finding):** Exact tiktoken encoding name for GPT-4.1 family.
   - *Status: PARTIALLY RESOLVED — target encoding is `o200k_base` (confirmed from tiktoken model registry: GPT-4.1-mini and GPT-4.1 both map to `o200k_base`). Network policy in the Stage 1a execution environment blocked `openaipublic.blob.core.windows.net` (tiktoken BPE data host); fallback tokenizer `o200k_base_approx` used (o200k_base regex + BPE heuristic). For authoritative token counts, re-run `scripts/stage1a_tokenizer_sanity_gate.py` in a network-accessible environment. Script auto-switches to exact tiktoken when available. Fallback counts are sufficient for the directional sanity gate and pre-registered Stage 2 planning. Exact encoding name to record in logging schema: `o200k_base`.*
 
+- **TM1-b/c (Stage 2 setup):** Version-pinned model IDs for Agent A (completion) and Agent B (completion + embedding).
+  - *Status: RESOLVED (CONFIRMED 2026-06-14) — `response_model_id = gpt-4.1-mini-2025-04-14` (version-pinned snapshot, both agents); `embedding_model_id = text-embedding-3-small` (TM8); `embedding_model_version = not-exposed-by-provider` (no dated embedding snapshot). Pricing CONFIRMED from official OpenAI sources: `pricing_version = openai-2026-06-14`; gpt-4.1-mini input $0.40/1M (0.00040/1K), output $1.60/1M (0.00160/1K); text-embedding-3-small $0.02/1M (0.00002/1K); cached input $0.10/1M recorded for reference. Set in `scripts/stage2_smoke_runner.py` CONFIG via named constants; dry-run revalidated 11/11 PASS, $0 cost, live mode still blocked. See `docs/benchmark/v0.1/stage2-model-pricing-config.md` (s2-model-pricing-v0.1.1). Remaining: reconfirm the snapshot is non-deprecated and rates are current against the live API immediately before the first run.*
+
 - **TM2:** Is provider-reported token usage sufficient, or should local counting serve as a cross-check?
   - *Status: Open, leaning both — log both; provider counts for cost, local for token-tax ratios; report divergences*
 
@@ -274,7 +277,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Open, recommendation ≤ 0.2 — lower temperature reduces run-to-run nondeterminism*
 
 - **TM4:** How should model version pinning be handled in API calls?
-  - *Status: Open — use version-specific model ID, never a "latest" alias; confirm provider's version-pinning mechanism before Stage 3*
+  - *Status: RESOLVED for Stage 2 (2026-06-14) — version-pinned snapshot `gpt-4.1-mini-2025-04-14` is used (not the `gpt-4.1-mini` rolling alias); to be reconfirmed against the live `/v1/models` listing immediately before the run. `pricing_version` (`openai-2026-06-14`) and `response_model_id` are logged per run; a change to either invalidates/relabels prior results (`stage2-model-pricing-config.md` §7). Stage 3 will reapply the same pinning discipline.*
 
 - **TM5:** How much budget is acceptable for pilot runs?
   - *Status: RESOLVED for Stage 2 (CONFIRMED 2026-06-14) — $25 USD hard cap for Stage 2; stop-and-review at $20; estimated actual spend ~$5–10 at GPT-4.1-mini rates. No API call may run unless the budget cap is implemented (programmatic ceiling) or manually enforced. Stage 3 budget separate; same as BS6. See `docs/benchmark/v0.1/stage2-decision-plan.md` §8.*
