@@ -470,6 +470,34 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 - **Q14:** Is NiceM's contribution primarily a measurement framework, a cost attribution tool, an architectural recommendation, or something else?
   - *Status: Open*
 
+### Theory and mathematical foundations open questions (from nicem-mathematical-foundations-roadmap-v0.1.md §18)
+
+These questions arise from the mathematical formalization layer and cannot be answered by empirical measurement alone. They are relevant to the research thesis, not the v0.1 benchmark execution.
+
+- **TH1:** What is the best formal definition of intent? Intent should be language-neutral (the same intent expressed in Turkish and English should have the same theoretical object *I*), but how to formalize this invariance precisely — especially for intents with complex conditional structure — is non-trivial.
+  - *Status: Open — relevant to rate-distortion and Kolmogorov theory branches*
+
+- **TH2:** Should execution-tax include token-tax or remain residual beyond token-tax? The current definition separates them (residual execution-tax after token-tax baseline). But in infrastructure terms (e.g., cost per successful completion), they compound. The right accounting may depend on the specific question being asked.
+  - *Status: Open — affects how CPS decomposition is reported; both conventions should be reported side by side in v0.1*
+
+- **TH3:** What is the right unit for intent capacity: per token, per second, per euro, per watt? Different units are appropriate for different stakeholders (model researchers: per token; operators: per second or per euro; infrastructure designers: per watt).
+  - *Status: Open — the SIPW (successful intents per watt) formulation is appropriate for infrastructure; per-euro or per-second framing may be clearer for cost attribution*
+
+- **TH4:** How should semantic distortion be measured? The rate–distortion framing requires a distortion measure. For NiceM intents, distortion can be operationalized as the fraction of required conditions lost in compression. But measuring this requires evaluating each compressed rendering against the expected fact mapping, which is expensive.
+  - *Status: Open — practical operationalization deferred to after v0.1 pilot; query variants (V2 concise) are the first empirical probe*
+
+- **TH5:** Can a useful lower-bound theorem be stated without assuming too much about the model? A theorem of the form "for any model with context window *W*, if |T_L(I)| > W/2 then reliable execution requires retrieval" would be useful, but requires strong assumptions about model behavior.
+  - *Status: Open — promising direction for execution-tax-capacity-theorem-sketch-v0.1.md*
+
+- **TH6:** How should irreducible task complexity be estimated? If intent I₁ is inherently more complex than I₂ (e.g., a multi-condition policy query vs. a simple factual lookup), how do we separate the task-complexity component from the language-induced overhead component in the execution burden?
+  - *Status: Open — the 12/12/12 difficulty stratification in the v0.1 intent set is a first attempt; full separation requires controlling for task complexity across conditions*
+
+- **TH7:** How should redundancy be separated into necessary vs. avoidable? The Chaitin framing distinguishes necessary from avoidable overhead, but operationalizing this distinction requires knowing what the minimum-redundancy execution of an intent looks like. This is empirically inaccessible for complex tasks.
+  - *Status: Open — lower-bounding avoidable overhead via agent design comparison (A vs. B) is the v0.1 empirical proxy; theory formalization in chaitin-irreducible-execution-complexity-v0.1.md*
+
+- **TH8:** Which theory document should be formalized first? The most valuable next formalization is likely the rate–distortion analysis, because it directly connects to query variant design and the over-compression failure mode that Stage 2 may surface. Alternatively, the execution-tax capacity theorem sketch is highest leverage for the research claim.
+  - *Status: Open — provisional recommendation is rate-distortion document first (most directly connected to benchmark design); capacity theorem sketch second (most relevant to the research paper)*
+
 ---
 
 ## Resolved questions

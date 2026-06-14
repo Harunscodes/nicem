@@ -159,6 +159,27 @@ These sources are methodology context for how to measure execution-tax. They do 
 
 ---
 
+## Theory Documents
+
+### NiceM Mathematical Foundations Roadmap
+- **File:** `docs/theory/nicem-mathematical-foundations-roadmap-v0.1.md`
+- **Version:** mf-roadmap-v0.1.0 (2026-06-14)
+- **Role:** Provides the formal mathematical grounding for NiceM's core concepts. Maps token-tax and execution-tax onto established mathematical frameworks (Shannon information theory, Kolmogorov complexity, Chaitin algorithmic information, rate-distortion theory, error-correcting codes, queueing theory, control theory). Defines conditional theorems (not empirical proofs) that would hold *if* empirical quantities are measured to satisfy their conditions.
+- **Key formal definitions:**
+  - `TokenTax(L, I) = |T_L(I)| / |T_L0(I)| - 1` — fractional excess token burden
+  - `ExecutionTax(L, I, A) = [C_L / P(S_L)] / [C_L0 / P(S_L0)] - 1` — fractional CPS excess
+  - `CPS(L) = E[C_L] / P(S_L)` — cost per successful completion; ratio α/β
+  - `R_L(ε)` — minimum redundancy burden for language L to reach success probability ≥ 1−ε
+  - `ResidualExecutionTax(L, ε) = R_L(ε) - R_baseline(ε)` — formal redundancy-based definition
+  - `SIPW = λ × P(S) / W` — successful intents per watt (long-run infrastructure metric)
+- **Four conditional theorems (§14):** capacity reduction from token-tax; CPS monotonicity; redundancy definition of positive execution-tax; context window truncation bound.
+- **Critical boundary:** The roadmap explicitly distinguishes mathematical existence (theorems hold under their stated conditions) from empirical measurement (whether those conditions hold for specific languages and agents is not yet known). Execution-tax is not claimed to be empirically proven.
+- **Empirical gap (§15):** Seven quantities that cannot be derived and must be measured: P(S_L), E[C_L], R_L(ε), per-intent token-tax ratios, CPS ratios across languages, retrieval/tool call distributions, agent nondeterminism variance.
+- **Seven planned future theory documents (§17):** shannon-intent-channel-model, kolmogorov-description-trace-complexity, chaitin-irreducible-execution-complexity, rate-distortion-intent-preservation, execution-tax-capacity-theorem-sketch, control-theory-agent-execution, intent-capacity-infrastructure-model.
+- **Eight open theory questions:** TH1–TH8 (see `docs/open-questions.md`).
+
+---
+
 ## Concept-to-Source Index
 
 | Concept | Source(s) |
@@ -171,5 +192,9 @@ These sources are methodology context for how to measure execution-tax. They do 
 | Agentic workloads / orchestration | NVIDIA |
 | Execution-tax | **NiceM hypothesis** — no external source yet |
 | Human language as the new code | Jensen Huang (TODO: verify source) — via `nvidia-jensen-chat-context.md` |
-| Successful intent per watt | NiceM concept — derived from tokens-per-watt framing |
+| Successful intent per watt | NiceM concept — derived from tokens-per-watt framing; formal definition in `docs/theory/nicem-mathematical-foundations-roadmap-v0.1.md` §11 |
 | AI factory / electrons to tokens | Jensen Huang / NVIDIA (TODO: verify exact source) — via `nvidia-jensen-chat-context.md` |
+| CPS (cost per successful completion) | NiceM metric — formal definition `E[C_L] / P(S_L)` in `docs/theory/nicem-mathematical-foundations-roadmap-v0.1.md` §3 |
+| Shannon intent capacity | NiceM analogy — `docs/theory/nicem-mathematical-foundations-roadmap-v0.1.md` §4 |
+| Kolmogorov description-length proxy | NiceM analogy — token count as proxy; `docs/theory/nicem-mathematical-foundations-roadmap-v0.1.md` §5 |
+| Rate-distortion / intent preservation | NiceM analogy — connects query variant over-compression to distortion; `docs/theory/nicem-mathematical-foundations-roadmap-v0.1.md` §7 |

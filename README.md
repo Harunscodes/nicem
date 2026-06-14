@@ -76,6 +76,8 @@ The current work is:
 
 No product code has been built. No model inference has been run. **Stage 1a (tokenizer-only sanity gate) is complete as of 2026-06-13** — all sanity checks PASS. The Turkish query review (QR9) is complete. Cross-language semantic equivalence audit is PASS. TM1 is confirmed: v0.1 uses the OpenAI GPT-4.1-mini/GPT-4.1 family (one family, one tokenizer, encoding `o200k_base`). Key Stage 1a findings: KB TR/EN median 1.37×, KB NL/EN median 1.07×; query TR/EN median 1.08× (compressed for short queries by Turkish syntactic compactness — pre-registered finding). Results in `results/stage1a/`. A tokenizer fallback was used (network policy blocked tiktoken BPE data download); re-run in a network-accessible environment for exact counts. Next: Stage 2 smoke-test planning (requires TM8, M9, TM5/BS6, AD1, EV1 decisions).
 
+A **mathematical foundations layer** has been added: `docs/theory/nicem-mathematical-foundations-roadmap-v0.1.md` (mf-roadmap-v0.1.0, 2026-06-14) provides formal definitions and conditional theorems grounding token-tax and execution-tax in Shannon information theory, Kolmogorov complexity, rate-distortion theory, and queueing theory. The roadmap explicitly separates mathematical existence (theorems) from empirical measurement (to be done in Stage 2/3). Seven future theory documents are planned; the rate-distortion model is the recommended next formalization.
+
 ---
 
 ## What should not be done yet
@@ -115,12 +117,31 @@ docs/
   benchmark/
     v0.1/
       dataset-specification.md   — Structure, constraints, and authoring rules for all v0.1 artifacts
-      canonical-fact-set.md      — (to create) ~75 language-neutral canonical facts
-      document-plan.md           — (to create) Content plan for 8 synthetic documents
-      intent-set.md              — (to create) 36 intent specifications
-      language-rendering-plan.md — (to create) Terminology and register rules per language
-      expected-fact-mapping.md   — (to create) Evaluator reference: intent → required facts
-      quality-gates.md           — (to create) Pre-run checklist with pass/fail status
+      canonical-fact-set.md      — 78 language-neutral canonical facts
+      document-plan.md           — Content plan for 8 synthetic documents (39 chunks)
+      intent-set.md              — 36 intent specifications (12/12/12 difficulty split)
+      language-rendering-plan.md — Terminology and register rules per language
+      expected-fact-mapping.md   — Evaluator reference: intent → required facts
+      quality-gates.md           — Pre-run checklist with pass/fail status
+      kb-rendering-en/nl/tr.md   — Three aligned KB renderings (39 chunks each)
+      query-rendering-en/nl/tr.md — 108 user queries (36 intents × 3 languages)
+      tm1-tokenizer-model-decision.md — TM1 confirmed: GPT-4.1-mini/GPT-4.1, o200k_base
+      query-variant-plan.md      — Optional robustness layer (deferred to Stage 1b)
+
+  theory/
+    nicem-mathematical-foundations-roadmap-v0.1.md — Formal grounding: Shannon,
+                                   Kolmogorov, rate-distortion, queueing; conditional
+                                   theorems; 7 planned theory documents; TH1–TH8
+
+scripts/
+  stage1a_tokenizer_sanity_gate.py — Stage 1a execution script (o200k_base / fallback)
+
+results/
+  stage1a/
+    token_counts_queries.csv    — 108 rows: per-intent, per-language query token counts
+    token_counts_kb_chunks.csv  — 117 rows: per-chunk, per-language KB token counts
+    token_tax_summary.md        — Stage 1a summary, ratio tables, gate verdict (PASS)
+    token_tax_outliers.md       — 7 outlier cases with analysis
 ```
 
 ---
