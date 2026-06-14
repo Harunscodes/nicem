@@ -1,6 +1,6 @@
 # Stage 2 Smoke Runner — Dry-Run Validation
 
-**Generated:** 2026-06-14T19:19:07.797258+00:00
+**Generated:** 2026-06-14T19:45:27.737102+00:00
 **Mode:** dry-run (no API calls, no embeddings, no API key)
 **Runner:** `scripts/stage2_smoke_runner.py`
 
