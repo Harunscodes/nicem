@@ -361,7 +361,8 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Logging runner — pricing self-test | **PASS** | `_run_pricing_selftest()` added 2026-06-14; uses synthetic rates (not real pricing); verifies `estimate_cost_usd` formula; result: PASS (0.00202); included in dry-run validation report |
 | Logging runner — safety-guard tests | **PASS** | 6 tests in `dry_run_validation.md` (2026-06-14), no API/key: `dry_run_default`, `no_api_key_required_for_dry_run`, `live_without_confirm_refuses`, `live_with_confirm_refuses_when_allow_api_calls_false`, `pricing_selftest`, `budget_guard_synthetic_test` — all PASS |
 | Logging runner — live API/embedding paths | **IMPLEMENTED, REVIEW PENDING** | `_call_completion_api`, `_create_embeddings`, `_retrieve_top_k`, and the `run_live` loop implemented 2026-06-14 (lazy `openai` import; single attempt; no auto-retry; `BudgetGuard` wired; raw outputs to `results/stage2/raw_outputs/`). Unreachable while `allow_api_calls=False`. Code review required before enabling |
-| Live-run readiness documented | **PASS** | `stage2-live-run-readiness.md` (s2-live-readiness-v0.1.1): blockers (model IDs + pricing resolved; items 4–8 open), guards, budget design, approval checklist, rollback conditions |
+| Live code review document | **COMPLETE, APPROVAL PENDING** | `stage2-live-code-review.md` (s2-code-review-v0.1.0, 2026-06-14): 13-section review of all live paths; safety-guard checklist (18 items, all PASS); Agent A/B review; cost/budget review; run-order review; logging review (all 28 fields); failure-handling review; known risks; approval checklist (9 items, unchecked). Verdict: BLOCKED_PENDING_PROJECT_OWNER_APPROVAL |
+| Live-run readiness documented | **PASS** | `stage2-live-run-readiness.md` (s2-live-readiness-v0.1.2): blockers (model IDs + pricing + live paths resolved; items 6–8 open), guards, budget design, approval checklist, rollback conditions |
 | Model and pricing config documented + confirmed | **PASS** | `stage2-model-pricing-config.md` (s2-model-pricing-v0.1.1 2026-06-14): model IDs and pricing CONFIRMED from official OpenAI sources; formula, hand-calculation, change-invalidation rules; confirmed-values table (§8) filled |
 
 **Stage 2 decision plan:** `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.1, 2026-06-14) documents all five blocking decisions, now **CONFIRMED**. **Stage 2 smoke-test run plan:** `docs/benchmark/v0.1/stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0, 2026-06-14) defines the full 30-run smoke test.
@@ -395,7 +396,8 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | Logging runner — live API/embedding paths | IMPLEMENTED 2026-06-14, REVIEW PENDING | `_call_completion_api`, `_create_embeddings`, `_retrieve_top_k`, `run_live` (lazy `openai` import; no auto-retry; `BudgetGuard` wired; raw outputs to `results/stage2/raw_outputs/`); unreachable while `allow_api_calls=False`; code review required before enabling |
 | Logging runner — safety-guard tests | RESOLVED 2026-06-14 | 6 guard tests PASS in `dry_run_validation.md` (no API/key) |
 | Exact model IDs (TM1-b/c) + `pricing_version` + pricing table | RESOLVED 2026-06-14 | CONFIRMED from official OpenAI sources and set in runner CONFIG; `gpt-4.1-mini-2025-04-14`, `openai-2026-06-14`, rates 0.00040/0.00160/0.00002 per 1K; see `stage2-model-pricing-config.md` §8. Reconfirm snapshot + rates against live API at run time |
-| Manual approval checklist for live run | NOT_STARTED | `stage2-live-run-readiness.md` §8; must be completed before `allow_api_calls=True` |
+| Live code review document | COMPLETE 2026-06-14, APPROVAL PENDING | `stage2-live-code-review.md` (s2-code-review-v0.1.0): 13-section self-review of all live paths; 18-item safety-guard checklist (all PASS); 28-field logging review; known risks; 9-item approval checklist (unchecked). Verdict: BLOCKED_PENDING_PROJECT_OWNER_APPROVAL |
+| Manual approval checklist for live run | PENDING_PROJECT_OWNER | `stage2-live-run-readiness.md` §8 + `stage2-live-code-review.md` §12; 9-item checklist; must be fully checked before `allow_api_calls=True` |
 
 ---
 
@@ -446,7 +448,9 @@ Listed in priority order. Each action unlocks subsequent steps.
 
 12. **~~Implement the live runner paths~~ — DONE (2026-06-14).** `_call_completion_api`, `_create_embeddings`, `_retrieve_top_k`, and the `run_live` loop are implemented (lazy `openai` import; single attempt; no auto-retry; `BudgetGuard` wired with pre-call projection + pause/halt; raw outputs to `results/stage2/raw_outputs/`). 6 safety-guard tests PASS; live mode still refused (`allow_api_calls=False`).
 
-13. **Code-review the live paths, then enable** — review `_call_completion_api`, `_create_embeddings`, `_retrieve_top_k`, `run_live`; reconfirm the model snapshot + rates against the live API; complete the manual approval checklist (`stage2-live-run-readiness.md` §8); set `allow_api_calls=True`; provide `OPENAI_API_KEY`; run `--live --confirm-spend` starting with one English Agent A run. No API call until reviewed.
+13. **~~Create Stage 2 live code review document~~ — DONE (2026-06-14).** `docs/benchmark/v0.1/stage2-live-code-review.md` (s2-code-review-v0.1.0): 13-section self-review of all live paths in `scripts/stage2_smoke_runner.py`. 18-item safety-guard checklist (all PASS); Agent A/B review; cost/budget review; run-order review; 28-field logging review; failure-handling review; known risks (6 items); 9-item approval checklist (all unchecked). Verdict: BLOCKED_PENDING_PROJECT_OWNER_APPROVAL.
+
+14. **Complete the approval checklist and enable live mode** — project owner reviews `stage2-live-code-review.md` §4–§11 and checks all 9 items in §12; reconfirms `response_model_id` against live `/v1/models`; reconfirms pricing currency; confirms `openai` SDK version; sets `allow_api_calls=True`; exports `OPENAI_API_KEY`; runs `--live --confirm-spend` starting with one English Agent A run (S2-INT-004-en-A); manually inspects raw output and `budget_state.json` before continuing. No API call until all 9 checklist items are checked.
 
 ---
 
