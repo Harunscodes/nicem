@@ -1,6 +1,6 @@
 # Stage 2 Smoke Runner — Dry-Run Validation
 
-**Generated:** 2026-06-14T05:58:45.148047+00:00
+**Generated:** 2026-06-14T18:34:10.405385+00:00
 **Mode:** dry-run (no API calls, no embeddings, no API key)
 **Runner:** `scripts/stage2_smoke_runner.py`
 
@@ -50,6 +50,7 @@
 | budget_cap_fields_present | PASS | hard_cap=$25.0, stop_review=$20.0 |
 | dry_run_sentinels_correct | PASS | endpoint=NOT_RUN, cost=0, raw_output_path=null on all runs |
 | total_dry_run_cost_zero | PASS | total=$0 |
+| pricing_selftest_pass | PASS | estimate_cost_usd(1000, 500, 200) = 0.00202; expected 0.00202 |
 
 ## Required-field validation (run plan §12/§13)
 
@@ -70,12 +71,22 @@
 
 Additionally, no real completion or embedding code is implemented: `_call_completion_api` and `_create_embeddings` are unreachable stubs that raise `NotImplementedError`. Stage 2 live execution cannot occur from this skeleton.
 
+## Pricing self-test
+
+| Item | Result |
+|---|---|
+| Pricing formula self-test | PASS |
+| Detail | `estimate_cost_usd(1000, 500, 200) = 0.00202; expected 0.00202` |
+
+The self-test uses synthetic rates (not real pricing) and requires no API key. It verifies the `estimate_cost_usd` formula implementation. See `docs/benchmark/v0.1/stage2-model-pricing-config.md` §6.
+
 ## Remaining blockers before the first live API call
 
 1. Confirm `response_model_id` (TM1-b/c) — replace placeholder.
 2. Confirm `pricing_version` — replace placeholder.
-3. Implement and review the live completion + embedding paths (currently stubs).
-4. Implement programmatic budget-cap enforcement (or document manual enforcement).
-5. Set `allow_api_calls = True` only after review.
-6. Provide `OPENAI_API_KEY` in the environment at run time.
+3. Populate pricing table with real rates from the provider's published page and verify via hand-calculation (see `docs/benchmark/v0.1/stage2-model-pricing-config.md` §4.3).
+4. Implement and review the live completion + embedding paths (currently stubs).
+5. Wire `BudgetGuard` into the live run loop.
+6. Set `allow_api_calls = True` only after review.
+7. Provide `OPENAI_API_KEY` in the environment at run time.
 

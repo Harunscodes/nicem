@@ -296,6 +296,10 @@ def validate(runs: list, query_data: dict, kb_data: dict) -> dict:
     total_cost = sum((r["estimated_cost_usd"] or 0) for r in runs)
     check("total_dry_run_cost_zero", total_cost == 0, f"total=${total_cost}")
 
+    # Pricing formula self-test (synthetic rates; no API key)
+    selftest = _run_pricing_selftest()
+    check("pricing_selftest_pass", selftest["passed"], selftest["detail"])
+
     all_passed = all(c["passed"] for c in checks)
     return {"checks": checks, "all_passed": all_passed}
 
@@ -303,6 +307,21 @@ def validate(runs: list, query_data: dict, kb_data: dict) -> dict:
 # --------------------------------------------------------------------------
 # Cost estimation (live-mode scaffolding; not used in dry-run)
 # --------------------------------------------------------------------------
+
+# Named constants for the self-test (§6 of stage2-model-pricing-config.md).
+# These are SYNTHETIC values used only in _run_pricing_selftest() to verify
+# the formula — they are NOT real pricing rates.
+_SELFTEST_INPUT_USD_PER_1K = 0.001
+_SELFTEST_OUTPUT_USD_PER_1K = 0.002
+_SELFTEST_EMBEDDING_USD_PER_1K = 0.0001
+# Expected: (1000/1000)*0.001 + (500/1000)*0.002 + (200/1000)*0.0001
+#         = 0.001 + 0.001 + 0.00002 = 0.00202
+_SELFTEST_INPUT_TOKENS = 1000
+_SELFTEST_OUTPUT_TOKENS = 500
+_SELFTEST_EMBEDDING_TOKENS = 200
+_SELFTEST_EXPECTED_COST = 0.00202
+
+
 def pricing_configured() -> bool:
     """True only when every pricing field is a real number."""
     p = CONFIG.get("pricing", {})
@@ -317,6 +336,11 @@ def estimate_cost_usd(input_tokens: int, output_tokens: int,
                       embedding_tokens: int = 0) -> float:
     """Estimate run cost from token counts and the configured pricing table.
 
+    Formula:
+        cost = (input_tokens  / 1000) * completion_input_usd_per_1k
+             + (output_tokens / 1000) * completion_output_usd_per_1k
+             + (embedding_tokens / 1000) * embedding_usd_per_1k
+
     Raises if pricing is not configured — callers must check pricing_configured()
     first. Never invoked in dry-run (where token counts are None).
     """
@@ -328,6 +352,41 @@ def estimate_cost_usd(input_tokens: int, output_tokens: int,
     cost += (output_tokens / 1000.0) * p["completion_output_usd_per_1k"]
     cost += (embedding_tokens / 1000.0) * p["embedding_usd_per_1k"]
     return round(cost, 6)
+
+
+def _run_pricing_selftest() -> dict:
+    """Unit-style self-test for estimate_cost_usd using synthetic rates.
+
+    Temporarily installs known synthetic rates, calls estimate_cost_usd with
+    fixed token counts, verifies the result, then restores the original pricing
+    table. No API key or network access required.
+
+    Returns {"passed": bool, "detail": str}.
+    """
+    original = dict(CONFIG["pricing"])
+    try:
+        CONFIG["pricing"]["completion_input_usd_per_1k"] = _SELFTEST_INPUT_USD_PER_1K
+        CONFIG["pricing"]["completion_output_usd_per_1k"] = _SELFTEST_OUTPUT_USD_PER_1K
+        CONFIG["pricing"]["embedding_usd_per_1k"] = _SELFTEST_EMBEDDING_USD_PER_1K
+
+        result = estimate_cost_usd(
+            _SELFTEST_INPUT_TOKENS,
+            _SELFTEST_OUTPUT_TOKENS,
+            _SELFTEST_EMBEDDING_TOKENS,
+        )
+        passed = abs(result - _SELFTEST_EXPECTED_COST) < 1e-8
+        detail = (
+            f"estimate_cost_usd({_SELFTEST_INPUT_TOKENS}, {_SELFTEST_OUTPUT_TOKENS}, "
+            f"{_SELFTEST_EMBEDDING_TOKENS}) = {result}; "
+            f"expected {_SELFTEST_EXPECTED_COST}"
+        )
+    except Exception as exc:
+        passed = False
+        detail = f"exception: {exc}"
+    finally:
+        CONFIG["pricing"].update(original)
+
+    return {"passed": passed, "detail": detail}
 
 
 # --------------------------------------------------------------------------
@@ -542,16 +601,30 @@ def write_validation_md(validation: dict, runs: list, query_data: dict,
                  "stubs that raise `NotImplementedError`. Stage 2 live execution "
                  "cannot occur from this skeleton.")
     lines.append("")
+    lines.append("## Pricing self-test")
+    lines.append("")
+    selftest = _run_pricing_selftest()
+    lines.append(f"| Item | Result |")
+    lines.append(f"|---|---|")
+    lines.append(f"| Pricing formula self-test | {'PASS' if selftest['passed'] else 'FAIL'} |")
+    lines.append(f"| Detail | `{selftest['detail']}` |")
+    lines.append("")
+    lines.append("The self-test uses synthetic rates (not real pricing) and requires "
+                 "no API key. It verifies the `estimate_cost_usd` formula implementation. "
+                 "See `docs/benchmark/v0.1/stage2-model-pricing-config.md` §6.")
+    lines.append("")
     lines.append("## Remaining blockers before the first live API call")
     lines.append("")
     lines.append("1. Confirm `response_model_id` (TM1-b/c) — replace placeholder.")
     lines.append("2. Confirm `pricing_version` — replace placeholder.")
-    lines.append("3. Implement and review the live completion + embedding paths "
+    lines.append("3. Populate pricing table with real rates from the provider's "
+                 "published page and verify via hand-calculation "
+                 "(see `docs/benchmark/v0.1/stage2-model-pricing-config.md` §4.3).")
+    lines.append("4. Implement and review the live completion + embedding paths "
                  "(currently stubs).")
-    lines.append("4. Implement programmatic budget-cap enforcement (or document "
-                 "manual enforcement).")
-    lines.append("5. Set `allow_api_calls = True` only after review.")
-    lines.append("6. Provide `OPENAI_API_KEY` in the environment at run time.")
+    lines.append("5. Wire `BudgetGuard` into the live run loop.")
+    lines.append("6. Set `allow_api_calls = True` only after review.")
+    lines.append("7. Provide `OPENAI_API_KEY` in the environment at run time.")
     lines.append("")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

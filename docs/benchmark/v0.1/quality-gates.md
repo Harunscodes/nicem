@@ -60,9 +60,10 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | `stage2-decision-plan.md` | **PASS** | Project owner | File exists; 14 sections; s2-plan-v0.1.1 (2026-06-14); all 5 Stage 2 decisions CONFIRMED | All five decisions confirmed 2026-06-14 |
 | `stage2-smoke-test-run-plan.md` | **PASS** | Project owner | File exists; 18 sections; s2-runplan-v0.1.0 (2026-06-14); defines the 30-run smoke test, prompts, retrieval, logging, budget enforcement | Does NOT start Stage 2 |
 | `stage2-live-run-readiness.md` | **PASS** | Project owner | File exists; 10 sections; s2-live-readiness-v0.1.0 (2026-06-14); blockers, guards, budget design, approval checklist, rollback conditions | Live execution BLOCKED; does NOT authorize a run |
+| `stage2-model-pricing-config.md` | **PASS** | Project owner | File exists; 9 sections; s2-model-pricing-v0.1.0 (2026-06-14); model IDs, pricing formula, hand-calculation example, change-invalidation rules, confirmed-values table (empty until pricing confirmed) | Confirmed values table empty; pricing table placeholders must be filled before first API call |
 | All artifacts in `source-map.md` | **PASS** | Project owner | Every artifact created in this phase is catalogued in `docs/source-map.md` | — |
 
-**Inventory gate verdict: PASS** — all 18 artifacts exist (14 benchmark artifacts + 1 variant planning document + 1 Stage 2 decision plan + 1 Stage 2 smoke-test run plan + 1 Stage 2 live-run readiness document). Content quality gates follow below.
+**Inventory gate verdict: PASS** — all 19 artifacts exist (14 benchmark artifacts + 1 variant planning document + 1 Stage 2 decision plan + 1 Stage 2 smoke-test run plan + 1 Stage 2 live-run readiness document + 1 Stage 2 model/pricing config document). Content quality gates follow below.
 
 ---
 
@@ -357,8 +358,10 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | `pricing_version` recorded | **NOT_STARTED** | Date-stamped rate table (completion + embedding) to be recorded before the first API call |
 | Minimal logging runner (dry-run skeleton) | **PASS** | `scripts/stage2_smoke_runner.py` created 2026-06-14; dry-run builds all 30 runs, validates all required fields, total cost $0, no API key required; outputs in `results/stage2/dry_run_*` |
 | Logging runner — live-mode scaffolding | **PASS** | `stage2_smoke_runner.py` has pricing table, `estimate_cost_usd`, `BudgetGuard`, strict `can_run_api_mode` guard, and `--live`/`--confirm-spend` flags; live mode refuses by default; verified 2026-06-14 |
+| Logging runner — pricing self-test | **PASS** | `_run_pricing_selftest()` added 2026-06-14; uses synthetic rates (not real pricing); verifies `estimate_cost_usd` formula; result: PASS (0.00202); included in dry-run validation report |
 | Logging runner — live API/embedding paths | **NOT_STARTED** | Completion + embedding paths are unreachable stubs; must be implemented + reviewed; `allow_api_calls` is False; model/pricing placeholders block live mode |
 | Live-run readiness documented | **PASS** | `stage2-live-run-readiness.md` (s2-live-readiness-v0.1.0): blockers, guards, budget design, approval checklist, rollback conditions |
+| Model and pricing config documented | **PASS** | `stage2-model-pricing-config.md` (s2-model-pricing-v0.1.0 2026-06-14): model IDs, formula, hand-calculation example, change-invalidation rules; confirmed-values table pending |
 
 **Stage 2 decision plan:** `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.1, 2026-06-14) documents all five blocking decisions, now **CONFIRMED**. **Stage 2 smoke-test run plan:** `docs/benchmark/v0.1/stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0, 2026-06-14) defines the full 30-run smoke test.
 
@@ -386,8 +389,10 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | Smoke-test run plan | RESOLVED 2026-06-14 | `stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0) created; 30-run plan defined |
 | Logging runner — dry-run skeleton | RESOLVED 2026-06-14 | `scripts/stage2_smoke_runner.py`; all structural validations PASS; outputs in `results/stage2/dry_run_*` |
 | Logging runner — live-mode scaffolding | RESOLVED 2026-06-14 | Pricing table, cost estimation, `BudgetGuard`, strict guard, CLI flags; live refused by default |
+| Logging runner — pricing self-test | RESOLVED 2026-06-14 | `_run_pricing_selftest()` verifies the formula with synthetic rates; PASS (0.00202); included in dry-run validation |
+| Model/pricing config document | RESOLVED 2026-06-14 | `stage2-model-pricing-config.md` (s2-model-pricing-v0.1.0); formula, hand-calculation, change-invalidation rules; confirmed-values table pending |
 | Logging runner — live API/embedding paths | NOT_STARTED | Unreachable stubs; must be implemented + reviewed; blocks first API call |
-| Exact model IDs (TM1-b/c) + `pricing_version` + pricing table not yet recorded | NOT_STARTED | Placeholders in runner CONFIG; must be set before first API call; see `stage2-live-run-readiness.md` §2–§4 |
+| Exact model IDs (TM1-b/c) + `pricing_version` + pricing table not yet recorded | NOT_STARTED | Placeholders in runner CONFIG; must be set before first API call; see `stage2-live-run-readiness.md` §2–§4 and `stage2-model-pricing-config.md` §8 |
 | Manual approval checklist for live run | NOT_STARTED | `stage2-live-run-readiness.md` §8; must be completed before `allow_api_calls=True` |
 
 ---
@@ -432,6 +437,8 @@ Listed in priority order. Each action unlocks subsequent steps.
 9. **~~Implement the dry-run logging runner skeleton~~ — DONE (2026-06-14).** `scripts/stage2_smoke_runner.py`; dry-run builds 30 runs, validates all required fields, $0 cost, no API key; outputs in `results/stage2/dry_run_*`.
 
 10. **~~Add live-mode scaffolding to the runner~~ — DONE (2026-06-14).** Pricing table, `estimate_cost_usd`, `BudgetGuard` (writes `results/stage2/budget_state.json`), strict `can_run_api_mode` guard, `--live`/`--confirm-spend` flags. Live refused by default. Readiness documented in `stage2-live-run-readiness.md`.
+
+10b. **~~Create model/pricing config document and pricing self-test~~ — DONE (2026-06-14).** `docs/benchmark/v0.1/stage2-model-pricing-config.md` (s2-model-pricing-v0.1.0): model IDs, formula, hand-calculation example, change-invalidation rules, confirmed-values table (empty until pricing confirmed). `_run_pricing_selftest()` added to runner; verifies `estimate_cost_usd` formula with synthetic rates; PASS (0.00202). Dry-run revalidated: 11/11 PASS, $0 cost, live mode blocked.
 
 11. **Record exact model IDs (TM1-b/c), `pricing_version`, and pricing table** — version-pinned `gpt-4.1-mini` snapshot + embedding version + per-1k rates. Placeholders are in runner CONFIG (`stage2-live-run-readiness.md` §2–§4).
 
