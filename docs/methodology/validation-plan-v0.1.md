@@ -135,7 +135,7 @@ All gates must pass before Stage 2 begins. Each gate has an owner action and a f
 
 ## 8. Stage 2 — Smoke test
 
-**Stage 2 decision plan:** All five blocking decisions (M9, AD1, TM8, EV1, TM5/BS6) have recommended defaults documented in `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.0, 2026-06-14). The recommended decision order is M9 → AD1 → TM8 → EV1 → TM5/BS6. All five require project-owner confirmation before any API call.
+**Stage 2 decision plan:** All five blocking decisions (M9, AD1, TM8, EV1, TM5/BS6) are **CONFIRMED (2026-06-14)** in `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.1): M9 = lightweight local JSONL/CSV logging; AD1 = A1 (full relevant-language KB in Agent A prompt); TM8 = OpenAI `text-embedding-3-small`; EV1 = audit all Stage 2 outputs manually; TM5/BS6 = $25 USD hard cap. Stage 2 now remains blocked only on execution prerequisites: the smoke-test run plan, the minimal logging runner, version-pinned model IDs (TM1-b/c), and budget-cap enforcement — no API call until these exist and are reviewed.
 
 **Recommended intent subset (§9 of decision plan):** INT-004, INT-015, INT-017, INT-026, INT-031. These cover simple factual / conditional / process task categories, four different NiceHome documents, and the AC9 two-chunk retrieval case.
 

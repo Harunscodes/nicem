@@ -1,8 +1,8 @@
 # Stage 2 Decision Plan v0.1
 
-**Version:** s2-plan-v0.1.0
+**Version:** s2-plan-v0.1.1
 **Date:** 2026-06-14
-**Status:** DRAFT — all five decisions require project-owner confirmation before Stage 2 begins
+**Status:** CONFIRMED — all five decisions confirmed by project owner 2026-06-14; Stage 2 remains blocked on the smoke-test run plan and logging runner (see §2)
 **Depends on:** `validation-plan-v0.1.md`, `quality-gates.md` §13, `logging-schema-v0.1.md`, `agent-design-selection-v0.1.md`, `evaluation-method-v0.1.md`
 **Feeds into:** Stage 2 smoke-test run plan, minimal logging runner implementation
 
@@ -26,11 +26,14 @@ The governing principle from `validation-plan-v0.1.md` §1 applies: **spend chea
 |---|---|---|
 | Stage 1a (tokenizer-only sanity gate) | **COMPLETE** | Run 2026-06-13; all sanity checks PASS; results in `results/stage1a/` |
 | Token-tax baseline | **MEASURED (APPROXIMATE)** | `o200k_base_approx` fallback used; network policy blocked tiktoken BPE data download; directionally valid for sanity gate; not publication-grade absolute counts |
-| All 15 benchmark artifacts | **STRUCTURALLY COMPLETE** | Inventory gate PASS; content freeze pending language reviews |
+| All benchmark artifacts | **STRUCTURALLY COMPLETE** | Inventory gate PASS; content freeze pending language reviews |
 | Execution-tax | **NOT MEASURED** | Stage 2 is not an execution-tax proof; it is a pipeline validation smoke test |
-| Stage 2 | **BLOCKED** | Five decisions outstanding: M9, AD1, TM8, EV1, TM5/BS6 |
+| Five Stage 2 decisions (M9, AD1, TM8, EV1, TM5/BS6) | **CONFIRMED 2026-06-14** | All five confirmed by project owner; see §13 table and per-decision confirmation notes |
+| Stage 2 | **BLOCKED** | Two artifacts remain before the first API call: the smoke-test run plan (`stage2-smoke-test-run-plan.md`) and the minimal logging runner; both must be created and reviewed |
 
 **What Stage 2 is not:** a proof of execution-tax, a full benchmark, or a basis for public claims. It is a controlled exercise to confirm that the measurement instrument works before committing Stage 3 budget.
+
+**What still blocks the first API call (as of 2026-06-14):** the five decisions are confirmed, but Stage 2 is *not* yet runnable. Two things remain: (1) `docs/benchmark/v0.1/stage2-smoke-test-run-plan.md` — the run plan specifying prompt templates, KB indexing procedure, run order, and budget-enforcement mechanism; and (2) the minimal logging runner script. Neither may trigger an API call until both exist and are reviewed, and until the budget cap is implemented or manually enforced.
 
 ---
 
@@ -75,7 +78,9 @@ Stage 2 requires per-run logging of input tokens, output tokens, retrieval chunk
 | **Arize Phoenix** | Open-source, OpenTelemetry-compatible; strong span-level attribution | Vendor-neutral; works with any agent framework | Setup overhead; adds an external dependency for what is currently a simple script-based pipeline |
 | **Custom notebook only** | Run calls from a Jupyter notebook with manual logging | Zero setup | Not reproducible; not suitable for a benchmark with repeatable runs |
 
-### Recommendation: lightweight local JSONL/CSV logging for Stage 2
+### Decision: CONFIRMED — lightweight local JSONL/CSV logging (2026-06-14)
+
+**Project-owner confirmation (2026-06-14):** Use lightweight local JSONL/CSV logging for Stage 2. One record per run. The minimum required fields from `logging-schema-v0.1.md` must be captured. No external observability platform in Stage 2.
 
 For the Stage 2 smoke test, lightweight local JSONL/CSV logging is the correct choice. The reasons are:
 
@@ -96,7 +101,9 @@ Each run record must include all fields in the `logging-schema-v0.1.md` §12 min
 | `intent_id` | string | e.g., `INT-004` |
 | `language` | string | `EN`, `NL`, or `TR` |
 | `agent_design_id` | string | `A` (Direct LLM baseline) or `B` (Simple RAG) |
-| `model_id` | string | Version-pinned model identifier (e.g., `gpt-4.1-mini-2025-04-14`); never a "latest" alias |
+| `model_id` | string | Version-pinned completion-model identifier (e.g., `gpt-4.1-mini-2025-04-14`); never a "latest" alias |
+| `embedding_model_id` | string\|null | Embedding model used by Agent B (confirmed: `text-embedding-3-small`); `null` for Agent A |
+| `embedding_model_version` | string\|null | Version/snapshot identifier for the embedding model; `null` for Agent A |
 | `prompt_version` | string | Version of the prompt template used; allows rerunning with identical prompts |
 | `query_text` | string | The exact query sent to the model (from query-rendering files) |
 | `retrieved_chunk_ids` | list\|null | Chunk IDs retrieved by Agent B; `null` for Agent A |
@@ -132,6 +139,10 @@ Agent A is the Direct LLM baseline. The agent-design decision (`agent-design-sel
 | **A0: Direct LLM, no KB context** | Agent A receives only the user query; no policy document is in the prompt | Most runs will FAIL on fictional policy facts; few PASS runs available for cost comparison; measures model knowledge baseline |
 | **A1: Direct LLM, full KB-in-context** | Agent A receives the complete KB (all three language renderings concatenated or the relevant-language rendering only) in the prompt alongside the user query | Agent A can answer correctly; measures cost of long-context prompting vs. retrieval; eliminates retrieval but does not eliminate KB context |
 | **A1b: Direct LLM, single-document context** | Agent A receives only the document most likely to contain the answer (project owner identifies document per intent) | A compromise; reduces context size vs. A1; but document selection is a form of retrieval decision made by the evaluator, not the agent |
+
+### Decision: CONFIRMED — A1 (2026-06-14)
+
+**Project-owner confirmation (2026-06-14):** Use A1. Agent A is the Direct LLM baseline with the full relevant-language KB rendering in the prompt. Reason: A0 would likely fail the fictional-domain benchmark because the model should not know NiceHome policies.
 
 ### Decision rule and recommendation
 
@@ -175,7 +186,9 @@ Agent B (Simple RAG) requires an embedding model to encode KB chunks and queries
 | `multilingual-e5-large` | Open-source (HuggingFace) | Strong multilingual model; free to run locally; avoids additional API dependency; requires local inference setup |
 | `paraphrase-multilingual-mpnet-base-v2` | Open-source (HuggingFace) | Lighter; good multilingual baseline; can run on CPU |
 
-### Recommendation: `text-embedding-3-small` as Stage 2 default
+### Decision: CONFIRMED — `text-embedding-3-small` (2026-06-14)
+
+**Project-owner confirmation (2026-06-14):** Use OpenAI `text-embedding-3-small` for Agent B Simple RAG. Use the same embedding model for English, Dutch, and Turkish. Record `embedding_model_id` and `embedding_model_version` in the logs.
 
 For the Stage 2 smoke test, `text-embedding-3-small` is the recommended default:
 - Same provider as the TM1 completion model; one API key, one billing account, one `pricing_version` table.
@@ -184,7 +197,7 @@ For the Stage 2 smoke test, `text-embedding-3-small` is the recommended default:
 - Low enough cost that embedding 39 chunks × 3 languages + 5 intents × 3 languages for Stage 2 is negligible.
 - If Stage 3 requires a different embedding model (e.g., for cost reasons or quality concerns), this must be noted as a configuration change — Stage 3 results would not be directly comparable to Stage 2 results if the embedding model changes.
 
-**Final selection is a project-owner decision.** If a local open-source embedding model is preferred (e.g., to eliminate external API dependency for retrieval), `multilingual-e5-large` or `paraphrase-multilingual-mpnet-base-v2` are strong candidates. The selection must be logged as `embedding_model_id` in the run record and fixed before any Stage 2 API call.
+**Final selection (CONFIRMED 2026-06-14): `text-embedding-3-small`.** The local open-source alternatives (`multilingual-e5-large`, `paraphrase-multilingual-mpnet-base-v2`) are not used in Stage 2. The selection is logged as `embedding_model_id` and `embedding_model_version` in every Agent B run record and is fixed for all of Stage 2.
 
 **Pre-registration note:** the embedding model is itself a potential execution-tax variable. If the model has uneven quality across EN/NL/TR, retrieval precision will differ by language — confounding the execution-tax signal. This must be acknowledged in Stage 2 and Stage 3 reporting. A retrieval quality check (do the top-k chunks for each intent contain the required fact IDs?) should be performed at Stage 2 setup and logged.
 
@@ -196,7 +209,9 @@ For the Stage 2 smoke test, `text-embedding-3-small` is the recommended default:
 
 `evaluation-method-v0.1.md` §6 defines the human audit policy: all UNCERTAINs are mandatory review; all FAILs are strongly recommended; a sample of PASSes is reviewed for calibration. The specific sampling fraction for PASSes (EV1) must be pre-committed before any run — it cannot be decided after seeing results without introducing selection bias.
 
-### Stage 2 recommendation: audit all outputs
+### Decision: CONFIRMED — audit all Stage 2 outputs (2026-06-14)
+
+**Project-owner confirmation (2026-06-14):** Audit all Stage 2 outputs manually. This includes PASS, FAIL, and UNCERTAIN outputs. No sampling at Stage 2.
 
 At Stage 2 smoke-test scale (18–30 runs across 5 intents × 3 languages × 2 agents), the total number of outputs is small enough that full manual review is the correct approach:
 
@@ -230,9 +245,11 @@ No API call should be made before a hard budget cap is confirmed. Budget determi
 
 **Total estimated Stage 2 cost: under $10 USD** at GPT-4.1-mini pricing and one pass through 5 intents × 3 languages × 2 agents, even with a 2× rerun buffer. The dominant cost is Agent A long-context prompting.
 
-**Recommendation:** set a hard budget cap of **$25 USD** for Stage 2. This covers one full pass, a rerun buffer, and a second repetition of any intent where logging failed. Any spend approaching $20 triggers a stop-and-review before further calls.
+**Decision: CONFIRMED — $25 USD hard cap (2026-06-14).**
 
-**Final approval is a project-owner decision.** The cap must be confirmed before the first API call.
+**Project-owner confirmation (2026-06-14):** Approve a $25 USD hard cap for Stage 2. Stop and review at $20 USD. Estimated actual spend is around $5–10, but the hard cap is $25. **No API call may run unless the budget cap is implemented (programmatic cost ceiling in the runner) or manually enforced (operator monitors running cost and halts at the threshold).**
+
+This covers one full pass, a rerun buffer, and a second repetition of any intent where logging failed. Any spend approaching $20 triggers a stop-and-review before further calls. The budget-enforcement mechanism (programmatic vs. manual) must be specified in the smoke-test run plan before the first API call.
 
 ---
 
@@ -309,48 +326,52 @@ Stage 1a used the `o200k_base_approx` fallback tokenizer because the network pol
 
 ## 13. Open decisions table
 
-| Decision ID | Decision | Recommended default | Status | Owner | Blocks Stage 2? | Notes |
+| Decision ID | Decision | Confirmed value | Status | Owner | Blocks Stage 2? | Notes |
 |---|---|---|---|---|---|---|
-| **M9** | Instrumentation platform | Lightweight local JSONL/CSV logging | Awaiting project-owner confirmation | Project owner | YES | Langfuse / Arize Phoenix suitable for Stage 3; not needed for Stage 2 smoke test |
-| **AD1** | Agent A context condition | A1 — Direct LLM with full relevant-language KB rendering in context | Awaiting project-owner confirmation | Project owner | YES | A0 (no context) produces near-zero PASS rates on fictional domain; A1 enables interpretable cost comparison |
-| **TM8** | Embedding model for Agent B | `text-embedding-3-small` (OpenAI; same provider as TM1) | Awaiting project-owner confirmation | Project owner | YES | Must be same model across EN/NL/TR; must be version-pinned; multilingual coverage required |
-| **EV1** | Human audit fraction | All outputs audited manually at Stage 2 (smoke test is too small for sampling) | Awaiting project-owner confirmation | Project owner | YES (blocks analysis, not runs) | Stage 3 rule: all FAILs + all UNCERTAINs + ≥20% PASSes per condition |
-| **TM5/BS6** | Pilot budget | Hard cap of $25 USD for Stage 2; stop-and-review at $20 | Awaiting project-owner confirmation | Project owner | YES (blocks any API spend) | Stage 2 estimated cost ~$5–10 USD at GPT-4.1-mini rates with 2× buffer |
+| **M9** | Instrumentation platform | Lightweight local JSONL/CSV logging; one record per run; minimum required fields from logging-schema; no external platform | **CONFIRMED 2026-06-14** | Project owner | No longer blocking | Langfuse / Arize Phoenix deferred to Stage 3 |
+| **AD1** | Agent A context condition | A1 — Direct LLM with full relevant-language KB rendering in context | **CONFIRMED 2026-06-14** | Project owner | No longer blocking | A0 (no context) would fail fictional domain; A1 enables interpretable cost comparison; A0 deferred as optional Stage 3 floor check |
+| **TM8** | Embedding model for Agent B | OpenAI `text-embedding-3-small`; same model across EN/NL/TR; log `embedding_model_id` + `embedding_model_version` | **CONFIRMED 2026-06-14** | Project owner | No longer blocking | Version-pinned; multilingual coverage confirmed |
+| **EV1** | Human audit fraction | Audit all Stage 2 outputs manually (PASS, FAIL, UNCERTAIN); no sampling | **CONFIRMED 2026-06-14** | Project owner | No longer blocking | Stage 3 rule: all FAILs + all UNCERTAINs + ≥20% PASSes per condition |
+| **TM5/BS6** | Pilot budget | $25 USD hard cap for Stage 2; stop-and-review at $20; cap must be implemented or manually enforced before any call | **CONFIRMED 2026-06-14** | Project owner | No longer blocking the decision; enforcement mechanism still required before first call | Estimated actual spend ~$5–10 at GPT-4.1-mini rates |
 | TM1-a (optional) | Exact tiktoken rerun | Rerun in network-accessible environment before public claims | Optional for Stage 2; required before Stage 3 reporting | Project owner | NO | Script auto-detects tiktoken; results to `results/stage1a_exact/` |
 | LR6 | Dutch native review | Deferred to pre-publication | Deferred | External reviewer | NO for internal Stage 2 | Dutch results carry WAIVED_WITH_LIMITATION label for public claims |
-| TM1-b/c | Version-pinned model IDs for Agent A and B | Set at Stage 2 setup (e.g., `gpt-4.1-mini-2025-04-14`) | NOT_STARTED | Project owner | YES (must be set before first API call) | Never use "latest" alias; pin version before run |
+| TM1-b/c | Version-pinned model IDs for Agent A and B | Set at Stage 2 setup (e.g., `gpt-4.1-mini-2025-04-14`) | NOT_STARTED | Project owner | YES (must be set before first API call) | Never use "latest" alias; pin version before run; record in smoke-test run plan |
 | TM1-d | GPT-4.1-mini vs. GPT-4.1 for Stage 3 | GPT-4.1-mini for Stage 2 and Stage 3 exploratory; upgrade to GPT-4.1 only if Stage 2 smoke test shows inadequate quality | NOT_STARTED | Settled by Stage 2 results | NO for Stage 2 | GPT-4.1-mini is the Stage 2 default |
+| RUNNER | Minimal logging runner script | Implements JSONL logging, embedding + completion calls, budget enforcement | NOT_STARTED | Project owner | **YES — blocks first API call** | Must exist and be reviewed before Stage 2 runs |
+| RUNPLAN | Smoke-test run plan | `stage2-smoke-test-run-plan.md`: prompt templates, KB indexing, run order, budget enforcement | NOT_STARTED | Project owner | **YES — blocks first API call** | Next artifact to create |
 
 ---
 
 ## 14. Next actions
 
-Listed in the recommended order. **No API calls until TM5/BS6 budget is confirmed (step 5).**
+Decisions 1–5 below are **CONFIRMED (2026-06-14)**. The remaining steps gate the first API call. **No API calls until the smoke-test run plan and logging runner exist, are reviewed, and the budget cap is implemented or manually enforced.**
 
-1. **Confirm M9** — decide: lightweight local JSONL/CSV logging for Stage 2. Unblocks: logging runner design.
+1. **~~Confirm M9~~ — DONE (2026-06-14).** Lightweight local JSONL/CSV logging; one record per run; minimum required fields; no external platform.
 
-2. **Confirm AD1** — decide: A1 (full relevant-language KB rendering in Agent A prompt). Unblocks: prompt template design for Agent A; run count and cost estimate.
+2. **~~Confirm AD1~~ — DONE (2026-06-14).** A1 — Direct LLM with full relevant-language KB rendering in the Agent A prompt.
 
-3. **Confirm TM8** — decide: `text-embedding-3-small` (or alternative). Unblocks: KB chunk indexing; Agent B retrieval design.
+3. **~~Confirm TM8~~ — DONE (2026-06-14).** OpenAI `text-embedding-3-small`; same model across EN/NL/TR; log `embedding_model_id` + `embedding_model_version`.
 
-4. **Confirm EV1** — pre-commit: all Stage 2 outputs receive full human review. Unblocks: evaluation protocol for Stage 2.
+4. **~~Confirm EV1~~ — DONE (2026-06-14).** Audit all Stage 2 outputs manually (PASS, FAIL, UNCERTAIN); no sampling.
 
-5. **Confirm TM5/BS6** — approve budget cap of $25 USD (or alternative). **This is the gate before any API call.** Unblocks: Stage 2 API spend.
+5. **~~Confirm TM5/BS6~~ — DONE (2026-06-14).** $25 USD hard cap; stop-and-review at $20; cap must be implemented or manually enforced before any call.
 
-6. **Set version-pinned model IDs (TM1-b/c)** — record exact model IDs (e.g., `gpt-4.1-mini-2025-04-14`) before the first API call; add to `pricing_version` table.
+6. **Create the Stage 2 smoke-test run plan** — **NEXT ARTIFACT.** `docs/benchmark/v0.1/stage2-smoke-test-run-plan.md` specifying: the 5 selected intents (INT-004, INT-015, INT-017, INT-026, INT-031), the prompt templates for Agent A (A1) and Agent B (Simple RAG), the KB indexing procedure for Agent B (embed 39 chunks × 3 languages with `text-embedding-3-small`), the retrieval top-k setting, the run order, the budget-enforcement mechanism, and the logging runner location.
 
-7. **Create Stage 2 smoke-test run plan** — a brief document specifying: the 5 selected intents, the prompt templates for Agent A and Agent B, the KB indexing procedure for Agent B, the run order, and the logging runner location.
+7. **Set version-pinned model IDs (TM1-b/c)** — record exact completion and embedding model IDs (e.g., `gpt-4.1-mini-2025-04-14`, `text-embedding-3-small` snapshot) in the run plan and the `pricing_version` table before the first API call.
 
-8. **Implement the minimal logging runner** — a Python script that: sends the query, calls the embedding model (Agent B), calls the completion model, logs all required JSONL fields, and writes to `results/stage2/runs.jsonl`. The script should be deterministic (same query in = same API request; only the model response varies).
+8. **Implement the minimal logging runner** — a Python script that: sends the query, calls the embedding model (Agent B), calls the completion model, enforces the budget cap, logs all required JSONL fields, and writes to `results/stage2/runs.jsonl`. The script should be deterministic (same query in = same API request; only the model response varies).
 
-9. **Run Stage 2 smoke test** — execute 30 runs (5 intents × 3 languages × 2 agents, one pass); monitor cost against budget cap; stop if cost approaches $20.
+9. **Review the run plan and runner** — confirm both before any API call; verify the budget cap is enforced.
 
-10. **Evaluate all 30 outputs** — project owner reviews all outputs blind to cost/trajectory; assigns PASS/FAIL/UNCERTAIN + failure_type + evaluator_notes; checks UNCERTAIN rate per condition.
+10. **Run Stage 2 smoke test** — execute 30 runs (5 intents × 3 languages × 2 agents, one pass); monitor cost against budget cap; stop if cost approaches $20.
 
-11. **Write Stage 2 results summary** — structured note covering: pipeline status (did logging work?), PASS/FAIL/UNCERTAIN distribution, retrieval quality (did Agent B retrieve the required chunks?), token/cost/latency ranges, any language rendering defects found, and go/no-go verdict for Stage 3.
+11. **Evaluate all 30 outputs** — project owner reviews all outputs blind to cost/trajectory; assigns PASS/FAIL/UNCERTAIN + failure_type + evaluator_notes; checks UNCERTAIN rate per condition.
 
-12. **(Optional, not blocking Stage 2)** Re-run Stage 1a with exact tiktoken in a network-accessible environment; store results in `results/stage1a_exact/`.
+12. **Write Stage 2 results summary** — structured note covering: pipeline status (did logging work?), PASS/FAIL/UNCERTAIN distribution, retrieval quality (did Agent B retrieve the required chunks?), token/cost/latency ranges, any language rendering defects found, and go/no-go verdict for Stage 3.
+
+13. **(Optional, not blocking Stage 2)** Re-run Stage 1a with exact tiktoken in a network-accessible environment; store results in `results/stage1a_exact/`.
 
 ---
 
-*This document resolves the five decisions blocking Stage 2. All five recommended defaults require project-owner confirmation before any API call is made. Version: s2-plan-v0.1.0.*
+*This document resolves the five decisions blocking Stage 2. All five are CONFIRMED by the project owner (2026-06-14). Stage 2 remains blocked on the smoke-test run plan and the logging runner; no API call may be made until both exist, are reviewed, and the budget cap is implemented or manually enforced. Version: s2-plan-v0.1.1.*

@@ -97,7 +97,7 @@ These questions must be answered — or at minimum scoped — before NiceM can r
 
 - **M9:** Which instrumentation platform should NiceM use for the proof-of-concept measurement?
   - Candidates: Langfuse (open-source, span-level), Arize Phoenix (open-source, OpenTelemetry), LangSmith (LangChain-native), NeMo Agent Toolkit (NVIDIA). The choice depends on the agent framework used and the granularity of per-step attribution needed.
-  - *Status: Recommended default documented — `docs/benchmark/v0.1/stage2-decision-plan.md` §4 recommends lightweight local JSONL/CSV logging for Stage 2: transparent, no external dependency, controllable, portable to Langfuse/Phoenix in Stage 3. Full required field set specified. Awaiting project-owner confirmation. Langfuse or Arize Phoenix remain candidates for Stage 3 span-level attribution.*
+  - *Status: RESOLVED (CONFIRMED 2026-06-14) — lightweight local JSONL/CSV logging for Stage 2: one record per run; minimum required fields from `logging-schema-v0.1.md`; no external observability platform in Stage 2. See `docs/benchmark/v0.1/stage2-decision-plan.md` §4. Langfuse or Arize Phoenix remain candidates for Stage 3 span-level attribution.*
 
 ### Task family sub-questions (from task-family-selection-v0.1.md §11)
 
@@ -162,7 +162,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Open — bounds the real upper limit of KB and intent counts; relates to LS1*
 
 - **BS6:** What budget is acceptable for pilot runs?
-  - *Status: Open — determines repetition count (BS2) and model choice (LS4)*
+  - *Status: RESOLVED for Stage 2 (CONFIRMED 2026-06-14, same as TM5) — $25 USD hard cap for the Stage 2 smoke test; stop-and-review at $20. Stage 3 (full-benchmark) budget remains open and depends on Stage 2 per-run cost observations. See `docs/benchmark/v0.1/stage2-decision-plan.md` §8.*
 
 - **BS7:** What variance estimate does M8 need, and does this pilot produce it?
   - *Status: Open — the pilot is designed to produce per-intent and between-intent variance estimates; sufficiency checked after the pilot*
@@ -193,10 +193,10 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 ### Agent design sub-questions (from agent-design-selection-v0.1.md §10)
 
 - **AD1:** Should the Direct LLM baseline receive full KB context or no KB context?
-  - *Status: Recommended default documented — `docs/benchmark/v0.1/stage2-decision-plan.md` §5 recommends A1 (full relevant-language KB rendering in context) for Stage 2: A0 produces near-zero PASS rates on the fictional NiceHome domain, making CPS undefined for Agent A; A1 enables an interpretable cost comparison (long-context prompting vs. retrieval). A0 pre-registered as an optional additional condition in Stage 3 (failure-rate floor check). Awaiting project-owner confirmation.*
+  - *Status: RESOLVED (CONFIRMED 2026-06-14) — A1: Direct LLM with the full relevant-language KB rendering in the prompt. Reason: A0 would fail the fictional NiceHome domain because the model should not know NiceHome policies, leaving CPS undefined for Agent A; A1 enables an interpretable cost comparison (long-context prompting vs. retrieval). A0 pre-registered as an optional additional condition in Stage 3 (failure-rate floor check). See `docs/benchmark/v0.1/stage2-decision-plan.md` §5.*
 
 - **AD2:** Should Simple RAG use the same embedding model across languages?
-  - *Status: Open, leaning yes — one multilingual embedding model keeps the design constant; uneven per-language quality then becomes a measured property, not an experimenter-introduced confound*
+  - *Status: RESOLVED (CONFIRMED 2026-06-14, with TM8) — yes: one multilingual embedding model (`text-embedding-3-small`) is used for EN/NL/TR, keeping the design constant; uneven per-language retrieval quality becomes a measured property, not an experimenter-introduced confound. See `docs/benchmark/v0.1/stage2-decision-plan.md` §6.*
 
 - **AD3:** How many chunks should Simple RAG retrieve (top-k)?
   - *Status: Open — fixed k across languages required; interacts with chunk size and BS4*
@@ -277,7 +277,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Open — use version-specific model ID, never a "latest" alias; confirm provider's version-pinning mechanism before Stage 3*
 
 - **TM5:** How much budget is acceptable for pilot runs?
-  - *Status: Recommended default documented — `docs/benchmark/v0.1/stage2-decision-plan.md` §8 recommends a hard cap of $25 USD for Stage 2 (estimated actual cost ~$5–10 at GPT-4.1-mini rates with 2× rerun buffer; stop-and-review at $20). Stage 3 budget separate; same as BS6. Awaiting project-owner confirmation.*
+  - *Status: RESOLVED for Stage 2 (CONFIRMED 2026-06-14) — $25 USD hard cap for Stage 2; stop-and-review at $20; estimated actual spend ~$5–10 at GPT-4.1-mini rates. No API call may run unless the budget cap is implemented (programmatic ceiling) or manually enforced. Stage 3 budget separate; same as BS6. See `docs/benchmark/v0.1/stage2-decision-plan.md` §8.*
 
 - **TM6:** What happens if the model performs poorly in Turkish?
   - *Status: Open — smoke test gate; if Stage 2 shows near-zero Turkish PASS under both designs, diagnose before Stage 3: choose a more capable multilingual model, adjust prompts, or defer Turkish to v0.2*
@@ -286,7 +286,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Open — reasonable for budget, but only if Stage 1 tokenizer matches Stage 3 model tokenizer and Stage 2 is re-run on the Stage 3 model*
 
 - **TM8:** How should embedding model choice be handled for Agent B?
-  - *Status: Recommended default documented — `docs/benchmark/v0.1/stage2-decision-plan.md` §6 recommends `text-embedding-3-small` (OpenAI) for Stage 2: confirmed multilingual EN/NL/TR coverage; same provider as TM1 completion model (one API key, one billing account); low cost; retrieval scores accessible. Must be version-pinned and same model across all three language conditions. Awaiting project-owner confirmation. Relates to AD2.*
+  - *Status: RESOLVED (CONFIRMED 2026-06-14) — OpenAI `text-embedding-3-small` for Agent B Simple RAG; same model across EN/NL/TR; `embedding_model_id` and `embedding_model_version` recorded in logs. Confirmed multilingual coverage; same provider as TM1 completion model; low cost; retrieval scores accessible. See `docs/benchmark/v0.1/stage2-decision-plan.md` §6. Relates to AD2.*
 
 ### Dataset specification open questions (from dataset-specification.md §14)
 
@@ -430,7 +430,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 ### Evaluation method sub-questions (from evaluation-method-v0.1.md §15)
 
 - **EV1:** What percentage of outputs should receive human review?
-  - *Status: Recommended default documented — `docs/benchmark/v0.1/stage2-decision-plan.md` §7 recommends auditing all outputs for Stage 2 (smoke test is small enough that full review is faster and more informative than sampling). Stage 3 rule: all FAILs + all UNCERTAINs + ≥20% of PASSes per condition, pre-committed before analysis. Awaiting project-owner confirmation.*
+  - *Status: RESOLVED for Stage 2 (CONFIRMED 2026-06-14) — audit all Stage 2 outputs manually (PASS, FAIL, UNCERTAIN); no sampling at smoke-test scale. Stage 3 rule (still to confirm before Stage 3): all FAILs + all UNCERTAINs + ≥20% of PASSes per condition, pre-committed before analysis. See `docs/benchmark/v0.1/stage2-decision-plan.md` §7.*
 
 - **EV2:** Should all Turkish outputs be reviewed by the project owner in v0.1?
   - *Status: Open, leaning yes at base scale — full review of the highest-risk condition would also calibrate the checker's Turkish matching rules*

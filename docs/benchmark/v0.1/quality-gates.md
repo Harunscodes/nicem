@@ -342,18 +342,21 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Criterion | Status | Notes |
 |---|---|---|
 | Specific model/provider selected (TM1) | **PASS** | TM1 CONFIRMED: OpenAI GPT-4.1-mini/GPT-4.1 family. Exact tier (mini vs. full) for Stage 3 settled by smoke test (TM1-d); version-pinned model IDs to be set at Stage 2 setup (TM1-b/c) |
-| Embedding model for Agent B selected (TM8/AD2) | **BLOCKED** | Multilingual coverage must be confirmed; same model across all languages; separate from TM1 completion-model choice |
-| Instrumentation platform (M9) | **BLOCKED** | Must capture minimal logging fields |
-| Smoke-test intent subset selected | **NOT_STARTED** | Should be chosen after Stage 1; recommend 1 simple + 1 conditional + 1 troubleshooting-process covering different documents |
-| Pilot budget approved (TM5/BS6) | **NOT_STARTED** | Budget must be confirmed before any API spend |
+| Embedding model for Agent B selected (TM8/AD2) | **PASS** | TM8 CONFIRMED 2026-06-14: OpenAI `text-embedding-3-small`; same model across EN/NL/TR; `embedding_model_id` + `embedding_model_version` logged |
+| Instrumentation platform (M9) | **PASS** | M9 CONFIRMED 2026-06-14: lightweight local JSONL/CSV logging; one record per run; minimum required fields; no external platform |
+| Smoke-test intent subset selected | **PASS** | Subset confirmed: INT-004, INT-015, INT-017, INT-026, INT-031 (`stage2-decision-plan.md` §9) |
+| Pilot budget approved (TM5/BS6) | **PASS** | TM5/BS6 CONFIRMED 2026-06-14: $25 USD hard cap; stop-and-review at $20; cap must be implemented or manually enforced before any call |
 | Evaluation procedure ready | **PASS** | `evaluation-method-v0.1.md` and `expected-fact-mapping.md` are complete |
-| Logging pipeline ready | **BLOCKED** | Depends on M9 |
-| Human audit fraction pre-committed (EV1) | **NOT_STARTED** | Must be set before Stage 2 analysis begins |
-| Direct LLM context condition (AD1: A0 vs. A1) | **NOT_STARTED** | Choice of no-context vs. full-KB-in-context for Agent A must be made; affects Stage 2 design and cost |
+| Logging pipeline ready | **NEEDS_REVIEW** | M9 decided (local JSONL); the logging runner script itself must be implemented and reviewed before runs |
+| Human audit fraction pre-committed (EV1) | **PASS** | EV1 CONFIRMED 2026-06-14: audit all Stage 2 outputs manually (PASS, FAIL, UNCERTAIN); no sampling |
+| Direct LLM context condition (AD1: A0 vs. A1) | **PASS** | AD1 CONFIRMED 2026-06-14: A1 — Direct LLM with full relevant-language KB rendering in context |
+| Version-pinned model IDs set (TM1-b/c) | **NOT_STARTED** | Exact completion + embedding model IDs to be recorded in the smoke-test run plan before the first API call |
+| Smoke-test run plan exists | **NOT_STARTED** | `stage2-smoke-test-run-plan.md` not yet created — next artifact |
+| Minimal logging runner implemented | **NOT_STARTED** | Runner script must exist, enforce the budget cap, and be reviewed before any API call |
 
-**Stage 2 decision plan:** `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.0, 2026-06-14) documents all five blocking decisions with recommended defaults and the recommended resolution order: M9 → AD1 → TM8 → EV1 → TM5/BS6. All five require project-owner confirmation before any API call.
+**Stage 2 decision plan:** `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.1, 2026-06-14) documents all five blocking decisions, now **CONFIRMED** by the project owner. Resolution order applied: M9 → AD1 → TM8 → EV1 → TM5/BS6.
 
-**Stage 2 gate verdict: BLOCKED** — TM1 is now CONFIRMED, but five decisions remain (M9, AD1, TM8, EV1, TM5/BS6); all have recommended defaults in the Stage 2 decision plan awaiting project-owner confirmation.
+**Stage 2 gate verdict: BLOCKED** — all five decisions are now CONFIRMED (M9, AD1, TM8, EV1, TM5/BS6), but Stage 2 is not yet runnable: the smoke-test run plan (`stage2-smoke-test-run-plan.md`), the minimal logging runner, and the version-pinned model IDs (TM1-b/c) must all be created and reviewed, and the budget cap implemented or manually enforced, before the first API call.
 
 ---
 
@@ -369,11 +372,13 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | AC4 direct coverage absent (IS1) | WAIVED_WITH_LIMITATION | The benchmark does not directly test whether models confuse live-view subscription-independence; this gap is pre-registered; observed AC4 violations are logged as secondary observations in INT-005 |
 | Some facts covered only indirectly (F0110, F0612, F0708, others) | WAIVED_WITH_LIMITATION | Coverage gaps documented in `intent-set.md`; these facts are present in the KB and may be tested incidentally but are not evaluation targets |
 | Specific model/provider selection (TM1) | RESOLVED | CONFIRMED 2026-06-13: OpenAI GPT-4.1-mini/GPT-4.1 family; Stage 1a unblocked; exact tokenizer encoding name (TM1-a) confirmed in Stage 1 tooling |
-| Instrumentation platform not yet selected (M9) | BLOCKED — recommended: lightweight local JSONL/CSV | See `stage2-decision-plan.md` §4; awaiting confirmation |
-| Human audit fraction not yet decided (EV1) | NOT_STARTED — recommended: audit all Stage 2 outputs | See `stage2-decision-plan.md` §7; awaiting confirmation |
-| Pilot budget not yet approved (TM5/BS6) | NOT_STARTED — recommended: $25 USD cap for Stage 2 | See `stage2-decision-plan.md` §8; must confirm before any API spend |
-| Embedding model for Agent B not yet selected (TM8) | BLOCKED — recommended: `text-embedding-3-small` | See `stage2-decision-plan.md` §6; awaiting confirmation |
-| Agent A context condition not yet decided (AD1) | NOT_STARTED — recommended: A1 (full KB in context) | See `stage2-decision-plan.md` §5; awaiting confirmation |
+| Instrumentation platform (M9) | RESOLVED 2026-06-14 | Lightweight local JSONL/CSV logging; `stage2-decision-plan.md` §4 |
+| Human audit fraction (EV1) | RESOLVED 2026-06-14 | Audit all Stage 2 outputs manually; `stage2-decision-plan.md` §7 |
+| Pilot budget (TM5/BS6) | RESOLVED 2026-06-14 | $25 USD hard cap; stop-and-review at $20; cap must be implemented/enforced before any call; `stage2-decision-plan.md` §8 |
+| Embedding model for Agent B (TM8) | RESOLVED 2026-06-14 | OpenAI `text-embedding-3-small`; same model across EN/NL/TR; `stage2-decision-plan.md` §6 |
+| Agent A context condition (AD1) | RESOLVED 2026-06-14 | A1 (full relevant-language KB in context); `stage2-decision-plan.md` §5 |
+| Smoke-test run plan not yet created | NOT_STARTED | `stage2-smoke-test-run-plan.md` — next artifact; blocks first API call |
+| Minimal logging runner not yet implemented | NOT_STARTED | Runner must enforce budget cap and be reviewed; blocks first API call |
 
 ---
 
@@ -385,12 +390,12 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | Query rendering plan | **YES** | `query-rendering-plan.md` complete; defines authoring rules for all 108 queries |
 | Query rendering (108 queries) | **YES** | All three files created; 36 queries each; parity confirmed; structural quality gates PASS |
 | Stage 1 tokenizer-only sanity gate | **COMPLETE** | Stage 1a run 2026-06-13; all sanity checks PASS; token-tax ratios in expected direction and range; results in `results/stage1a/`; tokenizer fallback (TM1-a) documented; re-run with exact tiktoken for authoritative counts |
-| Stage 2 smoke test | **NO** | TM8, M9, TM5/BS6, AD1, EV1 (TM1 now resolved) |
+| Stage 2 smoke test | **NO** | Five decisions CONFIRMED 2026-06-14; remaining: smoke-test run plan, logging runner, TM1-b/c model IDs, budget-cap enforcement |
 | Stage 3 full benchmark run | **NO** | All Stage 2 blockers + Stage 2 must complete first |
 | Internal exploratory review and planning | **YES** | All methodology documents complete; benchmark artifact construction complete |
 | Public or publication-grade claims | **NO** | Independent review not started; Dutch native review pending; all stages yet to run |
 
-**Current position:** Stage 1a (tokenizer-only sanity gate) is **COMPLETE** as of 2026-06-13. All artifacts are structurally verified. QR9 (Turkish query review) is complete. TM1 is CONFIRMED (OpenAI GPT-4.1-mini/GPT-4.1). Stage 1a produced token-tax baselines for all 108 queries and 117 KB chunks; all sanity checks PASS (results in `results/stage1a/`). A tokenizer fallback was used (TM1-a; network restriction prevented exact tiktoken load); re-run with exact tiktoken for publication-grade counts. Stage 2 is now the next target; four decisions remain before Stage 2 can run (TM8, M9, TM5/BS6, AD1, EV1).
+**Current position:** Stage 1a (tokenizer-only sanity gate) is **COMPLETE** as of 2026-06-13. All artifacts are structurally verified. QR9 (Turkish query review) is complete. TM1 is CONFIRMED (OpenAI GPT-4.1-mini/GPT-4.1). Stage 1a produced token-tax baselines for all 108 queries and 117 KB chunks; all sanity checks PASS (results in `results/stage1a/`). A tokenizer fallback was used (TM1-a; network restriction prevented exact tiktoken load); re-run with exact tiktoken for publication-grade counts. **All five Stage 2 decisions (M9, AD1, TM8, EV1, TM5/BS6) are now CONFIRMED (2026-06-14).** Stage 2 remains blocked on execution prerequisites only: the smoke-test run plan (`stage2-smoke-test-run-plan.md`), the minimal logging runner, the version-pinned model IDs (TM1-b/c), and the budget-cap enforcement mechanism. No API call may be made until these exist and are reviewed.
 
 ---
 
@@ -410,7 +415,11 @@ Listed in priority order. Each action unlocks subsequent steps.
 
 6. **Resolve TM5/BS6 (pilot budget)** — approve spend before any API call; determines repetition count and smoke-test scope.
 
-7. **Resolve remaining Stage 2 decisions** — TM8 (embedding model), M9 (instrumentation platform), EV1 (audit fraction), AD1 (Agent A context condition). These gate Stage 2, not Stage 1. Recommended defaults and decision order are documented in `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.0). Confirm all five decisions before any API call.
+7. **~~Resolve remaining Stage 2 decisions~~ — DONE (2026-06-14).** All five (M9, AD1, TM8, EV1, TM5/BS6) CONFIRMED; see `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.1).
+
+8. **Create the Stage 2 smoke-test run plan** — `docs/benchmark/v0.1/stage2-smoke-test-run-plan.md`: 5 intents, prompt templates (Agent A = A1, Agent B = Simple RAG), KB indexing procedure, retrieval top-k, run order, budget-enforcement mechanism, version-pinned model IDs (TM1-b/c). This is the next artifact.
+
+9. **Implement and review the minimal logging runner** — must enforce the $25 budget cap and capture all required JSONL fields. No API call until the run plan and runner are reviewed.
 
 ---
 
