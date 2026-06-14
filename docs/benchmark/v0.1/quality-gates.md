@@ -57,9 +57,10 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | `query-rendering-tr.md` | **PASS** | Project owner (QR9) | File exists; 36 queries confirmed; INT-001–036 all present; apostrophe suffix convention applied; controlled terms applied; QR9 review complete (7 corrections applied); versioned qr-tr-v0.1.0 | — |
 | `tm1-tokenizer-model-decision.md` | **PASS** | Project owner | File exists; resolves TM1 with confirmed choice (OpenAI GPT-4.1-mini/GPT-4.1 family); versioned tm1-v0.1.1 | Status CONFIRMED 2026-06-13; exact tokenizer encoding name (TM1-a) confirmed in Stage 1 tooling |
 | `query-variant-plan.md` | **PASS** | Project owner | File exists; 11 sections; qv-plan-v0.1.0; no variant texts yet — planning only | Variants are optional robustness layer; not required before Stage 1a |
+| `stage2-decision-plan.md` | **PASS** | Project owner | File exists; 14 sections; s2-plan-v0.1.0 (2026-06-14); recommended defaults for all 5 blocking Stage 2 decisions | All five decisions awaiting project-owner confirmation |
 | All artifacts in `source-map.md` | **PASS** | Project owner | Every artifact created in this phase is catalogued in `docs/source-map.md` | — |
 
-**Inventory gate verdict: PASS** — all 15 artifacts exist (14 benchmark artifacts + 1 variant planning document). Content quality gates follow below.
+**Inventory gate verdict: PASS** — all 16 artifacts exist (14 benchmark artifacts + 1 variant planning document + 1 Stage 2 decision plan). Content quality gates follow below.
 
 ---
 
@@ -350,7 +351,9 @@ The governing principle from `validation-plan-v0.1.md` §1: **spend cheap effort
 | Human audit fraction pre-committed (EV1) | **NOT_STARTED** | Must be set before Stage 2 analysis begins |
 | Direct LLM context condition (AD1: A0 vs. A1) | **NOT_STARTED** | Choice of no-context vs. full-KB-in-context for Agent A must be made; affects Stage 2 design and cost |
 
-**Stage 2 gate verdict: BLOCKED** — TM1 is now CONFIRMED, but four open decisions remain (TM8, M9, TM5, AD1) plus two pending starts (EV1, smoke-test subset).
+**Stage 2 decision plan:** `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.0, 2026-06-14) documents all five blocking decisions with recommended defaults and the recommended resolution order: M9 → AD1 → TM8 → EV1 → TM5/BS6. All five require project-owner confirmation before any API call.
+
+**Stage 2 gate verdict: BLOCKED** — TM1 is now CONFIRMED, but five decisions remain (M9, AD1, TM8, EV1, TM5/BS6); all have recommended defaults in the Stage 2 decision plan awaiting project-owner confirmation.
 
 ---
 
@@ -366,11 +369,11 @@ All v0.1 results must carry the label: **"Single-evaluator exploratory pilot; in
 | AC4 direct coverage absent (IS1) | WAIVED_WITH_LIMITATION | The benchmark does not directly test whether models confuse live-view subscription-independence; this gap is pre-registered; observed AC4 violations are logged as secondary observations in INT-005 |
 | Some facts covered only indirectly (F0110, F0612, F0708, others) | WAIVED_WITH_LIMITATION | Coverage gaps documented in `intent-set.md`; these facts are present in the KB and may be tested incidentally but are not evaluation targets |
 | Specific model/provider selection (TM1) | RESOLVED | CONFIRMED 2026-06-13: OpenAI GPT-4.1-mini/GPT-4.1 family; Stage 1a unblocked; exact tokenizer encoding name (TM1-a) confirmed in Stage 1 tooling |
-| Instrumentation platform not yet selected (M9) | BLOCKED | Blocks Stage 2 and later |
-| Human audit fraction not yet decided (EV1) | NOT_STARTED | Must be decided and pre-committed before Stage 2 analysis |
-| Pilot budget not yet approved (TM5/BS6) | NOT_STARTED | Must be approved before any API spend |
-| Embedding model for Agent B not yet selected (TM8) | BLOCKED | Blocks Stage 2 and later |
-| Agent A context condition not yet decided (AD1) | NOT_STARTED | Must be decided before Stage 2 design is finalized |
+| Instrumentation platform not yet selected (M9) | BLOCKED — recommended: lightweight local JSONL/CSV | See `stage2-decision-plan.md` §4; awaiting confirmation |
+| Human audit fraction not yet decided (EV1) | NOT_STARTED — recommended: audit all Stage 2 outputs | See `stage2-decision-plan.md` §7; awaiting confirmation |
+| Pilot budget not yet approved (TM5/BS6) | NOT_STARTED — recommended: $25 USD cap for Stage 2 | See `stage2-decision-plan.md` §8; must confirm before any API spend |
+| Embedding model for Agent B not yet selected (TM8) | BLOCKED — recommended: `text-embedding-3-small` | See `stage2-decision-plan.md` §6; awaiting confirmation |
+| Agent A context condition not yet decided (AD1) | NOT_STARTED — recommended: A1 (full KB in context) | See `stage2-decision-plan.md` §5; awaiting confirmation |
 
 ---
 
@@ -407,7 +410,7 @@ Listed in priority order. Each action unlocks subsequent steps.
 
 6. **Resolve TM5/BS6 (pilot budget)** — approve spend before any API call; determines repetition count and smoke-test scope.
 
-7. **Resolve remaining Stage 2 decisions** — TM8 (embedding model), M9 (instrumentation platform), EV1 (audit fraction), AD1 (Agent A context condition). These gate Stage 2, not Stage 1, and can be resolved in parallel once budget is approved.
+7. **Resolve remaining Stage 2 decisions** — TM8 (embedding model), M9 (instrumentation platform), EV1 (audit fraction), AD1 (Agent A context condition). These gate Stage 2, not Stage 1. Recommended defaults and decision order are documented in `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.0). Confirm all five decisions before any API call.
 
 ---
 

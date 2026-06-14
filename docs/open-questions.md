@@ -97,7 +97,7 @@ These questions must be answered — or at minimum scoped — before NiceM can r
 
 - **M9:** Which instrumentation platform should NiceM use for the proof-of-concept measurement?
   - Candidates: Langfuse (open-source, span-level), Arize Phoenix (open-source, OpenTelemetry), LangSmith (LangChain-native), NeMo Agent Toolkit (NVIDIA). The choice depends on the agent framework used and the granularity of per-step attribution needed.
-  - *Status: Structured, not closed — framework §6 defines the trajectory metrics any platform must capture and §10 notes Langfuse/Phoenix as strong span-level candidates; final choice depends on agent framework. `docs/methodology/logging-schema-v0.1.md` §12 now defines the minimal field set the chosen platform must capture — any platform that cannot capture those fields is disqualified. See `docs/sources/agent-evals/` for platform notes.*
+  - *Status: Recommended default documented — `docs/benchmark/v0.1/stage2-decision-plan.md` §4 recommends lightweight local JSONL/CSV logging for Stage 2: transparent, no external dependency, controllable, portable to Langfuse/Phoenix in Stage 3. Full required field set specified. Awaiting project-owner confirmation. Langfuse or Arize Phoenix remain candidates for Stage 3 span-level attribution.*
 
 ### Task family sub-questions (from task-family-selection-v0.1.md §11)
 
@@ -193,7 +193,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 ### Agent design sub-questions (from agent-design-selection-v0.1.md §10)
 
 - **AD1:** Should the Direct LLM baseline receive full KB context or no KB context?
-  - *Status: Open — no-context measures retrieval dependence (mostly FAILs expected); full-KB-in-context yields PASS runs for cost comparison; possibly both as A0/A1 sub-conditions, budget permitting (BS6)*
+  - *Status: Recommended default documented — `docs/benchmark/v0.1/stage2-decision-plan.md` §5 recommends A1 (full relevant-language KB rendering in context) for Stage 2: A0 produces near-zero PASS rates on the fictional NiceHome domain, making CPS undefined for Agent A; A1 enables an interpretable cost comparison (long-context prompting vs. retrieval). A0 pre-registered as an optional additional condition in Stage 3 (failure-rate floor check). Awaiting project-owner confirmation.*
 
 - **AD2:** Should Simple RAG use the same embedding model across languages?
   - *Status: Open, leaning yes — one multilingual embedding model keeps the design constant; uneven per-language quality then becomes a measured property, not an experimenter-introduced confound*
@@ -277,7 +277,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Open — use version-specific model ID, never a "latest" alias; confirm provider's version-pinning mechanism before Stage 3*
 
 - **TM5:** How much budget is acceptable for pilot runs?
-  - *Status: Open — same as BS6; ~108 runs × mid-tier model ≈ low tens of USD; decide before Stage 3*
+  - *Status: Recommended default documented — `docs/benchmark/v0.1/stage2-decision-plan.md` §8 recommends a hard cap of $25 USD for Stage 2 (estimated actual cost ~$5–10 at GPT-4.1-mini rates with 2× rerun buffer; stop-and-review at $20). Stage 3 budget separate; same as BS6. Awaiting project-owner confirmation.*
 
 - **TM6:** What happens if the model performs poorly in Turkish?
   - *Status: Open — smoke test gate; if Stage 2 shows near-zero Turkish PASS under both designs, diagnose before Stage 3: choose a more capable multilingual model, adjust prompts, or defer Turkish to v0.2*
@@ -286,7 +286,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
   - *Status: Open — reasonable for budget, but only if Stage 1 tokenizer matches Stage 3 model tokenizer and Stage 2 is re-run on the Stage 3 model*
 
 - **TM8:** How should embedding model choice be handled for Agent B?
-  - *Status: Open — embedding model is separate from completion model; its multilingual coverage must be confirmed; relates to AD2*
+  - *Status: Recommended default documented — `docs/benchmark/v0.1/stage2-decision-plan.md` §6 recommends `text-embedding-3-small` (OpenAI) for Stage 2: confirmed multilingual EN/NL/TR coverage; same provider as TM1 completion model (one API key, one billing account); low cost; retrieval scores accessible. Must be version-pinned and same model across all three language conditions. Awaiting project-owner confirmation. Relates to AD2.*
 
 ### Dataset specification open questions (from dataset-specification.md §14)
 
@@ -430,7 +430,7 @@ These questions emerge from the Product FAQ / policy QA recommendation and must 
 ### Evaluation method sub-questions (from evaluation-method-v0.1.md §15)
 
 - **EV1:** What percentage of outputs should receive human review?
-  - *Status: Open — audit fraction must be fixed before analysis; all FAILs + all UNCERTAINs + ~20% of PASSes per condition looks feasible at v0.1 scale; confirm against BS5*
+  - *Status: Recommended default documented — `docs/benchmark/v0.1/stage2-decision-plan.md` §7 recommends auditing all outputs for Stage 2 (smoke test is small enough that full review is faster and more informative than sampling). Stage 3 rule: all FAILs + all UNCERTAINs + ≥20% of PASSes per condition, pre-committed before analysis. Awaiting project-owner confirmation.*
 
 - **EV2:** Should all Turkish outputs be reviewed by the project owner in v0.1?
   - *Status: Open, leaning yes at base scale — full review of the highest-risk condition would also calibrate the checker's Turkish matching rules*

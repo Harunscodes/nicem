@@ -135,9 +135,13 @@ All gates must pass before Stage 2 begins. Each gate has an owner action and a f
 
 ## 8. Stage 2 — Smoke test
 
+**Stage 2 decision plan:** All five blocking decisions (M9, AD1, TM8, EV1, TM5/BS6) have recommended defaults documented in `docs/benchmark/v0.1/stage2-decision-plan.md` (s2-plan-v0.1.0, 2026-06-14). The recommended decision order is M9 → AD1 → TM8 → EV1 → TM5/BS6. All five require project-owner confirmation before any API call.
+
+**Recommended intent subset (§9 of decision plan):** INT-004, INT-015, INT-017, INT-026, INT-031. These cover simple factual / conditional / process task categories, four different NiceHome documents, and the AC9 two-chunk retrieval case.
+
 (Extends tokenizer-model-choice §5 Stage 2 from Turkish-only to all three languages, since the evaluation method and logging pipeline also need validation.)
 
-**Scope:** 3–5 intents × 3 languages × both agent designs, on the chosen model/provider, with the full logging schema and the full evaluation method applied — the smoke test exercises the entire pipeline, not just the model.
+**Scope:** 5 intents × 3 languages × both agent designs = 30 runs, on the confirmed TM1 model family (GPT-4.1-mini/GPT-4.1), with the full logging schema and the full evaluation method applied — the smoke test exercises the entire pipeline, not just the model. Full manual review of all 30 outputs (EV1 Stage 2 rule).
 
 **Checks:**
 - The model answers in the language of the query, in all three languages.
