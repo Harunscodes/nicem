@@ -1,8 +1,8 @@
 # Stage 2 Live-Run Readiness v0.1
 
-**Version:** s2-live-readiness-v0.1.1
+**Version:** s2-live-readiness-v0.1.2
 **Date:** 2026-06-14
-**Status:** Dry-run PASS; model IDs + pricing **CONFIRMED** (2026-06-14); **live execution still BLOCKED.** This document defines the conditions, guards, and approval steps required before the first Stage 2 API call. It does not authorize a live run.
+**Status:** Dry-run PASS; model IDs + pricing **CONFIRMED**; live completion + embedding paths **IMPLEMENTED** (review pending); **live execution still BLOCKED** (`allow_api_calls=False`). This document defines the conditions, guards, and approval steps required before the first Stage 2 API call. It does not authorize a live run.
 **Depends on:** `stage2-smoke-test-run-plan.md` (s2-runplan-v0.1.0), `stage2-decision-plan.md` (s2-plan-v0.1.1), `stage2-model-pricing-config.md` (s2-model-pricing-v0.1.1), `scripts/stage2_smoke_runner.py`, `logging-schema-v0.1.md`
 **Feeds into:** the final manual approval step before live Stage 2 execution
 
@@ -17,10 +17,12 @@
 | Model IDs + pricing config | **CONFIRMED** (2026-06-14) — `stage2-model-pricing-config.md` (s2-model-pricing-v0.1.1) |
 | Logging runner — dry-run skeleton | **PASS** — `scripts/stage2_smoke_runner.py`; 30 runs, all required fields, $0 cost, no API key |
 | Live-mode scaffolding (guards, pricing, budget) | **IMPLEMENTED** — refuses to run by default |
-| Live completion + embedding paths | **NOT IMPLEMENTED** — unreachable stubs |
-| Live execution | **BLOCKED** (`allow_api_calls=False`; live paths are stubs) |
+| Live completion + embedding paths | **IMPLEMENTED, REVIEW PENDING** — `_call_completion_api`, `_create_embeddings`, `_retrieve_top_k`, `run_live`; lazily import `openai`; unreachable while `allow_api_calls=False` |
+| Budget enforcement wired into live loop | **IMPLEMENTED** — `run_live` prechecks `BudgetGuard` before each call; pauses at $20, halts at $25; no auto-retry |
+| Safety-guard tests (6) | **PASS** — in `dry_run_validation.md` (no API, no key) |
+| Live execution | **BLOCKED** (`allow_api_calls=False`) |
 
-Stage 2 cannot run live from the current runner. The live call paths are unreachable stubs (`_call_completion_api`, `_create_embeddings`) that raise `NotImplementedError`, and the strict live-mode guard refuses to proceed until every precondition in §6 is satisfied.
+The live call paths are now implemented and ready for review, but they are unreachable while `allow_api_calls=False`: `run_live` is only invoked after `can_run_api_mode()` returns `allowed=True`, which requires the config flag, confirmed model/pricing, `OPENAI_API_KEY`, and both `--live --confirm-spend`. The `openai` package is imported lazily (live only); dry-run, the validation checks, and the guard tests never import it, read a key, or touch the network.
 
 ---
 
@@ -32,11 +34,14 @@ Stage 2 cannot run live from the current runner. The live call paths are unreach
 2. ~~**`pricing_version`** placeholder~~ → **RESOLVED**: `openai-2026-06-14`.
 3. ~~**Pricing table** unset~~ → **RESOLVED**: input `0.00040`, output `0.00160`, embedding `0.00002` (USD/1K). `pricing_configured()` now returns `True`.
 
-**STILL OPEN** — must be resolved (and reviewed) before any live run:
+**RESOLVED (implementation) — review pending:**
 
-4. **Live call paths** are unimplemented stubs. The completion and embedding functions must be implemented and reviewed.
-5. **Programmatic budget enforcement** must be wired into the run loop (the `BudgetGuard` class exists but is not yet exercised by a live loop).
-6. **`allow_api_calls`** is `False`. Must be explicitly set to `True` — only after review.
+4. ~~**Live call paths** are unimplemented stubs~~ → **IMPLEMENTED**: `_call_completion_api`, `_create_embeddings`, `_retrieve_top_k`, and the `run_live` loop are written (lazy `openai` import; single attempt; no auto-retry; raw outputs to `results/stage2/raw_outputs/`). **Code review is still required** before enabling.
+5. ~~**Programmatic budget enforcement** not wired~~ → **IMPLEMENTED**: `run_live` calls `BudgetGuard.precheck()` before every call (pause at $20, halt at $25) and `record()` after each, persisting `budget_state.json`. Verified by the `budget_guard_synthetic_test` (synthetic costs; no spend).
+
+**STILL OPEN** — must be resolved before any live run:
+
+6. **`allow_api_calls`** is `False`. Must be explicitly set to `True` — only after the §8 review. This is the single config flip that unblocks live mode.
 7. **`OPENAI_API_KEY`** must be present in the environment at run time (never required for dry-run/review).
 8. **CLI confirmation flags** `--live` and `--confirm-spend` must both be passed.
 
@@ -102,9 +107,11 @@ Mechanism (implemented as `BudgetGuard` in the runner; exercised only in a live 
 10. `--live` flag passed
 11. `--confirm-spend` flag passed
 
-If any condition fails, the runner prints the unsatisfied preconditions and exits **without making any API call**. Even when all conditions pass, the live call paths remain unreachable stubs in this version — so no API call can occur from the current skeleton. Implementing those paths is itself a reviewed step (§2 item 4).
+If any condition fails, the runner prints the unsatisfied preconditions and exits **without making any API call**. Because `allow_api_calls=False` ships in `CONFIG`, condition 1 fails by default and live mode is refused regardless of any other state. The live call paths are now implemented (§2 items 4–5) but are reached only after this guard returns `allowed=True`; setting `allow_api_calls=True` is itself the reviewed step (§8).
 
-Dry-run mode (the default, and `--dry-run`) bypasses all of this: it requires no API key, makes no external request, and is the mode used for review.
+Six **safety-guard tests** in `dry_run_validation.md` assert this behavior with no network access: `dry_run_default`, `no_api_key_required_for_dry_run`, `live_without_confirm_refuses`, `live_with_confirm_refuses_when_allow_api_calls_false`, `pricing_selftest`, and `budget_guard_synthetic_test` — all PASS.
+
+Dry-run mode (the default, and `--dry-run`) bypasses all of this: it requires no API key, makes no external request, never imports `openai`, and is the mode used for review.
 
 ---
 
@@ -131,9 +138,9 @@ Before flipping `allow_api_calls = True` and launching a live run, the project o
 - [x] `pricing_version` set to a date-stamped identifier — `openai-2026-06-14`
 - [x] All three pricing fields populated from the provider's published rates — input 0.00040 / output 0.00160 / embedding 0.00002 (USD/1K)
 - [x] `estimate_cost_usd` verified against a hand-calculated example — hand-calc (s2-model-pricing §4.3) + runner self-test PASS (0.00202)
-- [ ] `BudgetGuard` wired into the live run loop and tested with synthetic costs
-- [ ] Live completion + embedding paths implemented and code-reviewed
-- [x] Dry-run re-run: 30 records, $0 cost, all validations PASS (11/11, 2026-06-14)
+- [x] `BudgetGuard` wired into the live run loop and tested with synthetic costs — `run_live` prechecks/records; `budget_guard_synthetic_test` PASS
+- [ ] Live completion + embedding paths implemented and code-reviewed — **IMPLEMENTED 2026-06-14; code review still required** before enabling
+- [x] Dry-run re-run: 30 records, $0 cost, all validations PASS (11/11) + 6 guard tests PASS (2026-06-14)
 - [ ] `OPENAI_API_KEY` available in the run environment (not committed, not logged)
 - [x] Budget cap ($25) and stop-review ($20) confirmed
 - [ ] Evaluation plan ready (`expected-fact-mapping.md`; all outputs audited)
@@ -165,4 +172,4 @@ On a stop: do not auto-retry. Preserve `results/stage2/budget_state.json` and al
 
 ---
 
-*This document defines live-run readiness. It does not authorize a live run. Live execution remains BLOCKED until the still-open blockers in §2 (items 4–8) are resolved, the manual approval checklist in §8 is complete, and the runner is reviewed. Version: s2-live-readiness-v0.1.1.*
+*This document defines live-run readiness. It does not authorize a live run. The live paths are now implemented; live execution remains BLOCKED until the still-open blockers in §2 (items 6–8) are resolved, the manual approval checklist in §8 is complete, and the live paths are code-reviewed. The single config flip that unblocks live mode is `allow_api_calls=True`. Version: s2-live-readiness-v0.1.2.*

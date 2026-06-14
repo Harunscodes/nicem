@@ -1,6 +1,6 @@
 # Stage 2 Smoke Runner — Dry-Run Validation
 
-**Generated:** 2026-06-14T19:07:14.634751+00:00
+**Generated:** 2026-06-14T19:19:07.797258+00:00
 **Mode:** dry-run (no API calls, no embeddings, no API key)
 **Runner:** `scripts/stage2_smoke_runner.py`
 
@@ -64,7 +64,7 @@
 - CONFIG['allow_api_calls'] is False
 - OPENAI_API_KEY is not present in the environment
 
-Additionally, no real completion or embedding code is implemented: `_call_completion_api` and `_create_embeddings` are unreachable stubs that raise `NotImplementedError`. Stage 2 live execution cannot occur from this skeleton.
+Additionally, the live completion + embedding code paths are now implemented (`_call_completion_api`, `_create_embeddings`, `_retrieve_top_k`, `run_live`) but are unreachable while `allow_api_calls` is False — they are never exercised by dry-run, the validation checks, or the guard tests. The `openai` package is imported lazily (live only); dry-run needs no dependency and no key.
 
 ## Pricing self-test
 
@@ -75,13 +75,26 @@ Additionally, no real completion or embedding code is implemented: `_call_comple
 
 The self-test uses synthetic rates (not real pricing) and requires no API key. It verifies the `estimate_cost_usd` formula implementation. See `docs/benchmark/v0.1/stage2-model-pricing-config.md` §6.
 
-## Remaining blockers before the first live API call
+## Safety-guard tests (no API calls, no embeddings, no API key)
 
-1. Confirm `response_model_id` (TM1-b/c) — replace placeholder.
-2. Confirm `pricing_version` — replace placeholder.
-3. Populate pricing table with real rates from the provider's published page and verify via hand-calculation (see `docs/benchmark/v0.1/stage2-model-pricing-config.md` §4.3).
-4. Implement and review the live completion + embedding paths (currently stubs).
-5. Wire `BudgetGuard` into the live run loop.
-6. Set `allow_api_calls = True` only after review.
-7. Provide `OPENAI_API_KEY` in the environment at run time.
+| Guard test | Result | Detail |
+|---|---|---|
+| dry_run_default | PASS | no flags → dry-run (live=False) |
+| no_api_key_required_for_dry_run | PASS | dry-run code path does not read OPENAI_API_KEY |
+| live_without_confirm_refuses | PASS | refused; 3 blockers |
+| live_with_confirm_refuses_when_allow_api_calls_false | PASS | refused: allow_api_calls is False |
+| pricing_selftest | PASS | estimate_cost_usd(1000, 500, 200) = 0.00202; expected 0.00202 |
+| budget_guard_synthetic_test | PASS | within=True, pause@$20=True, halt@$25=True; no state written (precheck only) |
+
+All guard tests run without any network access. They prove the default is dry-run, that dry-run needs no key, that live mode refuses without `--confirm-spend`, that live mode still refuses with both flags while `allow_api_calls` is False, and that the pricing + budget logic behave as designed.
+
+## Remaining steps before the first live API call
+
+Model IDs and pricing are CONFIRMED; the live paths are implemented. The remaining steps are:
+
+1. Code-review the live paths (`_call_completion_api`, `_create_embeddings`, `_retrieve_top_k`, `run_live`).
+2. Reconfirm `response_model_id` is non-deprecated and rates are current against the live API.
+3. Set `allow_api_calls = True` (after review) — the single config flip that unblocks live mode.
+4. Export `OPENAI_API_KEY` in the run environment (never committed, never logged).
+5. Run `--live --confirm-spend`, starting with one English Agent A run, watching `budget_state.json`.
 

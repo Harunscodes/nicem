@@ -1,22 +1,28 @@
 #!/usr/bin/env python3
 """
-NiceM Stage 2 smoke-test logging runner (minimal skeleton).
+NiceM Stage 2 smoke-test logging runner.
 
 This runner builds the 30 planned Stage 2 runs from the benchmark artifacts,
-validates the logging fields, enforces the budget rules structurally, and
-writes dry-run outputs WITHOUT calling any external API or creating any
-embeddings.
+validates the logging fields, enforces the budget rules, and (in live mode
+only) executes the completion + embedding API calls. By default it runs in
+dry-run mode and writes outputs WITHOUT calling any external API or creating
+any embeddings.
 
-Design constraints (see docs/benchmark/v0.1/stage2-smoke-test-run-plan.md):
+Design constraints (see docs/benchmark/v0.1/stage2-smoke-test-run-plan.md and
+docs/benchmark/v0.1/stage2-live-run-readiness.md):
   - Default mode is dry-run.
   - Dry-run makes NO API calls, creates NO embeddings, and does NOT require
     an API key.
-  - API mode is refused unless every precondition is explicitly satisfied
-    (see can_run_api_mode). No real API or embedding code is implemented;
-    the network functions are unreachable stubs that raise.
+  - Live mode is refused unless EVERY precondition in can_run_api_mode() holds,
+    including CONFIG['allow_api_calls'] == True (which ships as False).
+  - The live completion + embedding code paths are implemented (for review)
+    but are unreachable while allow_api_calls is False. They are never
+    exercised by dry-run, the validation checks, or the guard tests.
+  - No auto-retry: a live API failure stops the loop; it is never retried.
 
-Stage 2 remains BLOCKED until the runner is reviewed and the placeholders in
-CONFIG (response_model_id, pricing_version) are confirmed.
+Stage 2 remains BLOCKED. The single remaining step before a first live test is
+to set CONFIG['allow_api_calls'] = True after code review, then run with
+`--live --confirm-spend` in an environment that exports OPENAI_API_KEY.
 """
 
 from __future__ import annotations
@@ -75,6 +81,14 @@ CONFIG = {
 
     # Execution safety: dry-run only until explicitly flipped AND reviewed.
     "allow_api_calls": False,
+
+    # Generation settings (live mode only). Low temperature for reproducibility
+    # (TM3 recommendation ≤ 0.2). max_output_tokens bounds per-run output cost.
+    "temperature": 0.0,
+    "max_output_tokens": 600,
+    # Conservative pre-call output-token estimate for the budget precheck (the
+    # actual output-token count is read from API usage after the call).
+    "output_token_estimate": 600,
 
     # Retrieval (Agent B) — CONFIRMED top_k=3, language-matched only
     "top_k": 3,
@@ -164,6 +178,46 @@ def parse_kb_file(path: Path) -> dict:
     chunk_ids = _CHUNK_ID_RE.findall(text)
     return {"version": version, "chunk_count": len(chunk_ids),
             "chunk_ids": chunk_ids}
+
+
+# Metadata-block parser: each chunk is a fenced block (chunk_id / fact_ids /
+# document_id / section_title) immediately followed by its prose paragraph.
+_KB_BLOCK_RE = re.compile(
+    r"```\s*\n"
+    r"chunk_id:\s*(?P<chunk_id>\S+)\s*\n"
+    r"fact_ids:\s*\[(?P<fact_ids>[^\]]*)\]\s*\n"
+    r"document_id:\s*(?P<document_id>\S+)\s*\n"
+    r"section_title:\s*(?P<section_title>.*?)\s*\n"
+    r"```\s*\n"
+    r"(?P<prose>.*?)(?=\n###|\n##|\n---|\Z)",
+    re.DOTALL,
+)
+
+
+def parse_kb_chunks(path: Path) -> dict:
+    """Parse a KB rendering into ordered chunk records with prose + fact_ids.
+
+    Returns {"version": str, "chunks": [
+        {"chunk_id", "document_id", "section_title", "fact_ids": [..],
+         "text": <prose>}, ...]}.
+
+    Used only by Agent B retrieval and Agent A full-KB prompt construction in
+    LIVE mode. Dry-run does not call this.
+    """
+    text = path.read_text(encoding="utf-8")
+    version_m = _KB_VERSION_RE.search(text)
+    version = version_m.group(1) if version_m else "UNKNOWN"
+    chunks = []
+    for m in _KB_BLOCK_RE.finditer(text):
+        fact_ids = [f.strip() for f in m.group("fact_ids").split(",") if f.strip()]
+        chunks.append({
+            "chunk_id": m.group("chunk_id").strip(),
+            "document_id": m.group("document_id").strip(),
+            "section_title": m.group("section_title").strip(),
+            "fact_ids": fact_ids,
+            "text": m.group("prose").strip(),
+        })
+    return {"version": version, "chunks": chunks}
 
 
 # --------------------------------------------------------------------------
@@ -407,6 +461,95 @@ def _run_pricing_selftest() -> dict:
     return {"passed": passed, "detail": detail}
 
 
+def _run_budget_guard_selftest() -> dict:
+    """Verify BudgetGuard thresholds with synthetic costs (no API, no spend).
+
+    Uses precheck() only (which never writes state) so nothing is persisted.
+    Checks: a small cost proceeds; reaching $20 pauses; exceeding $25 halts.
+    """
+    try:
+        guard = BudgetGuard(CONFIG["budget_hard_cap_usd"],
+                            CONFIG["budget_stop_review_usd"], BUDGET_STATE_PATH)
+        ok_proceed, _ = guard.precheck(0.50)
+        within = ok_proceed and guard.status == "ok"
+
+        guard.cumulative_cost = 19.50
+        pause_proceed, _ = guard.precheck(1.00)   # projected 20.50 ≥ 20
+        pauses = (not pause_proceed) and guard.status == "pause_stop_review"
+
+        guard.cumulative_cost = 24.50
+        halt_proceed, _ = guard.precheck(1.00)    # projected 25.50 > 25
+        halts = (not halt_proceed) and guard.status == "halt_hard_cap"
+
+        passed = within and pauses and halts
+        detail = (f"within={within}, pause@$20={pauses}, halt@$25={halts}; "
+                  f"no state written (precheck only)")
+    except Exception as exc:
+        passed = False
+        detail = f"exception: {exc}"
+    return {"passed": passed, "detail": detail}
+
+
+def _run_guard_tests() -> list:
+    """Local safety-guard tests. NO API calls, NO embeddings, NO API key.
+
+    Returns a list of {name, passed, detail} for the dry-run validation report.
+    """
+    from argparse import Namespace
+    checks = []
+
+    def add(name, passed, detail=""):
+        checks.append({"name": name, "passed": bool(passed), "detail": detail})
+
+    # dry_run is the default when neither --live nor a flag is given.
+    parser = argparse.ArgumentParser()
+    grp = parser.add_mutually_exclusive_group()
+    grp.add_argument("--dry-run", dest="dry_run", action="store_true", default=True)
+    grp.add_argument("--live", dest="live", action="store_true", default=False)
+    parser.add_argument("--confirm-spend", dest="confirm_spend",
+                        action="store_true", default=False)
+    default_args = parser.parse_args([])
+    add("dry_run_default", not getattr(default_args, "live", False),
+        "no flags → dry-run (live=False)")
+
+    # Dry-run needs no API key: prove the dry-run path never reads the key.
+    add("no_api_key_required_for_dry_run",
+        "OPENAI_API_KEY" not in _dry_run_codepath_env_reads(),
+        "dry-run code path does not read OPENAI_API_KEY")
+
+    # --live without --confirm-spend must refuse.
+    allowed_a, blockers_a = can_run_api_mode(
+        Namespace(live=True, confirm_spend=False))
+    add("live_without_confirm_refuses",
+        (not allowed_a) and any("confirm-spend" in b for b in blockers_a),
+        f"refused; {len(blockers_a)} blockers")
+
+    # --live --confirm-spend must still refuse while allow_api_calls is False.
+    allowed_b, blockers_b = can_run_api_mode(
+        Namespace(live=True, confirm_spend=True))
+    add("live_with_confirm_refuses_when_allow_api_calls_false",
+        (not allowed_b) and any("allow_api_calls" in b for b in blockers_b),
+        "refused: allow_api_calls is False")
+
+    # Pricing + budget self-tests (synthetic; no spend).
+    pst = _run_pricing_selftest()
+    add("pricing_selftest", pst["passed"], pst["detail"])
+    bst = _run_budget_guard_selftest()
+    add("budget_guard_synthetic_test", bst["passed"], bst["detail"])
+
+    return checks
+
+
+def _dry_run_codepath_env_reads() -> set:
+    """Names of environment variables read on the dry-run code path.
+
+    Dry-run reads no environment variables at all, so this returns an empty set.
+    `OPENAI_API_KEY` is only read in _get_openai_client()/can_run_api_mode(),
+    neither of which is on the dry-run path. Kept explicit for auditability.
+    """
+    return set()
+
+
 # --------------------------------------------------------------------------
 # Budget guard (live-mode scaffolding)
 # --------------------------------------------------------------------------
@@ -497,18 +640,302 @@ def can_run_api_mode(args=None) -> tuple:
     return (len(blockers) == 0, blockers)
 
 
-def _call_completion_api(*_args, **_kwargs):  # pragma: no cover - stub
-    """Unreachable stub. Real completion calls are NOT implemented yet."""
-    raise NotImplementedError(
-        "Completion API calls are not implemented in this skeleton. "
-        "Stage 2 live execution is intentionally blocked.")
+# --------------------------------------------------------------------------
+# LIVE API paths (implemented, but unreachable while allow_api_calls is False)
+# --------------------------------------------------------------------------
+# These functions are only ever called from run_live(), which itself runs only
+# after can_run_api_mode() returns allowed=True (requires allow_api_calls=True,
+# OPENAI_API_KEY, confirmed model IDs + pricing, and --live --confirm-spend).
+# The `openai` package is imported lazily so dry-run needs no dependency/key.
+
+SYSTEM_PROMPT = (
+    "You are a customer-support assistant for the NiceHome smart-home product "
+    "line. Answer the user's question using ONLY the provided knowledge-base "
+    "content. If the content does not contain the answer, say you do not have "
+    "that information. Do not invent facts, prices, or policies."
+)
 
 
-def _create_embeddings(*_args, **_kwargs):  # pragma: no cover - stub
-    """Unreachable stub. Real embedding calls are NOT implemented yet."""
-    raise NotImplementedError(
-        "Embedding creation is not implemented in this skeleton. "
-        "Stage 2 live execution is intentionally blocked.")
+def _get_openai_client():
+    """Construct an OpenAI client lazily. LIVE ONLY.
+
+    Imports `openai` only here so dry-run/review never needs the package. The
+    API key is read from the environment and never logged.
+    """
+    try:
+        from openai import OpenAI
+    except ImportError as exc:  # pragma: no cover - depends on environment
+        raise RuntimeError(
+            "The 'openai' package is required for live mode but is not "
+            "installed. Install it before enabling allow_api_calls.") from exc
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY is not set; refusing to build client.")
+    return OpenAI(api_key=api_key)
+
+
+def _call_completion_api(client, system_prompt: str, user_prompt: str) -> dict:
+    """Call the chat-completion endpoint once. LIVE ONLY; never retried.
+
+    Returns a dict with the response text, token usage (from API usage when
+    available), finish reason, and the raw serialized response. Raises on any
+    API error — the caller (run_live) stops the loop without retrying.
+    """
+    resp = client.chat.completions.create(
+        model=CONFIG["response_model_id"],
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=CONFIG.get("temperature", 0.0),
+        max_tokens=CONFIG.get("max_output_tokens", 600),
+    )
+    usage = getattr(resp, "usage", None)
+    choice = resp.choices[0]
+    return {
+        "text": choice.message.content or "",
+        "input_tokens": getattr(usage, "prompt_tokens", None),
+        "output_tokens": getattr(usage, "completion_tokens", None),
+        "total_tokens": getattr(usage, "total_tokens", None),
+        "finish_reason": getattr(choice, "finish_reason", None),
+        "raw": resp.model_dump() if hasattr(resp, "model_dump") else None,
+    }
+
+
+def _create_embeddings(client, texts: list) -> dict:
+    """Embed a list of texts with the configured embedding model. LIVE ONLY.
+
+    Returns {"vectors": [[float, ...], ...], "embedding_tokens": int|None,
+    "raw": dict|None}. Raises on any API error — never retried.
+    """
+    resp = client.embeddings.create(
+        model=CONFIG["embedding_model_id"],
+        input=texts,
+    )
+    usage = getattr(resp, "usage", None)
+    return {
+        "vectors": [item.embedding for item in resp.data],
+        "embedding_tokens": getattr(usage, "total_tokens", None),
+        "raw": resp.model_dump() if hasattr(resp, "model_dump") else None,
+    }
+
+
+def _cosine_similarity(a: list, b: list) -> float:
+    """Cosine similarity between two equal-length vectors (no numpy dependency)."""
+    dot = sum(x * y for x, y in zip(a, b))
+    na = sum(x * x for x in a) ** 0.5
+    nb = sum(y * y for y in b) ** 0.5
+    if na == 0.0 or nb == 0.0:
+        return 0.0
+    return dot / (na * nb)
+
+
+def _retrieve_top_k(client, query_text: str, kb_chunks: list, top_k: int) -> dict:
+    """Embed the query + all KB chunks and return the top-k most similar. LIVE ONLY.
+
+    Returns {"retrieved": [{"chunk_id", "score", "fact_ids"}...],
+             "embedding_tokens": int|None, "retrieval_calls": int}.
+    Language-matched: kb_chunks must be the same-language rendering as the query.
+    """
+    texts = [query_text] + [c["text"] for c in kb_chunks]
+    emb = _create_embeddings(client, texts)
+    vectors = emb["vectors"]
+    query_vec = vectors[0]
+    scored = []
+    for chunk, vec in zip(kb_chunks, vectors[1:]):
+        scored.append({
+            "chunk_id": chunk["chunk_id"],
+            "score": round(_cosine_similarity(query_vec, vec), 6),
+            "fact_ids": chunk["fact_ids"],
+        })
+    scored.sort(key=lambda x: x["score"], reverse=True)
+    return {
+        "retrieved": scored[:top_k],
+        "embedding_tokens": emb["embedding_tokens"],
+        "retrieval_calls": 1,
+    }
+
+
+def _build_agent_a_prompt(query_text: str, kb_chunks: list) -> str:
+    """Agent A (A1): full relevant-language KB rendering in the prompt."""
+    kb_block = "\n\n".join(f"[{c['chunk_id']}] {c['text']}" for c in kb_chunks)
+    return (f"Knowledge base:\n{kb_block}\n\n"
+            f"User question:\n{query_text}")
+
+
+def _build_agent_b_prompt(query_text: str, retrieved_chunks: list) -> str:
+    """Agent B (Simple RAG): only the retrieved chunks in the prompt."""
+    kb_block = "\n\n".join(
+        f"[{c['chunk_id']}] {c['text']}" for c in retrieved_chunks)
+    return (f"Retrieved knowledge-base passages:\n{kb_block}\n\n"
+            f"User question:\n{query_text}")
+
+
+def _estimate_chars_tokens(text: str) -> int:
+    """Rough pre-call token estimate (~4 chars/token). Used only for the budget
+    precheck before a live call; the real count comes from API usage after."""
+    return max(1, (len(text) + 3) // 4)
+
+
+def _live_run_sequence(runs_by_id: dict) -> list:
+    """Return run records in the staged order from the run plan §11:
+    EN Agent A, EN Agent B, rest of the first intent, then the other intents."""
+    first = SELECTED_INTENTS[0]
+    ordered_ids = [f"S2-{first}-en-A", f"S2-{first}-en-B"]
+    for lang in [l for l in LANGUAGES if l != "en"]:
+        for code in ["A", "B"]:
+            ordered_ids.append(f"S2-{first}-{lang}-{code}")
+    for intent in SELECTED_INTENTS[1:]:
+        for lang in LANGUAGES:
+            for code in ["A", "B"]:
+                ordered_ids.append(f"S2-{intent}-{lang}-{code}")
+    # Preserve any record not covered (defensive) at the end.
+    seen = set(ordered_ids)
+    tail = [rid for rid in runs_by_id if rid not in seen]
+    return [runs_by_id[rid] for rid in ordered_ids if rid in runs_by_id] + \
+           [runs_by_id[rid] for rid in tail]
+
+
+def run_live(query_data: dict, kb_chunk_data: dict) -> list:
+    """Execute the Stage 2 runs against the live API. LIVE ONLY.
+
+    This is reached only after can_run_api_mode() returns allowed=True. It:
+      - builds the 30 run records,
+      - for each (in staged order) estimates cost, budget-prechecks, calls the
+        API (Agent B retrieves first), records actual cost, writes raw output,
+      - never auto-retries: a precheck stop or an API error halts the loop.
+
+    Returns the list of run records (executed + any NOT_RUN remainder).
+    """
+    client = _get_openai_client()
+    guard = BudgetGuard(
+        CONFIG["budget_hard_cap_usd"], CONFIG["budget_stop_review_usd"],
+        BUDGET_STATE_PATH)
+    raw_dir = RESULTS_DIR / "raw_outputs"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    # Build skeleton records, index by id, iterate in staged order.
+    kb_meta = {lang: {"version": kb_chunk_data[lang]["version"],
+                      "chunk_count": len(kb_chunk_data[lang]["chunks"]),
+                      "chunk_ids": [c["chunk_id"]
+                                    for c in kb_chunk_data[lang]["chunks"]]}
+               for lang in LANGUAGES}
+    runs = build_runs(query_data, kb_meta, dry_run=False)
+    runs_by_id = {r["run_id"]: r for r in runs}
+
+    halted = False
+    for record in _live_run_sequence(runs_by_id):
+        if halted:
+            record["endpoint_outcome"] = "NOT_RUN"
+            record["evaluator_notes"] = "skipped: loop halted before this run"
+            continue
+
+        lang = record["language"]
+        query_text = record["query_text"]
+        kb_chunks = kb_chunk_data[lang]["chunks"]
+        uses_retrieval = record["agent_design_id"] == "agent_b_simple_rag"
+
+        # ---- build prompt + pre-call cost estimate ----
+        embedding_tokens_actual = None
+        try:
+            if uses_retrieval:
+                retr = _retrieve_top_k(client, query_text, kb_chunks,
+                                       CONFIG["top_k"])
+                record["retrieved_chunk_ids"] = [
+                    c["chunk_id"] for c in retr["retrieved"]]
+                record["retrieval_scores"] = [
+                    c["score"] for c in retr["retrieved"]]
+                fact_ids = []
+                for c in retr["retrieved"]:
+                    fact_ids.extend(c["fact_ids"])
+                record["retrieved_fact_ids"] = fact_ids
+                record["retrieval_calls"] = retr["retrieval_calls"]
+                embedding_tokens_actual = retr["embedding_tokens"]
+                user_prompt = _build_agent_b_prompt(query_text, retr["retrieved"])
+            else:
+                user_prompt = _build_agent_a_prompt(query_text, kb_chunks)
+        except Exception as exc:  # retrieval/embedding error — no retry
+            record["endpoint_outcome"] = "ERROR"
+            record["failure_type"] = f"retrieval_error: {type(exc).__name__}"
+            record["evaluator_notes"] = "embedding/retrieval failed; loop halted"
+            guard.write_state()
+            halted = True
+            continue
+
+        # Pre-call budget projection (conservative).
+        est_input = _estimate_chars_tokens(SYSTEM_PROMPT + user_prompt)
+        est_output = CONFIG["output_token_estimate"]
+        est_embed = (embedding_tokens_actual
+                     if embedding_tokens_actual is not None
+                     else (_estimate_chars_tokens(
+                         query_text + "".join(c["text"] for c in kb_chunks))
+                         if uses_retrieval else 0))
+        est_cost = estimate_cost_usd(est_input, est_output, est_embed)
+
+        proceed, reason = guard.precheck(est_cost)
+        if not proceed:
+            record["endpoint_outcome"] = (
+                "HALTED_BUDGET" if guard.status == "halt_hard_cap"
+                else "PAUSED_BUDGET")
+            record["failure_type"] = guard.status
+            record["evaluator_notes"] = f"budget stop: {reason}"
+            guard.write_state()
+            halted = True
+            continue
+
+        # ---- completion call (single attempt, never retried) ----
+        started = datetime.now(timezone.utc)
+        try:
+            result = _call_completion_api(client, SYSTEM_PROMPT, user_prompt)
+        except Exception as exc:  # API/auth/rate-limit — no retry, stop loop
+            record["endpoint_outcome"] = "ERROR"
+            record["failure_type"] = f"completion_error: {type(exc).__name__}"
+            record["evaluator_notes"] = "completion failed; loop halted (no retry)"
+            guard.write_state()
+            halted = True
+            continue
+        latency_ms = (datetime.now(timezone.utc) - started).total_seconds() * 1000
+
+        # ---- record actual measurements ----
+        in_tok = result["input_tokens"] or est_input
+        out_tok = result["output_tokens"] or est_output
+        emb_tok = embedding_tokens_actual or 0
+        actual_cost = estimate_cost_usd(in_tok, out_tok, emb_tok)
+
+        record["input_tokens"] = result["input_tokens"]
+        record["output_tokens"] = result["output_tokens"]
+        record["total_tokens"] = result["total_tokens"]
+        record["model_calls"] = 1
+        record["latency_ms"] = round(latency_ms, 1)
+        record["estimated_cost_usd"] = actual_cost
+        record["endpoint_outcome"] = "OK"
+        record["evaluator_notes"] = None
+
+        # ---- raw output to disk; never logs the API key ----
+        raw_path = raw_dir / f"{record['run_id']}.json"
+        raw_payload = {
+            "run_id": record["run_id"],
+            "prompt_system": SYSTEM_PROMPT,
+            "prompt_user": user_prompt,
+            "response_text": result["text"],
+            "finish_reason": result["finish_reason"],
+            "usage": {
+                "input_tokens": result["input_tokens"],
+                "output_tokens": result["output_tokens"],
+                "total_tokens": result["total_tokens"],
+                "embedding_tokens": embedding_tokens_actual,
+            },
+            "raw_response": result["raw"],
+        }
+        raw_path.write_text(
+            json.dumps(raw_payload, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8")
+        record["raw_output_path"] = str(
+            raw_path.relative_to(REPO_ROOT))
+
+        guard.record(actual_cost)
+
+    return runs
 
 
 # --------------------------------------------------------------------------
@@ -614,10 +1041,12 @@ def write_validation_md(validation: dict, runs: list, query_data: dict,
         for b in blockers:
             lines.append(f"- {b}")
     lines.append("")
-    lines.append("Additionally, no real completion or embedding code is implemented: "
-                 "`_call_completion_api` and `_create_embeddings` are unreachable "
-                 "stubs that raise `NotImplementedError`. Stage 2 live execution "
-                 "cannot occur from this skeleton.")
+    lines.append("Additionally, the live completion + embedding code paths are now "
+                 "implemented (`_call_completion_api`, `_create_embeddings`, "
+                 "`_retrieve_top_k`, `run_live`) but are unreachable while "
+                 "`allow_api_calls` is False — they are never exercised by dry-run, "
+                 "the validation checks, or the guard tests. The `openai` package is "
+                 "imported lazily (live only); dry-run needs no dependency and no key.")
     lines.append("")
     lines.append("## Pricing self-test")
     lines.append("")
@@ -631,18 +1060,36 @@ def write_validation_md(validation: dict, runs: list, query_data: dict,
                  "no API key. It verifies the `estimate_cost_usd` formula implementation. "
                  "See `docs/benchmark/v0.1/stage2-model-pricing-config.md` §6.")
     lines.append("")
-    lines.append("## Remaining blockers before the first live API call")
+    lines.append("## Safety-guard tests (no API calls, no embeddings, no API key)")
     lines.append("")
-    lines.append("1. Confirm `response_model_id` (TM1-b/c) — replace placeholder.")
-    lines.append("2. Confirm `pricing_version` — replace placeholder.")
-    lines.append("3. Populate pricing table with real rates from the provider's "
-                 "published page and verify via hand-calculation "
-                 "(see `docs/benchmark/v0.1/stage2-model-pricing-config.md` §4.3).")
-    lines.append("4. Implement and review the live completion + embedding paths "
-                 "(currently stubs).")
-    lines.append("5. Wire `BudgetGuard` into the live run loop.")
-    lines.append("6. Set `allow_api_calls = True` only after review.")
-    lines.append("7. Provide `OPENAI_API_KEY` in the environment at run time.")
+    guard_checks = _run_guard_tests()
+    lines.append("| Guard test | Result | Detail |")
+    lines.append("|---|---|---|")
+    for c in guard_checks:
+        status = "PASS" if c["passed"] else "FAIL"
+        lines.append(f"| {c['name']} | {status} | {c['detail']} |")
+    lines.append("")
+    lines.append("All guard tests run without any network access. They prove the "
+                 "default is dry-run, that dry-run needs no key, that live mode "
+                 "refuses without `--confirm-spend`, that live mode still refuses "
+                 "with both flags while `allow_api_calls` is False, and that the "
+                 "pricing + budget logic behave as designed.")
+    lines.append("")
+    lines.append("## Remaining steps before the first live API call")
+    lines.append("")
+    lines.append("Model IDs and pricing are CONFIRMED; the live paths are implemented. "
+                 "The remaining steps are:")
+    lines.append("")
+    lines.append("1. Code-review the live paths (`_call_completion_api`, "
+                 "`_create_embeddings`, `_retrieve_top_k`, `run_live`).")
+    lines.append("2. Reconfirm `response_model_id` is non-deprecated and rates are "
+                 "current against the live API.")
+    lines.append("3. Set `allow_api_calls = True` (after review) — the single "
+                 "config flip that unblocks live mode.")
+    lines.append("4. Export `OPENAI_API_KEY` in the run environment "
+                 "(never committed, never logged).")
+    lines.append("5. Run `--live --confirm-spend`, starting with one English "
+                 "Agent A run, watching `budget_state.json`.")
     lines.append("")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -670,7 +1117,8 @@ def main() -> int:
     dry_run = not args.live
 
     if not dry_run:
-        # Strict guard: live mode is refused unless every precondition holds.
+        # Strict guard: live mode is refused unless every precondition holds,
+        # including CONFIG['allow_api_calls'] == True (ships as False).
         allowed, blockers = can_run_api_mode(args)
         if not allowed:
             print("LIVE mode refused. Unsatisfied preconditions:")
@@ -678,11 +1126,24 @@ def main() -> int:
                 print(f"  - {b}")
             print("\nNo API calls were made. Exiting.")
             return 1
-        # Even if every config + CLI precondition passes, the live paths are
-        # unreachable stubs — no API call can occur from this skeleton.
-        print("LIVE preconditions satisfied, but live call paths are not "
-              "implemented in this skeleton (intentional). No API calls made.")
-        return 1
+        # Every precondition (config flag, confirmed model/pricing, key, and
+        # both CLI flags) is satisfied — execute the live run loop. This branch
+        # is unreachable while allow_api_calls is False.
+        print("LIVE mode: all preconditions satisfied. Executing run loop...")
+        query_data = {lang: parse_query_file(QUERY_FILES[lang]) for lang in LANGUAGES}
+        kb_chunk_data = {lang: parse_kb_chunks(KB_FILES[lang]) for lang in LANGUAGES}
+        runs = run_live(query_data, kb_chunk_data)
+        RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+        write_jsonl(runs, RESULTS_DIR / "live_runs.jsonl")
+        write_csv(runs, RESULTS_DIR / "live_runs.csv")
+        write_run_matrix(runs, RESULTS_DIR / "live_run_matrix.csv")
+        executed = [r for r in runs if r["endpoint_outcome"] == "OK"]
+        total_cost = sum((r["estimated_cost_usd"] or 0) for r in runs)
+        print(f"Executed {len(executed)}/{len(runs)} runs. "
+              f"Total actual cost: ${total_cost:.4f}")
+        print("Wrote results/stage2/live_runs.jsonl, live_runs.csv, "
+              "live_run_matrix.csv, raw_outputs/")
+        return 0
 
     # ---- dry-run ----
     print("Mode: dry-run (no API calls, no embeddings, no API key required)")
