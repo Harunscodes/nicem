@@ -214,6 +214,8 @@ The following risks are noted but do not block approval; they must be managed at
 
 6. **No public claims before review.** v0.1 Stage 2 results are internal exploratory data. No public or publication-grade claims may be made from Stage 2 outputs alone.
 
+7. **First-run selector added post-review.** After this document was written, a first-run selector was implemented (2026-06-15): `first_run_only=True` in CONFIG, `--intent-id`/`--language`/`--agent` CLI flags, `_check_first_run_selector()` guard called from `can_run_api_mode()`. The live command now requires explicit selector flags and will refuse if they do not match `first_run_intent_id="INT-004"`, `first_run_language="en"`, `first_run_agent="agent_a_direct_full_kb"`. This is an additional safety control; it does not introduce new risk. The 9-item approval checklist below is extended accordingly.
+
 ---
 
 ## 12. Approval Checklist
@@ -228,7 +230,8 @@ The project owner must verify and manually check each item before setting `allow
 - [ ] I have read and accept the $25 hard cap and $20 stop-review thresholds. I understand the runner will halt automatically at these limits.
 - [ ] I will stop after the first run (`S2-INT-004-en-A`) to manually inspect `results/stage2/raw_outputs/S2-INT-004-en-A.json` and `results/stage2/budget_state.json` before allowing the loop to continue.
 - [ ] I understand that all Stage 2 outputs are internal exploratory data and will not be shared publicly or cited as publication-grade findings without independent bilingual review of Turkish and Dutch outputs.
-- [ ] I am ready to set `CONFIG["allow_api_calls"] = True` in `scripts/stage2_smoke_runner.py` and run `python scripts/stage2_smoke_runner.py --live --confirm-spend`.
+- [ ] I understand the first-run selector (`first_run_only=True`): the live call requires `--intent-id INT-004 --language en --agent agent_a_direct_full_kb` to be passed explicitly, and the runner will refuse if they are missing or don't match.
+- [ ] I am ready to set `CONFIG["allow_api_calls"] = True` in `scripts/stage2_smoke_runner.py` and run `python scripts/stage2_smoke_runner.py --live --confirm-spend --max-runs 1 --intent-id INT-004 --language en --agent agent_a_direct_full_kb`.
 
 ---
 
@@ -243,6 +246,6 @@ The live code paths are implemented and all automated safety checks pass. The si
 1. The project owner reviews this document and checks all 9 items in §12.
 2. Set `CONFIG["allow_api_calls"] = True` in `scripts/stage2_smoke_runner.py`.
 3. Export `OPENAI_API_KEY` in the run environment.
-4. Run: `python scripts/stage2_smoke_runner.py --live --confirm-spend`
+4. Run: `python scripts/stage2_smoke_runner.py --live --confirm-spend --max-runs 1 --intent-id INT-004 --language en --agent agent_a_direct_full_kb`
 
 No API call may be made before these steps are complete.

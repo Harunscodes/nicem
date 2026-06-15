@@ -104,6 +104,16 @@ CONFIG = {
     "local_label": "LOCAL_REHEARSAL_ONLY",
     # ---------------------------------------------------------------------------------
 
+    # ---- First-run safety restriction (applies to both local and live mode) ---------
+    # When first_run_only=True (default), local/live mode refuses unless the operator
+    # explicitly selects the approved first run via --intent-id, --language, --agent.
+    # Set to False only after the first run has been inspected and approved.
+    "first_run_only": True,
+    "first_run_intent_id": "INT-004",
+    "first_run_language": "en",
+    "first_run_agent": "agent_a_direct_full_kb",
+    # ---------------------------------------------------------------------------------
+
     # Generation settings (live mode only). Low temperature for reproducibility
     # (TM3 recommendation ≤ 0.2). max_output_tokens bounds per-run output cost.
     "temperature": 0.0,
@@ -619,6 +629,54 @@ def _run_guard_tests() -> list:
         (not allowed_g) and any("allow_api_calls" in b for b in blockers_g),
         f"OpenAI live refused: {len(blockers_g)} blockers (allow_api_calls=False)")
 
+    # ---- First-run selector guard tests ----
+
+    fr_intent = CONFIG["first_run_intent_id"]
+    fr_lang = CONFIG["first_run_language"]
+    fr_agent = CONFIG["first_run_agent"]
+    fr_run_id = f"S2-{fr_intent}-{fr_lang}-A"  # Agent A → code "A"
+
+    # Local mode must refuse when first_run_only=True and no selector supplied.
+    allowed_h, blockers_h = can_run_local_mode(
+        Namespace(local=True, confirm_local=True, max_runs=1,
+                  intent_id=None, language=None, agent=None))
+    add("local_requires_explicit_first_run_selector",
+        (not allowed_h) and any("first_run_only" in b for b in blockers_h),
+        f"refused: no selector supplied when first_run_only=True "
+        f"({len(blockers_h)} blockers)")
+
+    # Live mode must refuse when first_run_only=True and no selector supplied.
+    allowed_i, blockers_i = can_run_api_mode(
+        Namespace(live=True, confirm_spend=True,
+                  intent_id=None, language=None, agent=None))
+    add("live_requires_explicit_first_run_selector",
+        (not allowed_i) and any("first_run_only" in b for b in blockers_i),
+        f"refused: no selector supplied when first_run_only=True "
+        f"({len(blockers_i)} blockers)")
+
+    # Local mode must refuse when selector is wrong (e.g. wrong intent).
+    allowed_j, blockers_j = can_run_local_mode(
+        Namespace(local=True, confirm_local=True, max_runs=1,
+                  intent_id="INT-999", language=fr_lang, agent=fr_agent))
+    add("local_rejects_wrong_first_run_selector",
+        (not allowed_j) and any("INT-004" in b for b in blockers_j),
+        f"refused: intent INT-999 ≠ {fr_intent} ({len(blockers_j)} blockers)")
+
+    # Live mode must refuse when selector is wrong.
+    allowed_k, blockers_k = can_run_api_mode(
+        Namespace(live=True, confirm_spend=True,
+                  intent_id=fr_intent, language="tr", agent=fr_agent))
+    add("live_rejects_wrong_first_run_selector",
+        (not allowed_k) and any("--language" in b for b in blockers_k),
+        f"refused: language 'tr' ≠ '{fr_lang}' ({len(blockers_k)} blockers)")
+
+    # Correct selector resolves to the approved first run ID.
+    resolved = _resolve_run_id(
+        Namespace(intent_id=fr_intent, language=fr_lang, agent=fr_agent))
+    add("selected_first_run_resolves_to_S2_INT_004_en_A",
+        resolved == fr_run_id,
+        f"_resolve_run_id → '{resolved}' (expected '{fr_run_id}')")
+
     return checks
 
 
@@ -686,6 +744,56 @@ class BudgetGuard:
 # --------------------------------------------------------------------------
 # API-mode guard (req 19) — no API code is implemented (req 20–21)
 # --------------------------------------------------------------------------
+def _check_first_run_selector(args) -> list:
+    """Return a list of blocker strings if first_run_only constraints are violated.
+
+    When CONFIG['first_run_only'] is True:
+      - --intent-id, --language, and --agent must all be supplied.
+      - The supplied values must exactly match first_run_intent_id/language/agent.
+
+    Returns an empty list when first_run_only is False or all checks pass.
+    """
+    if not CONFIG.get("first_run_only"):
+        return []
+    blockers = []
+    intent_id = getattr(args, "intent_id", None)
+    language = getattr(args, "language", None)
+    agent = getattr(args, "agent", None)
+    if not intent_id or not language or not agent:
+        blockers.append(
+            "first_run_only=True requires --intent-id, --language, and --agent "
+            "to be explicitly supplied")
+        return blockers   # early return; can't validate values if any are missing
+    if intent_id != CONFIG["first_run_intent_id"]:
+        blockers.append(
+            f"first_run_only=True: --intent-id must be "
+            f"'{CONFIG['first_run_intent_id']}' (got '{intent_id}')")
+    if language != CONFIG["first_run_language"]:
+        blockers.append(
+            f"first_run_only=True: --language must be "
+            f"'{CONFIG['first_run_language']}' (got '{language}')")
+    if agent != CONFIG["first_run_agent"]:
+        blockers.append(
+            f"first_run_only=True: --agent must be "
+            f"'{CONFIG['first_run_agent']}' (got '{agent}')")
+    return blockers
+
+
+def _resolve_run_id(args) -> str | None:
+    """Construct the canonical run_id for the selected run, or None if incomplete."""
+    intent_id = getattr(args, "intent_id", None)
+    language = getattr(args, "language", None)
+    agent = getattr(args, "agent", None)
+    if not (intent_id and language and agent):
+        return None
+    # Map agent design id to the single-character code used in run IDs.
+    code_map = {a["id"]: a["code"] for a in AGENTS}
+    code = code_map.get(agent)
+    if not code:
+        return None
+    return make_run_id(intent_id, language, code)
+
+
 def can_run_api_mode(args=None) -> tuple:
     """Return (allowed: bool, blockers: list[str]).
 
@@ -719,6 +827,7 @@ def can_run_api_mode(args=None) -> tuple:
             blockers.append("--live flag was not passed")
         if not getattr(args, "confirm_spend", False):
             blockers.append("--confirm-spend flag was not passed")
+        blockers.extend(_check_first_run_selector(args))
     return (len(blockers) == 0, blockers)
 
 
@@ -748,6 +857,7 @@ def can_run_local_mode(args=None) -> tuple:
         max_runs = getattr(args, "max_runs", None)
         if max_runs is None or max_runs < 1:
             blockers.append("--max-runs N (N >= 1) is required for local mode")
+        blockers.extend(_check_first_run_selector(args))
     return (len(blockers) == 0, blockers)
 
 
@@ -927,7 +1037,8 @@ def _live_run_sequence(runs_by_id: dict) -> list:
            [runs_by_id[rid] for rid in tail]
 
 
-def run_live(query_data: dict, kb_chunk_data: dict) -> list:
+def run_live(query_data: dict, kb_chunk_data: dict,
+             selected_run_id: str | None = None) -> list:
     """Execute the Stage 2 runs against the live API. LIVE ONLY.
 
     This is reached only after can_run_api_mode() returns allowed=True. It:
@@ -935,6 +1046,9 @@ def run_live(query_data: dict, kb_chunk_data: dict) -> list:
       - for each (in staged order) estimates cost, budget-prechecks, calls the
         API (Agent B retrieves first), records actual cost, writes raw output,
       - never auto-retries: a precheck stop or an API error halts the loop.
+
+    selected_run_id: when set, only that run is executed; all others are marked
+    NOT_RUN. Derived from --intent-id/--language/--agent by the caller.
 
     Returns the list of run records (executed + any NOT_RUN remainder).
     """
@@ -956,6 +1070,13 @@ def run_live(query_data: dict, kb_chunk_data: dict) -> list:
 
     halted = False
     for record in _live_run_sequence(runs_by_id):
+        # Run selector: skip runs not matching the explicitly selected run_id.
+        if selected_run_id and record["run_id"] != selected_run_id:
+            record["endpoint_outcome"] = "NOT_RUN"
+            record["evaluator_notes"] = (
+                f"skipped — selected run is {selected_run_id}")
+            continue
+
         if halted:
             record["endpoint_outcome"] = "NOT_RUN"
             record["evaluator_notes"] = "skipped: loop halted before this run"
@@ -1069,13 +1190,17 @@ def run_live(query_data: dict, kb_chunk_data: dict) -> list:
     return runs
 
 
-def run_local(query_data: dict, kb_chunk_data: dict, max_runs: int) -> list:
+def run_local(query_data: dict, kb_chunk_data: dict, max_runs: int,
+              selected_run_id: str | None = None) -> list:
     """Execute local LLM rehearsal runs. LOCAL ONLY.
 
     Only reachable after can_run_local_mode() returns allowed=True. Writes to
     LOCAL_RESULTS_DIR (results/stage2-local/), never to results/stage2/.
     Results are labeled LOCAL_REHEARSAL_ONLY and must not be mixed with
     Stage 2-live OpenAI data.
+
+    selected_run_id: when set, only that run is executed; all others are marked
+    NOT_RUN. Derived from --intent-id/--language/--agent by the caller.
 
     Agent B is blocked in local mode: local embedding is not implemented.
     See stage2-local-llm-rehearsal-plan.md §8 for the lexical-fallback plan.
@@ -1105,6 +1230,13 @@ def run_local(query_data: dict, kb_chunk_data: dict, max_runs: int) -> list:
             record["evaluator_notes"] = (
                 "LOCAL_MODE: Agent B blocked — local embedding not implemented. "
                 "See stage2-local-llm-rehearsal-plan.md §8 for lexical fallback plan.")
+            continue
+
+        # Run selector: skip runs not matching the explicitly selected run_id.
+        if selected_run_id and record["run_id"] != selected_run_id:
+            record["endpoint_outcome"] = "NOT_RUN"
+            record["evaluator_notes"] = (
+                f"LOCAL_MODE: skipped — selected run is {selected_run_id}")
             continue
 
         # max_runs cap (enforces first-run discipline).
@@ -1240,7 +1372,10 @@ def write_validation_md(validation: dict, runs: list, query_data: dict,
     lines.append("|---|---|")
     for k in ["response_model_id", "embedding_model_id", "embedding_model_version",
               "tokenizer_name", "pricing_version", "top_k",
-              "budget_hard_cap_usd", "budget_stop_review_usd", "allow_api_calls"]:
+              "budget_hard_cap_usd", "budget_stop_review_usd",
+              "allow_api_calls", "allow_local_calls",
+              "first_run_only", "first_run_intent_id",
+              "first_run_language", "first_run_agent"]:
         lines.append(f"| `{k}` | `{CONFIG[k]}` |")
     for pk, pv in CONFIG["pricing"].items():
         lines.append(f"| `pricing.{pk}` | `{pv}` |")
@@ -1308,9 +1443,10 @@ def write_validation_md(validation: dict, runs: list, query_data: dict,
     local_tests = [c for c in guard_checks if c["name"].startswith("local_")
                    or c["name"] in ("live_and_local_mutually_exclusive",
                                     "openai_live_still_blocked")]
-    # Re-partition: OpenAI tests = first 6 original; local tests = the new 6.
+    # Partition into three sections: 6 OpenAI, 6 local provider, 5 first-run selector.
     openai_tests = guard_checks[:6]
-    local_guard_tests = guard_checks[6:]
+    local_guard_tests = guard_checks[6:12]
+    selector_tests = guard_checks[12:]
     lines.append("### OpenAI live guard tests")
     lines.append("")
     lines.append("| Guard test | Result | Detail |")
@@ -1327,13 +1463,26 @@ def write_validation_md(validation: dict, runs: list, query_data: dict,
         status = "PASS" if c["passed"] else "FAIL"
         lines.append(f"| {c['name']} | {status} | {c['detail']} |")
     lines.append("")
+    lines.append("### First-run selector guard tests")
+    lines.append("")
+    lines.append(f"(`first_run_only={CONFIG['first_run_only']}`, "
+                 f"approved run: `S2-{CONFIG['first_run_intent_id']}"
+                 f"-{CONFIG['first_run_language']}-A`)")
+    lines.append("")
+    lines.append("| Guard test | Result | Detail |")
+    lines.append("|---|---|---|")
+    for c in selector_tests:
+        status = "PASS" if c["passed"] else "FAIL"
+        lines.append(f"| {c['name']} | {status} | {c['detail']} |")
+    lines.append("")
     all_guard_pass = all(c["passed"] for c in guard_checks)
     lines.append(f"All guard tests: **{'ALL PASS' if all_guard_pass else 'FAILURES'}** "
                  f"({sum(c['passed'] for c in guard_checks)}/{len(guard_checks)}). "
                  "No network access required. OpenAI live mode and local rehearsal "
                  "mode are independently blocked (`allow_api_calls=False`, "
                  "`allow_local_calls=False`). `--live` and `--local` are mutually "
-                 "exclusive.")
+                 "exclusive. First-run selector enforced when "
+                 f"`first_run_only={CONFIG['first_run_only']}`.")
     lines.append("")
     lines.append("## Remaining steps before the first local rehearsal call")
     lines.append("")
@@ -1344,8 +1493,8 @@ def write_validation_md(validation: dict, runs: list, query_data: dict,
     lines.append("2. Confirm the local server is reachable at "
                  "`http://localhost:11434/v1`.")
     lines.append("3. Set `allow_local_calls = True` (after confirming the above).")
-    lines.append("4. Run `--local --confirm-local --max-runs 1` "
-                 "(first run: S2-INT-004-en-A only).")
+    lines.append("4. Run: `--local --confirm-local --max-runs 1 "
+                 "--intent-id INT-004 --language en --agent agent_a_direct_full_kb`")
     lines.append("5. Inspect `results/stage2-local/raw_outputs/S2-INT-004-en-A.json`.")
     lines.append("6. Set `allow_local_calls = False` again.")
     lines.append("")
@@ -1398,6 +1547,17 @@ def main() -> int:
         "--max-runs", dest="max_runs", type=int, default=None,
         help="Maximum number of actual (live or local) executions. Required for "
              "--live and --local. Use 1 for the first rehearsal or first live run.")
+    parser.add_argument(
+        "--intent-id", dest="intent_id", type=str, default=None,
+        help="Intent ID to select for execution (e.g. INT-004). Required when "
+             "first_run_only=True in --live or --local mode.")
+    parser.add_argument(
+        "--language", dest="language", type=str, default=None,
+        help="Language to select (en/nl/tr). Required when first_run_only=True.")
+    parser.add_argument(
+        "--agent", dest="agent", type=str, default=None,
+        help="Agent design ID to select (e.g. agent_a_direct_full_kb). "
+             "Required when first_run_only=True.")
     args = parser.parse_args()
 
     # Determine mode: --live and --local override the default --dry-run.
@@ -1417,11 +1577,12 @@ def main() -> int:
         # Every local precondition satisfied — execute local rehearsal.
         # This branch is unreachable while allow_local_calls is False.
         max_runs = args.max_runs
+        selected_run_id = _resolve_run_id(args)
         print(f"LOCAL REHEARSAL mode: all preconditions satisfied. "
-              f"max_runs={max_runs}. Executing...")
+              f"max_runs={max_runs}, selected={selected_run_id}. Executing...")
         query_data = {lang: parse_query_file(QUERY_FILES[lang]) for lang in LANGUAGES}
         kb_chunk_data = {lang: parse_kb_chunks(KB_FILES[lang]) for lang in LANGUAGES}
-        runs = run_local(query_data, kb_chunk_data, max_runs)
+        runs = run_local(query_data, kb_chunk_data, max_runs, selected_run_id)
         LOCAL_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
         write_jsonl(runs, LOCAL_RESULTS_DIR / "local_runs.jsonl")
         write_csv(runs, LOCAL_RESULTS_DIR / "local_runs.csv")
@@ -1448,11 +1609,12 @@ def main() -> int:
         # Every precondition satisfied — execute the live run loop.
         # This branch is unreachable while allow_api_calls is False.
         max_runs = args.max_runs
+        selected_run_id = _resolve_run_id(args)
         print(f"LIVE mode: all preconditions satisfied. "
-              f"max_runs={max_runs}. Executing run loop...")
+              f"max_runs={max_runs}, selected={selected_run_id}. Executing run loop...")
         query_data = {lang: parse_query_file(QUERY_FILES[lang]) for lang in LANGUAGES}
         kb_chunk_data = {lang: parse_kb_chunks(KB_FILES[lang]) for lang in LANGUAGES}
-        runs = run_live(query_data, kb_chunk_data)
+        runs = run_live(query_data, kb_chunk_data, selected_run_id)
         RESULTS_DIR.mkdir(parents=True, exist_ok=True)
         write_jsonl(runs, RESULTS_DIR / "live_runs.jsonl")
         write_csv(runs, RESULTS_DIR / "live_runs.csv")

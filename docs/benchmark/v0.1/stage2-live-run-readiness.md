@@ -146,7 +146,15 @@ Before flipping `allow_api_calls = True` and launching a live run, the project o
 - [ ] Evaluation plan ready (`expected-fact-mapping.md`; all outputs audited)
 - [ ] Single-evaluator exploratory label acknowledged for any shared result
 
-Only after every box is checked may `allow_api_calls = True` be set and `--live --confirm-spend` be used.
+Only after every box is checked may `allow_api_calls = True` be set and the run command issued:
+
+```bash
+python scripts/stage2_smoke_runner.py \
+  --live --confirm-spend --max-runs 1 \
+  --intent-id INT-004 --language en --agent agent_a_direct_full_kb
+```
+
+Note: `first_run_only=True` in CONFIG requires `--intent-id`, `--language`, and `--agent` to be passed explicitly. The runner will refuse if they are absent or do not match the approved first-run values.
 
 ---
 

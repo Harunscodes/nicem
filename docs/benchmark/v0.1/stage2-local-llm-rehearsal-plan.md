@@ -2,7 +2,7 @@
 
 **Document ID:** s2-local-rehearsal-v0.1.0  
 **Date:** 2026-06-15  
-**Status:** PLANNING — not yet implemented  
+**Status:** IMPLEMENTATION COMPLETE — first local run pending operator approval  
 
 ---
 
@@ -163,23 +163,36 @@ CONFIG = {
 
 These flags are separate from `--live` / `--confirm-spend`. OpenAI and local providers must have independent guard paths so enabling one cannot accidentally enable the other.
 
-### Guard logic
+### Guard logic (IMPLEMENTED 2026-06-15)
 
-A new `can_run_local_mode(args)` function (parallel to `can_run_api_mode`) should check:
+`can_run_local_mode(args)` is implemented and refuses unless all hold:
 
 - `CONFIG["allow_local_calls"] is True`
-- `CONFIG["provider"]` is a non-placeholder local provider string
-- `CONFIG["local_response_model_id"]` is not `TO_CONFIRM_LOCAL_MODEL`
-- `CONFIG["local_base_url"]` resolves to a live local server
+- `CONFIG["local_base_url"]` starts with `http://localhost` or `http://127.0.0.1`
+- `CONFIG["local_response_model_id"]` is non-empty
 - `args.local is True` and `args.confirm_local is True`
+- `args.max_runs >= 1`
+- `_check_first_run_selector(args)` returns no blockers (when `first_run_only=True`)
 - `OPENAI_API_KEY` is **not** checked (local mode must not require it)
 - `allow_api_calls` is **not** checked (OpenAI remains independently blocked)
 
-### Output path routing
+### First-run selector (IMPLEMENTED 2026-06-15)
 
-When `provider == "local_ollama"`, the runner must write to `results/stage2-local/` (not `results/stage2/`). The `RESULTS_DIR` path should be selected at runtime based on the active provider, not hardcoded.
+Three new CLI flags enforce explicit per-run selection:
 
-These changes must be implemented and code-reviewed before `allow_local_calls` is set to `True`. The dry-run path must remain unaffected.
+```
+--intent-id INT-004
+--language en
+--agent agent_a_direct_full_kb
+```
+
+When `CONFIG["first_run_only"] = True` (default), `_check_first_run_selector(args)` enforces that all three flags are supplied and match `first_run_intent_id` / `first_run_language` / `first_run_agent`. A wrong or missing selector is a guard blocker. `_resolve_run_id(args)` converts the three flags into the canonical run_id (e.g. `S2-INT-004-en-A`), which is passed as `selected_run_id` to `run_local()`; non-matching records are marked `NOT_RUN`.
+
+### Output path routing (IMPLEMENTED 2026-06-15)
+
+`LOCAL_RESULTS_DIR = results/stage2-local/` is a named constant used exclusively by the local code path. `RESULTS_DIR = results/stage2/` is used by dry-run and OpenAI live. They are never swapped.
+
+The dry-run path remains unaffected by all local changes.
 
 ---
 
@@ -295,15 +308,26 @@ The first local run approved under this plan is:
 | `intent_id` | INT-004 |
 | `language` | en |
 | `agent_design_id` | agent_a_direct_full_kb |
-| `provider` | local_ollama (or chosen local provider) |
-| `run_id` | S2-INT-004-en-A (local prefix or run_id suffix TBD by implementation) |
+| `provider` | local_ollama |
+| `run_id` | S2-INT-004-en-A |
 | Stop condition | immediately after this one call |
 
+**Exact command (after operator sets `allow_local_calls = True`):**
+
+```bash
+python scripts/stage2_smoke_runner.py \
+  --local --confirm-local --max-runs 1 \
+  --intent-id INT-004 --language en --agent agent_a_direct_full_kb
+```
+
+The runner enforces `first_run_only=True`: if `--intent-id`, `--language`, or `--agent` are missing, or do not match the approved first-run values in CONFIG, the runner refuses to proceed. The `_check_first_run_selector()` guard is called from both `can_run_local_mode()` and `can_run_api_mode()`.
+
 This approval is conditional on:
-1. The runner having a reviewed local provider guard (`can_run_local_mode`).
-2. `allow_local_calls = True` set after that review.
-3. The local provider being running and reachable at `local_base_url`.
-4. `allow_api_calls` confirmed as `False` immediately before the run.
+1. Local provider guard (`can_run_local_mode`) reviewed and implemented — **DONE 2026-06-15**.
+2. First-run selector (`_check_first_run_selector`, `--intent-id`/`--language`/`--agent`) implemented — **DONE 2026-06-15**.
+3. Operator sets `allow_local_calls = True` in CONFIG.
+4. Ollama running and reachable at `http://localhost:11434/v1`.
+5. `allow_api_calls` confirmed as `False` immediately before the run.
 
 This approval covers only the one call above. Any additional local run requires a separate decision.
 
@@ -331,10 +355,10 @@ In priority order:
 1. **Choose local provider** — confirm Ollama, llama.cpp, or LM Studio. Default recommendation: Ollama. Install and start outside the repository.
 2. **Choose local model** — pull a small instruction model (e.g. `ollama pull llama3.2:3b-instruct`). Confirm context window ≥ 8 K tokens for the 39-chunk full-KB Agent A prompt.
 3. **Install/start local provider** — verify the local server is reachable at `http://localhost:11434/v1` (Ollama) before touching the runner.
-4. **Add local provider guards to runner** — implement `can_run_local_mode`, `--local` / `--confirm-local` flags, provider-aware `RESULTS_DIR` routing, and additional local log fields. Keep `allow_local_calls = False` until implementation is reviewed.
-5. **Code-review local runner additions** — parallel to the existing `stage2-live-code-review.md` process; confirm OpenAI live mode remains blocked.
-6. **Dry-run validation** — re-run `--dry-run` and confirm all 11 checks still PASS after the local provider additions.
-7. **Run one local Agent A call** — set `allow_local_calls = True`, run `--local --confirm-local`, execute `S2-INT-004-en-A`, set `allow_local_calls = False` immediately after.
+4. **Add local provider guards to runner** — ✅ DONE 2026-06-15: `can_run_local_mode`, `--local`/`--confirm-local`/`--max-runs` flags, `LOCAL_RESULTS_DIR` routing, 6 local guard tests (17/17 PASS total).
+5. **Add first-run selector** — ✅ DONE 2026-06-15: `_check_first_run_selector`, `_resolve_run_id`, `--intent-id`/`--language`/`--agent` flags, `first_run_only=True` in CONFIG, 5 selector guard tests (17/17 PASS total).
+6. **Dry-run validation** — ✅ DONE 2026-06-15: 11/11 checks PASS after local + selector additions; 30 NOT_RUN records; $0 cost.
+7. **Run one local Agent A call** — set `allow_local_calls = True`, run `python scripts/stage2_smoke_runner.py --local --confirm-local --max-runs 1 --intent-id INT-004 --language en --agent agent_a_direct_full_kb`, set `allow_local_calls = False` immediately after.
 8. **Inspect logs** — review `results/stage2-local/raw_outputs/S2-INT-004-en-A.json`, the JSONL record, and manually evaluate the response against `expected-fact-mapping.md` for INT-004.
 9. **Decide whether to run the 30-run local rehearsal** — only proceed if step 7–8 pass and the additional rehearsal scope is worth the setup time.
 10. **Proceed to Stage 2-live** — after local rehearsal confirms the pipeline works, follow the Stage 2-live approval process (`stage2-live-code-review.md` §12).

@@ -1,6 +1,6 @@
 # Stage 2 Smoke Runner — Dry-Run Validation
 
-**Generated:** 2026-06-15T19:08:27.131885+00:00
+**Generated:** 2026-06-15T19:41:03.946803+00:00
 **Mode:** dry-run (no API calls, no embeddings, no API key)
 **Runner:** `scripts/stage2_smoke_runner.py`
 
@@ -23,6 +23,11 @@
 | `budget_hard_cap_usd` | `25.0` |
 | `budget_stop_review_usd` | `20.0` |
 | `allow_api_calls` | `False` |
+| `allow_local_calls` | `False` |
+| `first_run_only` | `True` |
+| `first_run_intent_id` | `INT-004` |
+| `first_run_language` | `en` |
+| `first_run_agent` | `agent_a_direct_full_kb` |
 | `pricing.completion_input_usd_per_1k` | `0.0004` |
 | `pricing.completion_output_usd_per_1k` | `0.0016` |
 | `pricing.embedding_usd_per_1k` | `2e-05` |
@@ -83,7 +88,7 @@ The self-test uses synthetic rates (not real pricing) and requires no API key. I
 |---|---|---|
 | dry_run_default | PASS | no flags → dry-run (live=False, local=False) |
 | no_api_key_required_for_dry_run | PASS | dry-run code path does not read OPENAI_API_KEY |
-| live_without_confirm_refuses | PASS | refused; 3 blockers |
+| live_without_confirm_refuses | PASS | refused; 4 blockers |
 | live_with_confirm_refuses_when_allow_api_calls_false | PASS | refused: allow_api_calls is False |
 | pricing_selftest | PASS | estimate_cost_usd(1000, 500, 200) = 0.00202; expected 0.00202 |
 | budget_guard_synthetic_test | PASS | within=True, pause@$20=True, halt@$25=True; no state written (precheck only) |
@@ -92,14 +97,26 @@ The self-test uses synthetic rates (not real pricing) and requires no API key. I
 
 | Guard test | Result | Detail |
 |---|---|---|
-| local_without_confirm_refuses | PASS | refused; 2 blockers |
+| local_without_confirm_refuses | PASS | refused; 3 blockers |
 | local_with_confirm_refuses_when_allow_local_calls_false | PASS | refused: allow_local_calls is False |
-| local_requires_max_runs | PASS | refused: max_runs=None → 2 blockers |
+| local_requires_max_runs | PASS | refused: max_runs=None → 3 blockers |
 | local_base_url_must_be_localhost | PASS | non-localhost URL refused; original URL restored |
 | live_and_local_mutually_exclusive | PASS | --live and --local cannot both be passed (argparse mutually exclusive group) |
-| openai_live_still_blocked | PASS | OpenAI live refused: 2 blockers (allow_api_calls=False) |
+| openai_live_still_blocked | PASS | OpenAI live refused: 3 blockers (allow_api_calls=False) |
 
-All guard tests: **ALL PASS** (12/12). No network access required. OpenAI live mode and local rehearsal mode are independently blocked (`allow_api_calls=False`, `allow_local_calls=False`). `--live` and `--local` are mutually exclusive.
+### First-run selector guard tests
+
+(`first_run_only=True`, approved run: `S2-INT-004-en-A`)
+
+| Guard test | Result | Detail |
+|---|---|---|
+| local_requires_explicit_first_run_selector | PASS | refused: no selector supplied when first_run_only=True (2 blockers) |
+| live_requires_explicit_first_run_selector | PASS | refused: no selector supplied when first_run_only=True (3 blockers) |
+| local_rejects_wrong_first_run_selector | PASS | refused: intent INT-999 ≠ INT-004 (2 blockers) |
+| live_rejects_wrong_first_run_selector | PASS | refused: language 'tr' ≠ 'en' (3 blockers) |
+| selected_first_run_resolves_to_S2_INT_004_en_A | PASS | _resolve_run_id → 'S2-INT-004-en-A' (expected 'S2-INT-004-en-A') |
+
+All guard tests: **ALL PASS** (17/17). No network access required. OpenAI live mode and local rehearsal mode are independently blocked (`allow_api_calls=False`, `allow_local_calls=False`). `--live` and `--local` are mutually exclusive. First-run selector enforced when `first_run_only=True`.
 
 ## Remaining steps before the first local rehearsal call
 
@@ -108,7 +125,7 @@ Local guard is implemented. The remaining steps for Stage 2-local are:
 1. Install Ollama outside the repository and pull a local model (`ollama pull llama3.2:3b-instruct`).
 2. Confirm the local server is reachable at `http://localhost:11434/v1`.
 3. Set `allow_local_calls = True` (after confirming the above).
-4. Run `--local --confirm-local --max-runs 1` (first run: S2-INT-004-en-A only).
+4. Run: `--local --confirm-local --max-runs 1 --intent-id INT-004 --language en --agent agent_a_direct_full_kb`
 5. Inspect `results/stage2-local/raw_outputs/S2-INT-004-en-A.json`.
 6. Set `allow_local_calls = False` again.
 
