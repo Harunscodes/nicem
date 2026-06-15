@@ -501,6 +501,23 @@ These questions arise from the mathematical formalization layer and cannot be an
 - **TH8:** Which theory document should be formalized first? The most valuable next formalization is likely the rate–distortion analysis, because it directly connects to query variant design and the over-compression failure mode that Stage 2 may surface. Alternatively, the execution-tax capacity theorem sketch is highest leverage for the research claim.
   - *Status: Open — provisional recommendation is rate-distortion document first (most directly connected to benchmark design); capacity theorem sketch second (most relevant to the research paper)*
 
+### Stage 2-local rehearsal open questions (from stage2-local-llm-rehearsal-plan.md)
+
+- **LLM1:** Which local provider will be used for Stage 2-local rehearsal?
+  - *Status: Open — recommended: Ollama. Decide before implementing `can_run_local_mode`. Install outside the repository.*
+
+- **LLM2:** Which local model will be used for the first local rehearsal run?
+  - *Status: Open — recommended: `llama3.2:3b-instruct` (fits 16 GB RAM) or `mistral:7b-instruct` if RAM allows. Must have ≥ 8 K context window for the 39-chunk Agent A prompt. Confirm before running.*
+
+- **LLM3:** Should the 30-run local rehearsal matrix be run, or is one Agent A run sufficient rehearsal before Stage 2-live?
+  - *Status: Open — decide after the first local Agent A call passes. If the pipeline works and the log is clean, one run is sufficient rehearsal evidence.*
+
+- **LLM4:** How should local embedding be handled for Agent B local rehearsal?
+  - *Status: Open — see plan §8. Options: local embedding via `nomic-embed-text` (Ollama), or lexical retrieval fallback. Decide at implementation time based on available GPU/RAM.*
+
+- **LLM5:** Should a single-run limiter (`--max-live-runs 1` or `--only-run-id`) be added to the runner before any live call?
+  - *Status: Open — recommended yes, as part of the local runner changes. A `--max-runs N` flag would enforce the first-run discipline for both local and OpenAI live modes without relying on project owner discipline alone.*
+
 ---
 
 ## Resolved questions
