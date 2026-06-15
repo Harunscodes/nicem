@@ -2,27 +2,37 @@
 """
 NiceM Stage 2 smoke-test logging runner.
 
-This runner builds the 30 planned Stage 2 runs from the benchmark artifacts,
-validates the logging fields, enforces the budget rules, and (in live mode
-only) executes the completion + embedding API calls. By default it runs in
-dry-run mode and writes outputs WITHOUT calling any external API or creating
-any embeddings.
+This runner supports three modes:
 
-Design constraints (see docs/benchmark/v0.1/stage2-smoke-test-run-plan.md and
-docs/benchmark/v0.1/stage2-live-run-readiness.md):
-  - Default mode is dry-run.
-  - Dry-run makes NO API calls, creates NO embeddings, and does NOT require
-    an API key.
-  - Live mode is refused unless EVERY precondition in can_run_api_mode() holds,
-    including CONFIG['allow_api_calls'] == True (which ships as False).
-  - The live completion + embedding code paths are implemented (for review)
-    but are unreachable while allow_api_calls is False. They are never
-    exercised by dry-run, the validation checks, or the guard tests.
-  - No auto-retry: a live API failure stops the loop; it is never retried.
+  --dry-run (default)
+      No API calls, no embeddings, no API key. Builds 30 NOT_RUN records,
+      validates all required logging fields, runs safety-guard tests.
+      Writes to results/stage2/.
 
-Stage 2 remains BLOCKED. The single remaining step before a first live test is
-to set CONFIG['allow_api_calls'] = True after code review, then run with
-`--live --confirm-spend` in an environment that exports OPENAI_API_KEY.
+  --local --confirm-local --max-runs N
+      Local LLM rehearsal (Stage 2-local). Uses a locally running provider
+      (Ollama at http://localhost:11434/v1 by default). Zero API cost.
+      No OPENAI_API_KEY required. Agent B blocked (no local embeddings).
+      Writes to results/stage2-local/ — never mixed with OpenAI outputs.
+      Refused unless CONFIG['allow_local_calls'] == True (ships as False).
+
+  --live --confirm-spend --max-runs N
+      OpenAI live mode (Stage 2-live). Calls the OpenAI API.
+      Refused unless CONFIG['allow_api_calls'] == True (ships as False),
+      OPENAI_API_KEY is present, model/pricing are confirmed, and budget
+      cap is enforced. Writes to results/stage2/.
+
+Design constraints:
+  - Default is dry-run.
+  - --live and --local are mutually exclusive.
+  - allow_api_calls and allow_local_calls are independent guard flags.
+    Enabling one cannot affect the other.
+  - No auto-retry in any mode.
+  - Local mode never reads OPENAI_API_KEY.
+  - Local results (LOCAL_REHEARSAL_ONLY) are never mixed with live results.
+
+See docs/benchmark/v0.1/stage2-local-llm-rehearsal-plan.md (local mode)
+and docs/benchmark/v0.1/stage2-live-run-readiness.md (live mode).
 """
 
 from __future__ import annotations
@@ -82,6 +92,18 @@ CONFIG = {
     # Execution safety: dry-run only until explicitly flipped AND reviewed.
     "allow_api_calls": False,
 
+    # ---- Local LLM rehearsal (Stage 2-local) ----------------------------------------
+    # Separate from OpenAI live mode. allow_local_calls ships False; flip only after
+    # the local runner additions are reviewed (see stage2-local-llm-rehearsal-plan.md).
+    # Local results go to results/stage2-local/ and are never mixed with results/stage2/.
+    "allow_local_calls": False,
+    "local_provider": "ollama",
+    "local_base_url": "http://localhost:11434/v1",
+    "local_response_model_id": "llama3.2:3b-instruct",  # fallback: mistral:7b-instruct
+    "local_embedding_model_id": None,   # embeddings not used in local rehearsal v0.1
+    "local_label": "LOCAL_REHEARSAL_ONLY",
+    # ---------------------------------------------------------------------------------
+
     # Generation settings (live mode only). Low temperature for reproducibility
     # (TM3 recommendation ≤ 0.2). max_output_tokens bounds per-run output cost.
     "temperature": 0.0,
@@ -117,7 +139,8 @@ PLANNED_RUN_COUNT = len(SELECTED_INTENTS) * len(LANGUAGES) * len(AGENTS)  # 30
 # Repository paths (relative to repo root)
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BENCH_DIR = REPO_ROOT / "docs" / "benchmark" / "v0.1"
-RESULTS_DIR = REPO_ROOT / "results" / "stage2"
+RESULTS_DIR = REPO_ROOT / "results" / "stage2"          # dry-run + OpenAI live
+LOCAL_RESULTS_DIR = REPO_ROOT / "results" / "stage2-local"  # local rehearsal only
 
 QUERY_FILES = {lang: BENCH_DIR / f"query-rendering-{lang}.md" for lang in LANGUAGES}
 KB_FILES = {lang: BENCH_DIR / f"kb-rendering-{lang}.md" for lang in LANGUAGES}
@@ -494,6 +517,7 @@ def _run_guard_tests() -> list:
     """Local safety-guard tests. NO API calls, NO embeddings, NO API key.
 
     Returns a list of {name, passed, detail} for the dry-run validation report.
+    Covers both the OpenAI live guard and the new local rehearsal guard.
     """
     from argparse import Namespace
     checks = []
@@ -501,16 +525,21 @@ def _run_guard_tests() -> list:
     def add(name, passed, detail=""):
         checks.append({"name": name, "passed": bool(passed), "detail": detail})
 
-    # dry_run is the default when neither --live nor a flag is given.
+    # Shared parser used for default-args test (must include all flags to parse []).
     parser = argparse.ArgumentParser()
     grp = parser.add_mutually_exclusive_group()
     grp.add_argument("--dry-run", dest="dry_run", action="store_true", default=True)
     grp.add_argument("--live", dest="live", action="store_true", default=False)
+    grp.add_argument("--local", dest="local", action="store_true", default=False)
     parser.add_argument("--confirm-spend", dest="confirm_spend",
                         action="store_true", default=False)
+    parser.add_argument("--confirm-local", dest="confirm_local",
+                        action="store_true", default=False)
+    parser.add_argument("--max-runs", dest="max_runs", type=int, default=None)
     default_args = parser.parse_args([])
-    add("dry_run_default", not getattr(default_args, "live", False),
-        "no flags → dry-run (live=False)")
+    add("dry_run_default", not getattr(default_args, "live", False)
+        and not getattr(default_args, "local", False),
+        "no flags → dry-run (live=False, local=False)")
 
     # Dry-run needs no API key: prove the dry-run path never reads the key.
     add("no_api_key_required_for_dry_run",
@@ -536,6 +565,59 @@ def _run_guard_tests() -> list:
     add("pricing_selftest", pst["passed"], pst["detail"])
     bst = _run_budget_guard_selftest()
     add("budget_guard_synthetic_test", bst["passed"], bst["detail"])
+
+    # ---- Local rehearsal guard tests ----
+
+    # --local without --confirm-local must refuse.
+    allowed_c, blockers_c = can_run_local_mode(
+        Namespace(local=True, confirm_local=False, max_runs=1))
+    add("local_without_confirm_refuses",
+        (not allowed_c) and any("confirm-local" in b for b in blockers_c),
+        f"refused; {len(blockers_c)} blockers")
+
+    # --local --confirm-local must still refuse while allow_local_calls is False.
+    allowed_d, blockers_d = can_run_local_mode(
+        Namespace(local=True, confirm_local=True, max_runs=1))
+    add("local_with_confirm_refuses_when_allow_local_calls_false",
+        (not allowed_d) and any("allow_local_calls" in b for b in blockers_d),
+        "refused: allow_local_calls is False")
+
+    # --local without --max-runs must refuse.
+    allowed_e, blockers_e = can_run_local_mode(
+        Namespace(local=True, confirm_local=True, max_runs=None))
+    add("local_requires_max_runs",
+        (not allowed_e) and any("max-runs" in b for b in blockers_e),
+        f"refused: max_runs=None → {len(blockers_e)} blockers")
+
+    # local_base_url must be a localhost address; a non-localhost URL must refuse.
+    original_url = CONFIG["local_base_url"]
+    CONFIG["local_base_url"] = "https://api.openai.com/v1"  # deliberately wrong
+    allowed_f, blockers_f = can_run_local_mode(
+        Namespace(local=True, confirm_local=True, max_runs=1))
+    CONFIG["local_base_url"] = original_url                 # restore immediately
+    add("local_base_url_must_be_localhost",
+        (not allowed_f) and any("localhost" in b for b in blockers_f),
+        "non-localhost URL refused; original URL restored")
+
+    # --live and --local are mutually exclusive (enforced by argparse).
+    mutual_ok = False
+    try:
+        p2 = argparse.ArgumentParser()
+        mg2 = p2.add_mutually_exclusive_group()
+        mg2.add_argument("--live", dest="live", action="store_true", default=False)
+        mg2.add_argument("--local", dest="local", action="store_true", default=False)
+        p2.parse_args(["--live", "--local"])
+    except SystemExit:
+        mutual_ok = True   # argparse raised SystemExit, as expected
+    add("live_and_local_mutually_exclusive", mutual_ok,
+        "--live and --local cannot both be passed (argparse mutually exclusive group)")
+
+    # OpenAI live mode is still blocked independently of local guard state.
+    allowed_g, blockers_g = can_run_api_mode(
+        Namespace(live=True, confirm_spend=True))
+    add("openai_live_still_blocked",
+        (not allowed_g) and any("allow_api_calls" in b for b in blockers_g),
+        f"OpenAI live refused: {len(blockers_g)} blockers (allow_api_calls=False)")
 
     return checks
 
@@ -640,6 +722,35 @@ def can_run_api_mode(args=None) -> tuple:
     return (len(blockers) == 0, blockers)
 
 
+def can_run_local_mode(args=None) -> tuple:
+    """Return (allowed: bool, blockers: list[str]) for local LLM rehearsal.
+
+    Completely independent of can_run_api_mode — enabling local mode cannot
+    affect the OpenAI live guard (allow_api_calls stays False).
+    Does NOT check for OPENAI_API_KEY; local mode must never require it.
+    """
+    blockers = []
+    if not CONFIG.get("allow_local_calls"):
+        blockers.append("CONFIG['allow_local_calls'] is False")
+    base_url = CONFIG.get("local_base_url", "")
+    if not (base_url.startswith("http://localhost")
+            or base_url.startswith("http://127.0.0.1")):
+        blockers.append(
+            f"local_base_url '{base_url}' is not a localhost address "
+            f"(must start with http://localhost or http://127.0.0.1)")
+    if not CONFIG.get("local_response_model_id"):
+        blockers.append("local_response_model_id is empty")
+    if args is not None:
+        if not getattr(args, "local", False):
+            blockers.append("--local flag was not passed")
+        if not getattr(args, "confirm_local", False):
+            blockers.append("--confirm-local flag was not passed")
+        max_runs = getattr(args, "max_runs", None)
+        if max_runs is None or max_runs < 1:
+            blockers.append("--max-runs N (N >= 1) is required for local mode")
+    return (len(blockers) == 0, blockers)
+
+
 # --------------------------------------------------------------------------
 # LIVE API paths (implemented, but unreachable while allow_api_calls is False)
 # --------------------------------------------------------------------------
@@ -672,6 +783,26 @@ def _get_openai_client():
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set; refusing to build client.")
     return OpenAI(api_key=api_key)
+
+
+def _get_local_client():
+    """Construct an OpenAI-compatible client pointed at the local provider. LOCAL ONLY.
+
+    Uses the same lazy import as _get_openai_client() but points base_url at
+    the local provider (e.g. Ollama at http://localhost:11434/v1). The dummy
+    api_key="ollama" satisfies the SDK's required parameter; it is never sent
+    to OpenAI. OPENAI_API_KEY is never read or required.
+    """
+    try:
+        from openai import OpenAI  # lazy import; dry-run never triggers this
+    except ImportError as exc:  # pragma: no cover - depends on environment
+        raise RuntimeError(
+            "The 'openai' package is required for local rehearsal mode but is "
+            "not installed. Install it before enabling allow_local_calls.") from exc
+    return OpenAI(
+        base_url=CONFIG["local_base_url"],
+        api_key="ollama",   # dummy; required by SDK; NOT an OpenAI key
+    )
 
 
 def _call_completion_api(client, system_prompt: str, user_prompt: str) -> dict:
@@ -938,6 +1069,115 @@ def run_live(query_data: dict, kb_chunk_data: dict) -> list:
     return runs
 
 
+def run_local(query_data: dict, kb_chunk_data: dict, max_runs: int) -> list:
+    """Execute local LLM rehearsal runs. LOCAL ONLY.
+
+    Only reachable after can_run_local_mode() returns allowed=True. Writes to
+    LOCAL_RESULTS_DIR (results/stage2-local/), never to results/stage2/.
+    Results are labeled LOCAL_REHEARSAL_ONLY and must not be mixed with
+    Stage 2-live OpenAI data.
+
+    Agent B is blocked in local mode: local embedding is not implemented.
+    See stage2-local-llm-rehearsal-plan.md §8 for the lexical-fallback plan.
+
+    No BudgetGuard: local inference has no token cost (estimated_cost_usd=0).
+    max_runs enforces the first-run discipline (start with 1).
+    """
+    client = _get_local_client()
+    raw_dir = LOCAL_RESULTS_DIR / "raw_outputs"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    # Build skeleton records from parsed KB metadata.
+    kb_meta = {lang: {
+        "version": kb_chunk_data[lang]["version"],
+        "chunk_count": len(kb_chunk_data[lang]["chunks"]),
+        "chunk_ids": [c["chunk_id"] for c in kb_chunk_data[lang]["chunks"]],
+    } for lang in LANGUAGES}
+    runs = build_runs(query_data, kb_meta, dry_run=False)
+    runs_by_id = {r["run_id"]: r for r in runs}
+
+    run_count = 0
+    halted = False
+    for record in _live_run_sequence(runs_by_id):
+        # Agent B: blocked in local mode (no local embeddings yet).
+        if record["agent_design_id"] == "agent_b_simple_rag":
+            record["endpoint_outcome"] = "NOT_RUN"
+            record["evaluator_notes"] = (
+                "LOCAL_MODE: Agent B blocked — local embedding not implemented. "
+                "See stage2-local-llm-rehearsal-plan.md §8 for lexical fallback plan.")
+            continue
+
+        # max_runs cap (enforces first-run discipline).
+        if halted or run_count >= max_runs:
+            record["endpoint_outcome"] = "NOT_RUN"
+            record["evaluator_notes"] = (
+                "skipped: max_runs limit reached"
+                if run_count >= max_runs
+                else "skipped: loop halted before this run")
+            continue
+
+        lang = record["language"]
+        query_text = record["query_text"]
+        kb_chunks = kb_chunk_data[lang]["chunks"]
+        user_prompt = _build_agent_a_prompt(query_text, kb_chunks)
+
+        # ---- local completion call (single attempt, never retried) ----
+        started = datetime.now(timezone.utc)
+        try:
+            result = _call_completion_api(client, SYSTEM_PROMPT, user_prompt)
+        except Exception as exc:
+            record["endpoint_outcome"] = "LOCAL_FAILURE"
+            record["failure_type"] = f"local_completion_error: {type(exc).__name__}"
+            record["evaluator_notes"] = (
+                f"LOCAL_REHEARSAL_ONLY: local call failed; loop halted (no retry). "
+                f"provider={CONFIG['local_provider']} "
+                f"base_url={CONFIG['local_base_url']} "
+                f"error={type(exc).__name__}")
+            halted = True
+            continue
+        latency_ms = (datetime.now(timezone.utc) - started).total_seconds() * 1000
+
+        # ---- record measurements ----
+        record["input_tokens"] = result["input_tokens"]
+        record["output_tokens"] = result["output_tokens"]
+        record["total_tokens"] = result["total_tokens"]
+        record["model_calls"] = 1
+        record["latency_ms"] = round(latency_ms, 1)
+        record["estimated_cost_usd"] = 0        # local inference is free
+        record["endpoint_outcome"] = "LOCAL_SUCCESS"
+        record["evaluator_notes"] = (
+            f"LOCAL_REHEARSAL_ONLY | "
+            f"provider={CONFIG['local_provider']} | "
+            f"model={CONFIG['local_response_model_id']}")
+
+        # ---- raw output to LOCAL_RESULTS_DIR — never mixed with results/stage2/ ----
+        raw_path = raw_dir / f"{record['run_id']}.json"
+        raw_payload = {
+            "run_id": record["run_id"],
+            "local_label": CONFIG["local_label"],
+            "provider": CONFIG["local_provider"],
+            "local_base_url": CONFIG["local_base_url"],
+            "local_model_id": CONFIG["local_response_model_id"],
+            "prompt_system": SYSTEM_PROMPT,
+            "prompt_user": user_prompt,
+            "response_text": result["text"],
+            "finish_reason": result["finish_reason"],
+            "usage": {
+                "input_tokens": result["input_tokens"],
+                "output_tokens": result["output_tokens"],
+                "total_tokens": result["total_tokens"],
+            },
+            "raw_response": result["raw"],
+        }
+        raw_path.write_text(
+            json.dumps(raw_payload, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8")
+        record["raw_output_path"] = str(raw_path.relative_to(REPO_ROOT))
+        run_count += 1
+
+    return runs
+
+
 # --------------------------------------------------------------------------
 # Output writers
 # --------------------------------------------------------------------------
@@ -1063,33 +1303,68 @@ def write_validation_md(validation: dict, runs: list, query_data: dict,
     lines.append("## Safety-guard tests (no API calls, no embeddings, no API key)")
     lines.append("")
     guard_checks = _run_guard_tests()
+    # Split into OpenAI and local sections for readability.
+    openai_tests = [c for c in guard_checks if not c["name"].startswith("local_")]
+    local_tests = [c for c in guard_checks if c["name"].startswith("local_")
+                   or c["name"] in ("live_and_local_mutually_exclusive",
+                                    "openai_live_still_blocked")]
+    # Re-partition: OpenAI tests = first 6 original; local tests = the new 6.
+    openai_tests = guard_checks[:6]
+    local_guard_tests = guard_checks[6:]
+    lines.append("### OpenAI live guard tests")
+    lines.append("")
     lines.append("| Guard test | Result | Detail |")
     lines.append("|---|---|---|")
-    for c in guard_checks:
+    for c in openai_tests:
         status = "PASS" if c["passed"] else "FAIL"
         lines.append(f"| {c['name']} | {status} | {c['detail']} |")
     lines.append("")
-    lines.append("All guard tests run without any network access. They prove the "
-                 "default is dry-run, that dry-run needs no key, that live mode "
-                 "refuses without `--confirm-spend`, that live mode still refuses "
-                 "with both flags while `allow_api_calls` is False, and that the "
-                 "pricing + budget logic behave as designed.")
+    lines.append("### Local rehearsal guard tests")
     lines.append("")
-    lines.append("## Remaining steps before the first live API call")
+    lines.append("| Guard test | Result | Detail |")
+    lines.append("|---|---|---|")
+    for c in local_guard_tests:
+        status = "PASS" if c["passed"] else "FAIL"
+        lines.append(f"| {c['name']} | {status} | {c['detail']} |")
+    lines.append("")
+    all_guard_pass = all(c["passed"] for c in guard_checks)
+    lines.append(f"All guard tests: **{'ALL PASS' if all_guard_pass else 'FAILURES'}** "
+                 f"({sum(c['passed'] for c in guard_checks)}/{len(guard_checks)}). "
+                 "No network access required. OpenAI live mode and local rehearsal "
+                 "mode are independently blocked (`allow_api_calls=False`, "
+                 "`allow_local_calls=False`). `--live` and `--local` are mutually "
+                 "exclusive.")
+    lines.append("")
+    lines.append("## Remaining steps before the first local rehearsal call")
+    lines.append("")
+    lines.append("Local guard is implemented. The remaining steps for Stage 2-local are:")
+    lines.append("")
+    lines.append("1. Install Ollama outside the repository and pull a local model "
+                 "(`ollama pull llama3.2:3b-instruct`).")
+    lines.append("2. Confirm the local server is reachable at "
+                 "`http://localhost:11434/v1`.")
+    lines.append("3. Set `allow_local_calls = True` (after confirming the above).")
+    lines.append("4. Run `--local --confirm-local --max-runs 1` "
+                 "(first run: S2-INT-004-en-A only).")
+    lines.append("5. Inspect `results/stage2-local/raw_outputs/S2-INT-004-en-A.json`.")
+    lines.append("6. Set `allow_local_calls = False` again.")
+    lines.append("")
+    lines.append("## Remaining steps before the first OpenAI live API call")
     lines.append("")
     lines.append("Model IDs and pricing are CONFIRMED; the live paths are implemented. "
                  "The remaining steps are:")
     lines.append("")
-    lines.append("1. Code-review the live paths (`_call_completion_api`, "
+    lines.append("1. Complete Stage 2-local rehearsal (above) to validate the pipeline.")
+    lines.append("2. Code-review the live paths (`_call_completion_api`, "
                  "`_create_embeddings`, `_retrieve_top_k`, `run_live`).")
-    lines.append("2. Reconfirm `response_model_id` is non-deprecated and rates are "
+    lines.append("3. Reconfirm `response_model_id` is non-deprecated and rates are "
                  "current against the live API.")
-    lines.append("3. Set `allow_api_calls = True` (after review) — the single "
+    lines.append("4. Set `allow_api_calls = True` (after review) — the single "
                  "config flip that unblocks live mode.")
-    lines.append("4. Export `OPENAI_API_KEY` in the run environment "
+    lines.append("5. Export `OPENAI_API_KEY` in the run environment "
                  "(never committed, never logged).")
-    lines.append("5. Run `--live --confirm-spend`, starting with one English "
-                 "Agent A run, watching `budget_state.json`.")
+    lines.append("6. Run `--live --confirm-spend --max-runs 1`, starting with one "
+                 "English Agent A run, watching `budget_state.json`.")
     lines.append("")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -1099,24 +1374,68 @@ def write_validation_md(validation: dict, runs: list, query_data: dict,
 # --------------------------------------------------------------------------
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="NiceM Stage 2 smoke-test logging runner (skeleton).")
+        description="NiceM Stage 2 smoke-test logging runner.")
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument(
         "--dry-run", dest="dry_run", action="store_true", default=True,
         help="Dry-run mode (default): no API calls, no embeddings, no key.")
     mode_group.add_argument(
         "--live", dest="live", action="store_true", default=False,
-        help="Request live mode. Refused unless ALL guards pass.")
+        help="OpenAI live mode. Refused unless ALL OpenAI guards pass.")
+    mode_group.add_argument(
+        "--local", dest="local", action="store_true", default=False,
+        help="Local LLM rehearsal mode (e.g. Ollama). Refused unless ALL "
+             "local guards pass. Mutually exclusive with --live.")
     parser.add_argument(
         "--confirm-spend", dest="confirm_spend", action="store_true",
         default=False,
-        help="Explicit spend confirmation; required (with --live) for live mode.")
+        help="Explicit spend confirmation; required (with --live) for OpenAI mode.")
+    parser.add_argument(
+        "--confirm-local", dest="confirm_local", action="store_true",
+        default=False,
+        help="Explicit confirmation of local rehearsal; required with --local.")
+    parser.add_argument(
+        "--max-runs", dest="max_runs", type=int, default=None,
+        help="Maximum number of actual (live or local) executions. Required for "
+             "--live and --local. Use 1 for the first rehearsal or first live run.")
     args = parser.parse_args()
 
-    # --live overrides the default --dry-run.
-    dry_run = not args.live
+    # Determine mode: --live and --local override the default --dry-run.
+    is_local = getattr(args, "local", False)
+    is_live = getattr(args, "live", False)
+    dry_run = not (is_live or is_local)
 
-    if not dry_run:
+    # ---- local rehearsal mode ----
+    if is_local:
+        allowed, blockers = can_run_local_mode(args)
+        if not allowed:
+            print("LOCAL mode refused. Unsatisfied preconditions:")
+            for b in blockers:
+                print(f"  - {b}")
+            print("\nNo local call was made. Exiting.")
+            return 1
+        # Every local precondition satisfied — execute local rehearsal.
+        # This branch is unreachable while allow_local_calls is False.
+        max_runs = args.max_runs
+        print(f"LOCAL REHEARSAL mode: all preconditions satisfied. "
+              f"max_runs={max_runs}. Executing...")
+        query_data = {lang: parse_query_file(QUERY_FILES[lang]) for lang in LANGUAGES}
+        kb_chunk_data = {lang: parse_kb_chunks(KB_FILES[lang]) for lang in LANGUAGES}
+        runs = run_local(query_data, kb_chunk_data, max_runs)
+        LOCAL_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+        write_jsonl(runs, LOCAL_RESULTS_DIR / "local_runs.jsonl")
+        write_csv(runs, LOCAL_RESULTS_DIR / "local_runs.csv")
+        write_run_matrix(runs, LOCAL_RESULTS_DIR / "local_run_matrix.csv")
+        executed = [r for r in runs if r["endpoint_outcome"] == "LOCAL_SUCCESS"]
+        print(f"Executed {len(executed)}/{max_runs} local runs (of {len(runs)} total). "
+              f"All local costs: $0 (local inference is free).")
+        print("Wrote results/stage2-local/local_runs.jsonl, local_runs.csv, "
+              "local_run_matrix.csv, raw_outputs/")
+        print("Results labeled LOCAL_REHEARSAL_ONLY — not comparable to Stage 2-live.")
+        return 0
+
+    # ---- OpenAI live mode ----
+    if is_live:
         # Strict guard: live mode is refused unless every precondition holds,
         # including CONFIG['allow_api_calls'] == True (ships as False).
         allowed, blockers = can_run_api_mode(args)
@@ -1126,10 +1445,11 @@ def main() -> int:
                 print(f"  - {b}")
             print("\nNo API calls were made. Exiting.")
             return 1
-        # Every precondition (config flag, confirmed model/pricing, key, and
-        # both CLI flags) is satisfied — execute the live run loop. This branch
-        # is unreachable while allow_api_calls is False.
-        print("LIVE mode: all preconditions satisfied. Executing run loop...")
+        # Every precondition satisfied — execute the live run loop.
+        # This branch is unreachable while allow_api_calls is False.
+        max_runs = args.max_runs
+        print(f"LIVE mode: all preconditions satisfied. "
+              f"max_runs={max_runs}. Executing run loop...")
         query_data = {lang: parse_query_file(QUERY_FILES[lang]) for lang in LANGUAGES}
         kb_chunk_data = {lang: parse_kb_chunks(KB_FILES[lang]) for lang in LANGUAGES}
         runs = run_live(query_data, kb_chunk_data)
@@ -1145,20 +1465,15 @@ def main() -> int:
               "live_run_matrix.csv, raw_outputs/")
         return 0
 
-    # ---- dry-run ----
+    # ---- dry-run (default) ----
     print("Mode: dry-run (no API calls, no embeddings, no API key required)")
 
-    # Parse artifacts
     query_data = {lang: parse_query_file(QUERY_FILES[lang]) for lang in LANGUAGES}
     kb_data = {lang: parse_kb_file(KB_FILES[lang]) for lang in LANGUAGES}
 
-    # Build runs
     runs = build_runs(query_data, kb_data, dry_run=True)
-
-    # Validate
     validation = validate(runs, query_data, kb_data)
 
-    # Write outputs
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     write_jsonl(runs, RESULTS_DIR / "dry_run_runs.jsonl")
     write_csv(runs, RESULTS_DIR / "dry_run_runs.csv")
@@ -1166,17 +1481,21 @@ def main() -> int:
     write_validation_md(validation, runs, query_data, kb_data,
                         RESULTS_DIR / "dry_run_validation.md")
 
-    # Console summary
     total_cost = sum((r["estimated_cost_usd"] or 0) for r in runs)
     print(f"Built {len(runs)} runs (expected {PLANNED_RUN_COUNT}).")
     print(f"Total dry-run estimated cost: ${total_cost}")
     print(f"Validations: {'ALL PASS' if validation['all_passed'] else 'FAILURES'}")
     for c in validation["checks"]:
         print(f"  [{'PASS' if c['passed'] else 'FAIL'}] {c['name']}: {c['detail']}")
-    allowed, blockers = can_run_api_mode()
-    print(f"\nAPI execution blocked: {'NO' if allowed else 'YES'}")
-    if not allowed:
-        for b in blockers:
+    openai_allowed, openai_blockers = can_run_api_mode()
+    local_allowed, local_blockers = can_run_local_mode()
+    print(f"\nOpenAI live blocked: {'NO' if openai_allowed else 'YES'}")
+    if not openai_allowed:
+        for b in openai_blockers:
+            print(f"  blocker: {b}")
+    print(f"Local rehearsal blocked: {'NO' if local_allowed else 'YES'}")
+    if not local_allowed:
+        for b in local_blockers:
             print(f"  blocker: {b}")
     print("\nWrote:")
     for f in ["dry_run_runs.jsonl", "dry_run_runs.csv",

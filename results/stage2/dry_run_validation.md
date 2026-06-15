@@ -1,6 +1,6 @@
 # Stage 2 Smoke Runner — Dry-Run Validation
 
-**Generated:** 2026-06-14T19:45:27.737102+00:00
+**Generated:** 2026-06-15T19:08:27.131885+00:00
 **Mode:** dry-run (no API calls, no embeddings, no API key)
 **Runner:** `scripts/stage2_smoke_runner.py`
 
@@ -77,24 +77,49 @@ The self-test uses synthetic rates (not real pricing) and requires no API key. I
 
 ## Safety-guard tests (no API calls, no embeddings, no API key)
 
+### OpenAI live guard tests
+
 | Guard test | Result | Detail |
 |---|---|---|
-| dry_run_default | PASS | no flags → dry-run (live=False) |
+| dry_run_default | PASS | no flags → dry-run (live=False, local=False) |
 | no_api_key_required_for_dry_run | PASS | dry-run code path does not read OPENAI_API_KEY |
 | live_without_confirm_refuses | PASS | refused; 3 blockers |
 | live_with_confirm_refuses_when_allow_api_calls_false | PASS | refused: allow_api_calls is False |
 | pricing_selftest | PASS | estimate_cost_usd(1000, 500, 200) = 0.00202; expected 0.00202 |
 | budget_guard_synthetic_test | PASS | within=True, pause@$20=True, halt@$25=True; no state written (precheck only) |
 
-All guard tests run without any network access. They prove the default is dry-run, that dry-run needs no key, that live mode refuses without `--confirm-spend`, that live mode still refuses with both flags while `allow_api_calls` is False, and that the pricing + budget logic behave as designed.
+### Local rehearsal guard tests
 
-## Remaining steps before the first live API call
+| Guard test | Result | Detail |
+|---|---|---|
+| local_without_confirm_refuses | PASS | refused; 2 blockers |
+| local_with_confirm_refuses_when_allow_local_calls_false | PASS | refused: allow_local_calls is False |
+| local_requires_max_runs | PASS | refused: max_runs=None → 2 blockers |
+| local_base_url_must_be_localhost | PASS | non-localhost URL refused; original URL restored |
+| live_and_local_mutually_exclusive | PASS | --live and --local cannot both be passed (argparse mutually exclusive group) |
+| openai_live_still_blocked | PASS | OpenAI live refused: 2 blockers (allow_api_calls=False) |
+
+All guard tests: **ALL PASS** (12/12). No network access required. OpenAI live mode and local rehearsal mode are independently blocked (`allow_api_calls=False`, `allow_local_calls=False`). `--live` and `--local` are mutually exclusive.
+
+## Remaining steps before the first local rehearsal call
+
+Local guard is implemented. The remaining steps for Stage 2-local are:
+
+1. Install Ollama outside the repository and pull a local model (`ollama pull llama3.2:3b-instruct`).
+2. Confirm the local server is reachable at `http://localhost:11434/v1`.
+3. Set `allow_local_calls = True` (after confirming the above).
+4. Run `--local --confirm-local --max-runs 1` (first run: S2-INT-004-en-A only).
+5. Inspect `results/stage2-local/raw_outputs/S2-INT-004-en-A.json`.
+6. Set `allow_local_calls = False` again.
+
+## Remaining steps before the first OpenAI live API call
 
 Model IDs and pricing are CONFIRMED; the live paths are implemented. The remaining steps are:
 
-1. Code-review the live paths (`_call_completion_api`, `_create_embeddings`, `_retrieve_top_k`, `run_live`).
-2. Reconfirm `response_model_id` is non-deprecated and rates are current against the live API.
-3. Set `allow_api_calls = True` (after review) — the single config flip that unblocks live mode.
-4. Export `OPENAI_API_KEY` in the run environment (never committed, never logged).
-5. Run `--live --confirm-spend`, starting with one English Agent A run, watching `budget_state.json`.
+1. Complete Stage 2-local rehearsal (above) to validate the pipeline.
+2. Code-review the live paths (`_call_completion_api`, `_create_embeddings`, `_retrieve_top_k`, `run_live`).
+3. Reconfirm `response_model_id` is non-deprecated and rates are current against the live API.
+4. Set `allow_api_calls = True` (after review) — the single config flip that unblocks live mode.
+5. Export `OPENAI_API_KEY` in the run environment (never committed, never logged).
+6. Run `--live --confirm-spend --max-runs 1`, starting with one English Agent A run, watching `budget_state.json`.
 

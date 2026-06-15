@@ -516,7 +516,7 @@ These questions arise from the mathematical formalization layer and cannot be an
   - *Status: Open — see plan §8. Options: local embedding via `nomic-embed-text` (Ollama), or lexical retrieval fallback. Decide at implementation time based on available GPU/RAM.*
 
 - **LLM5:** Should a single-run limiter (`--max-live-runs 1` or `--only-run-id`) be added to the runner before any live call?
-  - *Status: Open — recommended yes, as part of the local runner changes. A `--max-runs N` flag would enforce the first-run discipline for both local and OpenAI live modes without relying on project owner discipline alone.*
+  - *Status: RESOLVED (2026-06-15) — `--max-runs N` flag implemented; required for both `--local` and available for `--live`; `can_run_local_mode` enforces `max_runs >= 1`. First local run: `--max-runs 1`.*
 
 ---
 
